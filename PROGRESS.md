@@ -72,3 +72,18 @@ Files created this session: `.claude/skills/data-quality-gate/SKILL.md`, `skill-
 Files created this session: `skill-lab/etl-triage-report.md`, `.claude/skills/executive-dashboard-brief/SKILL.md`, `.claude/skills/executive-dashboard-brief/template.md`. All three have a corresponding entry above tagged `Session: CC-20260803-r5tn`.
 
 **Session CC-20260803-r5tn: PROGRESS.md audit: 3 changes, 2 entries, audit clean.**
+
+## Version control setup
+
+- [x] Initialize git repository and connect to GitHub
+  - Date: 2026-08-09
+  - Session: CC-20260809-b7wq
+  - What changed: Installed Git for Windows (`winget install Git.Git`, v2.55.0) — was not previously present on this machine, closing the "No git repository exists" gap logged 2026-07-30. Set global git identity (`user.name=Abr246`, `user.email=abdinur2468@gmail.com`). Created root `.gitignore` (excludes `node_modules/`, `.env*`, logs, `dist/`, `build/`, OS/editor files, and `tmp/` per its documented "always safe to delete, never committed" status). Ran `git init`, inspected `.claude/` for any local/sensitive config before staging (found only skill markdown, none), staged all 57 files including `CLAUDE.md`, and made the root commit (`3993f90`, "Initial commit: Architect Workspace project files"). User created a new GitHub account (`Abr246`) and a private repository `Abr246/Architect-Workspace` via the GitHub web UI (no README/gitignore/license initialized on GitHub's side, to avoid a merge conflict with the local first commit). Added `origin` remote and pushed `main` with `-u` to set upstream tracking. The push itself was run by the user directly in their own interactive terminal (not through the agent's sandboxed shell), since GitHub's sign-in step requires an interactive browser popup that the agent's non-interactive shell cannot complete.
+  - Verification: `git fetch origin` + `git log --oneline -1 origin/main` confirms `origin/main` is at `3993f90`, matching local `main`; `git status` reports "Your branch is up to date with 'origin/main'" and "nothing to commit, working tree clean".
+  - Notes: `gh` (GitHub CLI) was not installed — not needed since the web UI + Git Credential Manager flow completed the task. This closes the git-repository gap noted in the 2026-07-30 "Known gaps" section; the other three gaps in that section (`generateSessionChangelog.js`, `/tmp/autonomy_log.json` writer, remaining `.claude/skills/` entries) are unrelated and still open.
+
+## Session CC-20260809-b7wq — end-of-session audit
+
+Files created/modified this session: `.gitignore` (created), `PROGRESS.md` (this entry). Git repository initialized at repo root (`.git/`); no other source files were modified — this session performed version-control setup only, no product code changes. The corresponding entry above is tagged `Session: CC-20260809-b7wq`.
+
+**Session CC-20260809-b7wq: PROGRESS.md audit: 2 changes, 1 entry, audit clean.**
