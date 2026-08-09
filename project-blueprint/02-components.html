@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Components — Pitch AI Blueprint</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="components">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">02 · Components</span>
+    <h1>Every piece of the system</h1>
+    <p class="lede">Each component below traces back to specific words in the idea. Nothing was added because it's "usually part of" a booking platform.</p>
+  </div>
+
+  <div id="fig-layers"></div>
+
+  <div class="card">
+    <h2>Component table</h2>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Component</th><th>Type</th><th>What it does for this project</th><th>Required by</th></tr></thead>
+      <tbody id="components-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div id="fig-bylayer"></div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/blueprint.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  var typeLabel = { entry: "Entry Point", frontend: "Frontend", service: "Service", ai: "AI Layer", worker: "Worker", datastore: "Data Store", thirdparty: "Third Party" };
+
+  document.getElementById("components-tbody").innerHTML = BLUEPRINT.components.map(function (c) {
+    return '<tr id="' + c.id + '" data-searchable="' + Site.escapeHtml(c.name + " " + c.description + " " + c.why) + '">' +
+      "<td><strong>" + c.name + "</strong>" + (c.dayOneCritical ? ' <span class="badge full">day-one critical</span>' : "") + "</td>" +
+      '<td><span class="badge ' + c.type + '">' + typeLabel[c.type] + "</span></td>" +
+      "<td>" + c.description + "</td>" +
+      '<td style="color:var(--muted);">' + c.why + "</td>" +
+    "</tr>";
+  }).join("");
+
+  document.getElementById("fig-layers").innerHTML =
+    Site.figureShell("fig-layers-svg", "Components grouped by layer", false);
+  document.getElementById("fig-bylayer").innerHTML =
+    Site.figureShell("fig-bylayer-chart", "Components by layer", true);
+
+  Site.mount("components");
+
+  Site.registerFigure("fig-layers-svg", "svg", { svg: Site.fullIllustration("components") });
+  Site.renderFigure("fig-layers-svg");
+  Site.renderInterp("fig-layers-svg", "Reading top to bottom follows a request through the system: a human enters at Entry Points, touches a Frontend, hits the Services that do the work, sometimes detours through the AI Layer, and everything durable lands in Data.");
+
+  var layerCounts = {};
+  BLUEPRINT.components.forEach(function (c) { layerCounts[c.layer] = (layerCounts[c.layer] || 0) + 1; });
+  var layerNames = Object.keys(layerCounts);
+  var chartConfig = {
+    type: "bar",
+    data: {
+      labels: layerNames,
+      datasets: [{
+        label: "Components",
+        data: layerNames.map(function (l) { return layerCounts[l]; }),
+        backgroundColor: "#0f766e",
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  };
+  Site.registerFigure("fig-bylayer-chart", "chart", { config: chartConfig });
+  Site.renderFigure("fig-bylayer-chart");
+  Site.renderInterp("fig-bylayer-chart", "This counts the " + BLUEPRINT.components.length + " real components above by layer — Services carries the most weight because that's where the booking guarantee and the AI decisions actually live.");
+</script>
+</body>
+</html>

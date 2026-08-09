@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summary — Pitch AI Blueprint</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="summary">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">01 · Summary</span>
+    <h1>The idea, in one system</h1>
+    <p class="lede">Everything else in this blueprint traces back to the paragraph below. Nothing here was added because it's "usually part of" a booking platform — it's here because a specific word required it.</p>
+  </div>
+
+  <div class="card" data-searchable="idea paragraph">
+    <h2>The Idea</h2>
+    <p style="font-size:1.02rem;">“<span id="idea-text"></span>”</p>
+  </div>
+
+  <div class="card" data-searchable="day one frictionless booking zero double booking">
+    <h2>What it must do well on day one</h2>
+    <p><span class="badge full">Day one</span></p>
+    <p style="font-size:1.05rem;margin-top:10px;"><strong id="dayone-text"></strong></p>
+    <p style="color:var(--muted);">Guaranteed by the <strong>Booking Service</strong>, which locks a slot atomically the instant it's chosen. See <a href="02-components.html">Components</a>.</p>
+  </div>
+
+  <div id="fig-pipeline"></div>
+
+  <div class="card">
+    <h2>How to read this blueprint</h2>
+    <div class="grid cols-3">
+      <div data-searchable="components">
+        <h3>Components</h3>
+        <p style="color:var(--muted);font-size:.9rem;">Every piece of the system, and the exact words that required it.</p>
+      </div>
+      <div data-searchable="architecture data flow">
+        <h3>Architecture &amp; Flow</h3>
+        <p style="color:var(--muted);font-size:.9rem;">The diagram and the 12-step walkthrough of a booking.</p>
+      </div>
+      <div data-searchable="build order assumptions coverage">
+        <h3>Build Order, Assumptions, Coverage</h3>
+        <p style="color:var(--muted);font-size:.9rem;">The plan, what was guessed, and what's honestly out of scope.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/blueprint.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("idea-text").textContent = BLUEPRINT.meta.idea;
+  document.getElementById("dayone-text").textContent = BLUEPRINT.meta.dayOne;
+
+  document.getElementById("fig-pipeline").innerHTML =
+    Site.figureShell("fig-pipeline-svg", "The idea as inputs → pipeline → output", false);
+
+  Site.mount("summary");
+
+  Site.registerFigure("fig-pipeline-svg", "svg", { svg: Site.fullIllustration("summary") });
+  Site.renderFigure("fig-pipeline-svg");
+  Site.renderInterp("fig-pipeline-svg", "Two kinds of people put things into the platform — customers booking a slot, operators managing fields — and only one thing comes out the other side: a confirmed, non-conflicting reservation.");
+</script>
+</body>
+</html>

@@ -1,0 +1,1481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solution Architect Field Guide — Colaberry Enterprise AI Leadership Accelerator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================= COLABERRY DESIGN TOKENS ============================= */
+:root{
+  --cherry:#FB2832; --berry:#367895; --leaf:#5BA63C; --amber:#E8920C;
+  --text:#1A1A1A; --muted:#6B6B6B; --border:#E4E4E3; --surface:#FFFFFF; --surface-alt:#F8F8F7;
+  --font-body:'Roboto',system-ui,-apple-system,Arial,sans-serif;
+  --font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(26,26,26,.06),0 4px 14px rgba(26,26,26,.06);
+}
+:root[data-theme="dark"]{
+  --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+  --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+    --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-body);color:var(--text);background:var(--surface-alt);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:var(--font-body);color:var(--berry);font-weight:700;line-height:1.25;margin:0 0 .5em;}
+h1{font-size:1.9rem;} h2{font-size:1.45rem;margin-top:0;} h3{font-size:1.15rem;} h4{font-size:1rem;color:var(--text);}
+p{margin:.4em 0 .9em;}
+a{color:var(--berry);}
+code,.mono{font-family:var(--font-mono);}
+.muted{color:var(--muted);}
+.text-cherry{color:var(--cherry);} .text-leaf{color:var(--leaf);} .text-amber{color:var(--amber);} .text-berry{color:var(--berry);}
+ul,ol{padding-left:20px;}
+li{margin-bottom:3px;}
+
+/* ---------- Layout shell ---------- */
+#topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;box-shadow:var(--shadow);}
+#topbar .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+#topbar .brand img{height:38px;display:block;}
+#topbar .brand .titles{min-width:0;}
+#topbar .brand .titles .t1{font-weight:700;font-size:1rem;color:var(--berry);white-space:nowrap;}
+#topbar .brand .titles .t2{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+#topbar .searchwrap{flex:1;max-width:520px;position:relative;}
+#searchInput{width:100%;padding:10px 14px 10px 38px;border-radius:999px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;}
+#searchInput:focus{border-color:var(--berry);box-shadow:0 0 0 3px rgba(54,120,149,.15);}
+.searchicon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.95rem;}
+#searchResults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);max-height:420px;overflow:auto;display:none;z-index:60;}
+#searchResults .res-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;}
+#searchResults .res-item:last-child{border-bottom:none;}
+#searchResults .res-item:hover{background:var(--surface-alt);}
+#searchResults .res-item .rk{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--berry);font-weight:700;}
+#searchResults .res-item .rt{font-weight:500;}
+#searchResults .res-item .rs{font-size:.8rem;color:var(--muted);}
+#searchResults .res-empty{padding:14px;color:var(--muted);font-size:.85rem;}
+#topbar .actions{display:flex;align-items:center;gap:8px;}
+.iconbtn{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:.78rem;cursor:pointer;font-family:var(--font-body);white-space:nowrap;}
+.iconbtn:hover{border-color:var(--berry);}
+
+#shell{display:flex;align-items:flex-start;max-width:1500px;margin:0 auto;}
+#sidenav{width:270px;flex:none;position:sticky;top:59px;height:calc(100vh - 59px);overflow-y:auto;padding:18px 10px 60px 18px;border-right:1px solid var(--border);}
+#sidenav .navgroup{margin-bottom:18px;}
+#sidenav .navgroup-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;padding:0 10px;margin-bottom:6px;}
+#sidenav a.navlink{display:block;padding:7px 10px;border-radius:8px;color:var(--text);text-decoration:none;font-size:.86rem;border-left:3px solid transparent;}
+#sidenav a.navlink:hover{background:var(--surface-alt);}
+#sidenav a.navlink.active{background:var(--surface-alt);border-left-color:var(--cherry);color:var(--berry);font-weight:500;}
+#sidenav a.navlink.sub{padding-left:22px;font-size:.8rem;color:var(--muted);}
+
+main{flex:1;min-width:0;padding:26px 34px 100px;}
+section.page-section{max-width:1100px;margin:0 auto 64px;scroll-margin-top:72px;}
+section.page-section:first-of-type{margin-top:6px;}
+.section-kicker{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--cherry);font-weight:700;margin-bottom:6px;}
+.section-lede{font-size:1.02rem;color:var(--muted);max-width:780px;}
+hr.rule{border:none;border-top:1px solid var(--border);margin:28px 0;}
+
+/* ---------- Cards / callouts ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px;}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+.callout{border-radius:var(--radius);padding:14px 16px;margin:16px 0;border:1px solid var(--border);border-left:4px solid var(--berry);background:var(--surface);}
+.callout .co-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:4px;}
+.callout.tip{border-left-color:var(--leaf);} .callout.tip .co-label{color:var(--leaf);}
+.callout.warn{border-left-color:var(--amber);} .callout.warn .co-label{color:var(--amber);}
+.callout.key{border-left-color:var(--cherry);} .callout.key .co-label{color:var(--cherry);}
+.callout.info{border-left-color:var(--berry);} .callout.info .co-label{color:var(--berry);}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.68rem;font-weight:700;font-family:var(--font-mono);letter-spacing:.02em;white-space:nowrap;}
+.badge-must{background:rgba(251,40,50,.12);color:var(--cherry);}
+.badge-should{background:rgba(54,120,149,.14);color:var(--berry);}
+.badge-could{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-hi{background:rgba(251,40,50,.12);color:var(--cherry);}
+.badge-med{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-lo{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-accepted{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-proposed{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-superseded{background:rgba(107,107,107,.16);color:var(--muted);}
+.badge-status-done{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-status-progress{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-status-notstarted{background:rgba(107,107,107,.16);color:var(--muted);}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table.data-table{width:100%;border-collapse:collapse;font-size:.84rem;background:var(--surface);}
+table.data-table thead th{background:var(--berry);color:#fff;text-align:left;padding:10px 12px;font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;}
+table.data-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.data-table tbody tr:nth-child(even){background:var(--surface-alt);}
+table.data-table td.mono, table.data-table th.mono{font-family:var(--font-mono);}
+table.data-table td.num{font-family:var(--font-mono);text-align:right;}
+
+/* ---------- Doc toolbar / control strip ---------- */
+.doc-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 20px;}
+.btn{font-family:var(--font-body);font-size:.82rem;font-weight:500;border-radius:8px;padding:9px 15px;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--cherry);color:#fff;}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--berry);color:var(--berry);}
+.btn-ghost{background:var(--surface-alt);color:var(--text);border-color:var(--border);}
+
+.doc-control-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;font-family:var(--font-mono);font-size:.76rem;}
+.doc-control-strip div{padding:10px 14px;border-right:1px solid var(--border);background:var(--surface);}
+.doc-control-strip div:last-child{border-right:none;}
+.doc-control-strip .dcs-label{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.62rem;margin-bottom:3px;}
+@media(max-width:800px){.doc-control-strip{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- Cover block (used inside standalone docs + print) ---------- */
+.doc-cover{background:linear-gradient(135deg,var(--berry),#22506a);color:#fff;border-radius:var(--radius);padding:46px 40px;margin-bottom:24px;}
+.doc-cover img{height:34px;margin-bottom:22px;filter:brightness(0) invert(1);}
+.doc-cover .dc-kicker{font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;opacity:.85;margin-bottom:8px;}
+.doc-cover h1{color:#fff;font-size:2rem;margin-bottom:10px;}
+.doc-cover .dc-sub{opacity:.9;font-size:.95rem;max-width:640px;}
+.doc-cover .dc-code{margin-top:22px;font-family:var(--font-mono);font-size:.78rem;opacity:.85;}
+
+/* ---------- KPI tiles ---------- */
+.kpi-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);}
+.kpi-tile .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+.kpi-tile .kpi-value{font-family:var(--font-mono);font-size:1.9rem;font-weight:700;color:var(--berry);margin:4px 0 2px;}
+.kpi-tile .kpi-delta{font-size:.78rem;font-family:var(--font-mono);}
+.kpi-tile .kpi-target{font-size:.72rem;color:var(--muted);margin-top:4px;}
+
+/* ---------- Sign-off block ---------- */
+.signoff{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:22px;}
+.signoff div{padding:16px;border-right:1px solid var(--border);background:var(--surface);}
+.signoff div:last-child{border-right:none;}
+.signoff .so-role{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
+.signoff .so-name{font-weight:600;margin:8px 0 26px;}
+.signoff .so-line{border-top:1px solid var(--border);padding-top:6px;font-size:.72rem;color:var(--muted);}
+@media(max-width:800px){.signoff{grid-template-columns:1fr;}}
+
+/* ---------- Diagram / chart frames ---------- */
+.diagram-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;overflow-x:auto;box-shadow:var(--shadow);}
+.diagram-caption{font-size:.78rem;color:var(--muted);margin-top:8px;text-align:center;}
+svg text{font-family:var(--font-body);}
+svg .mono-t{font-family:var(--font-mono);}
+.legend-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:.78rem;color:var(--muted);}
+.legend-swatch{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+/* ---------- ADR cards ---------- */
+.adr-card{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);margin-bottom:22px;box-shadow:var(--shadow);overflow:hidden;}
+.adr-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;background:var(--surface-alt);}
+.adr-head .adr-id{font-family:var(--font-mono);color:var(--muted);font-size:.76rem;}
+.adr-body{padding:16px 18px;}
+.adr-body h4{margin-top:14px;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--berry);}
+.reject-box{border-left:3px solid var(--amber);padding:8px 12px;background:rgba(232,146,12,.06);border-radius:0 8px 8px 0;margin-top:8px;}
+.reject-box .rj-title{font-weight:700;color:var(--amber);font-size:.82rem;}
+.cons-good{color:var(--leaf);} .cons-bad{color:var(--cherry);}
+
+/* ---------- Foundations chips / definitions ---------- */
+.def-term{font-weight:700;color:var(--berry);}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.chip{background:var(--surface-alt);border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:.78rem;font-family:var(--font-mono);}
+.lens-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.lens-item:last-child{border-bottom:none;}
+.lens-num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--berry);color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* ---------- Ask assistant ---------- */
+#askFab{position:fixed;bottom:22px;right:22px;z-index:80;background:var(--cherry);color:#fff;border:none;border-radius:999px;padding:14px 20px;font-family:var(--font-body);font-weight:700;font-size:.86rem;cursor:pointer;box-shadow:0 6px 20px rgba(251,40,50,.35);display:flex;align-items:center;gap:8px;}
+#askPanel{position:fixed;bottom:88px;right:22px;width:390px;max-width:92vw;max-height:70vh;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);z-index:80;display:none;flex-direction:column;overflow:hidden;}
+#askPanel.open{display:flex;}
+#askHead{background:var(--berry);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+#askHead .ah-t{font-weight:700;font-size:.92rem;}
+#askHead .ah-s{font-size:.72rem;opacity:.85;}
+#askClose{background:transparent;border:none;color:#fff;font-size:1.1rem;cursor:pointer;}
+#askBody{flex:1;overflow-y:auto;padding:14px 16px;font-size:.86rem;}
+#askBody .aq{background:var(--surface-alt);border-radius:10px 10px 2px 10px;padding:9px 12px;margin:8px 0 8px auto;max-width:88%;}
+#askBody .aa{background:rgba(54,120,149,.09);border-radius:10px 10px 10px 2px;padding:9px 12px;margin:8px auto 8px 0;max-width:92%;}
+#askBody .aa .aa-link{display:inline-block;margin-top:6px;font-size:.76rem;font-weight:700;}
+#askBody .ask-welcome{color:var(--muted);font-size:.82rem;}
+#askForm{display:flex;border-top:1px solid var(--border);}
+#askInput{flex:1;border:none;padding:12px 14px;font-family:var(--font-body);font-size:.85rem;outline:none;background:var(--surface);color:var(--text);}
+#askSend{background:var(--cherry);color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:700;}
+.ask-suggest{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:.72rem;margin:3px 4px 0 0;cursor:pointer;}
+.ask-suggest:hover{border-color:var(--berry);color:var(--berry);}
+
+/* ---------- Footer ---------- */
+#pagefoot{border-top:1px solid var(--border);padding:26px 34px;text-align:center;color:var(--muted);font-size:.78rem;background:var(--surface);}
+#pagefoot img{height:20px;vertical-align:middle;margin-right:8px;opacity:.85;}
+
+[id]{scroll-margin-top:70px;}
+
+/* ---------- Print (whole guide) ---------- */
+@media print{
+  #topbar,#sidenav,#askFab,#askPanel,.doc-toolbar,#pagefoot{display:none!important;}
+  main{padding:0;} body{background:#fff;}
+  section.page-section{max-width:100%;margin:0 0 24px;page-break-after:always;}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">
+    <img src="data:image/png;base64,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" alt="Colaberry">
+    <div class="titles">
+      <div class="t1">Solution Architect Field Guide</div>
+      <div class="t2">Colaberry Enterprise AI Leadership Accelerator</div>
+    </div>
+  </div>
+  <div class="searchwrap">
+    <span class="searchicon">&#128269;</span>
+    <input id="searchInput" type="text" placeholder="Search the guide — e.g. &quot;fraud scoring latency&quot;, &quot;ADR-002&quot;, &quot;C4 container&quot;" autocomplete="off" oninput="runSearch(this.value)">
+    <div id="searchResults"></div>
+  </div>
+  <div class="actions">
+    <button class="iconbtn" onclick="toggleTheme()" id="themeBtn">Dark mode</button>
+    <button class="iconbtn" onclick="toggleAsk()">Ask the guide</button>
+  </div>
+</div>
+
+<div id="shell">
+  <nav id="sidenav">
+    <div class="navgroup">
+      <div class="navgroup-title">Foundations</div>
+      <a class="navlink" href="#why" onclick="jumpTo('why')">Why Solution Architecture Exists</a>
+      <a class="navlink" href="#twenty" onclick="jumpTo('twenty')">The Vital 20%</a>
+      <a class="navlink" href="#c4model" onclick="jumpTo('c4model')">The C4 Model</a>
+      <a class="navlink" href="#adrmodel" onclick="jumpTo('adrmodel')">Architecture Decision Records</a>
+      <a class="navlink" href="#patterns" onclick="jumpTo('patterns')">Patterns &amp; Fitness Functions</a>
+      <a class="navlink" href="#goodbad" onclick="jumpTo('goodbad')">Good vs. Bad Architecture</a>
+      <a class="navlink" href="#kpis" onclick="jumpTo('kpis')">Architecture KPIs</a>
+      <a class="navlink" href="#lens" onclick="jumpTo('lens')">The Architect's Review Lens</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">The Initiative</div>
+      <a class="navlink" href="#initiative" onclick="jumpTo('initiative')">ClaimSight AI — Overview</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Documents</div>
+      <a class="navlink" href="#doc-sad" onclick="jumpTo('doc-sad')">1. Solution Architecture Doc</a>
+      <a class="navlink" href="#doc-c4" onclick="jumpTo('doc-c4')">2. C4 Diagrams</a>
+      <a class="navlink" href="#doc-adr" onclick="jumpTo('doc-adr')">3. Decision Records (ADRs)</a>
+      <a class="navlink" href="#doc-nfr" onclick="jumpTo('doc-nfr')">4. NFR Specification</a>
+      <a class="navlink" href="#doc-tradeoff" onclick="jumpTo('doc-tradeoff')">5. Trade-off Matrix</a>
+      <a class="navlink" href="#doc-sequence" onclick="jumpTo('doc-sequence')">6. Sequence &amp; Data-Flow</a>
+      <a class="navlink" href="#doc-risk" onclick="jumpTo('doc-risk')">7. Risk Register</a>
+      <a class="navlink" href="#doc-package" onclick="jumpTo('doc-package')">8. Architecture Package</a>
+    </div>
+  </nav>
+  <main id="mainContent"></main>
+</div>
+
+<footer id="pagefoot">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASMAAABSCAYAAAAfKbL9AABJ9klEQVR4nO29CZBc13UleN7f8ue+1L6iCoUCUFgJAiQBcKcoSqQoyZIoS7Kktt2W29N2O9wOt3vaHZ6JmYiJjnHbjnC3PR7LY8tyWBKthRIlUzJFijtBYiMIAsRahdr3qszK/e//Tdz3CySx1IJNIqQ8wWIVWZlZP3++d99dzj2Xcc5RQw011PCzhvSzvoAaaqihBkLNGNVQQw3vC9SMUQ011PC+QM0Y1VBDDe8L1IxRDTXU8L5AzRjVUEMN7wvUjFENNdTwvkDNGNVQQw3vCyi4SVCq5rjplOAzHyrTkYm3sJ/1NdVQQw2/YMZoauEkPzb2bahKEr7kwnSykJ0o39D4Yaxt31UzSjXU8HMAdjO0g7x2+pvcUmaRSaTgexJsn2M2l0WlPIWezB3Y1H4PotG6mlGqoYabGDeFMeqfPcjPTP8IrU2dcLkCRXJg2ioWihUsZM8izHRs7/4kOjI9UEMyJClZM0w11HCT4aYwRoQ3zj3J58rHkGxrA3wJilOFVfaxULbwyvGnwPQSbmn/MHZ0/TI2tm+vGaMaarjJcNMYo5IxzYen92M0fwqp+mbA82BUfBTNOew/+T1kjWGEQhKSWgc2td+F9c13o7P+VsTDGcT0VM041VDD+xw3jTGynDwPqSl2YvAZPjDzGmzJRtVRMTx5EAMjB8GZDDXsQQ27sDwZYVlBd6YP3fV3oqvpFjQlu5AINyMd76wZphpqeB/ipjFG78VcYZjP5Pvx+slv48Dpp1F1qwAcSDwCX3KghDyomg7H96GHolBlhpgeRzLahbpkMzLxFNJyHeJaGyJaMxQ1Aof7qNpFlKwBFO1x2IUywpEENnd9FL0Ne2oGrIYabjBuSmN0HtnCJD989im8cuJrGMuegOkCkqSD8TIY08ElGXrYh6aosGGA+RwMCmSmQVU5FJUeC/i+C0lmoFvheRwWN+F6dHcU3Nr+IP7NvX+CRLipZpBqqOEXnWe0FOqSrexDt/07bFy7m+9/6ykcHnwa87lRlF2AowKdpWA4FqqqAeaGoMkOmOLAd1QU5Aog2QiHZKghH65rQWE6mSowS4HtleH5CSzk5uE5PhD+Wb/b9ycKrs2TilYz1DW8vzwjx81zajBRpZ9+wtioLvD5whROjL6Ot4Z/iMG5t1Cxi/BtRRgYm1vgIRuypcBXJEieI7wiRXUBpoKpMpgMcDI8jgPXi4JLDB/e9QV88YE/vS7vx3ZyXFMz4rVcb4Ercvqm3cQF1+FJRb1pr7+GX4AwzfIWuOfb8HwHjl+Bxx0Ef0EC/S2JKVBlHaqkQ2UaGAPU67wps/lJPlM6i8nCII6c+hFOjD8PaBEwT8GGxjuxUB3FbG4InmeC+xI8nwEKg+sZUKFChgYLHM31LfiND/4ptnd/4Jqvr1Ad5FVvDpypgB1FMpZAVLt5W1oKRpWPTxRguT4szYGu6tjR0XzTvp8afo7CtIJ1jucrA1gwJlF0+mFZeZieAccxRTeuJ3FIPARZcqHIEsJqPdJKD/RQB5LxFp7We6Er18coxcI6UtHt6KjbgrOjbyKcTuL2NZ/EwPiPwVI2PnfL/wrTtDBZOItsZQKma8GgvjduQUYYYT2BukQSvc13Yl3jzmu6FtvLcU3OsNOzT2G09DQkMnY8gh0dXyJjhJsVc8US/vyFfRjKFkCHT0dDGv/Xp+7n3Zlabq2Gn5ExGss/x8fz+5Ezp1A2RmG7BXBZgcwVwJXBZRncsyHJgAcOn7uQyDqxKUx7x2DLHsLzaaTCW9Ca2svXRLYiHmm/JqMUCmWYY0/xobG3MTD1Ejqb1uLhrb+JNzOd+N7Rv8KrnoSP7frfsOeWT7GKneeuy8HIg+M+GFMhyzKi14mbRIaIvtuooOQYkH0bsmwKj/FmhswUFAsuzJwLDx5KIQbFuXmLITXcRMbIdPKcS1Ru4ghrGTYxd4CfLH4Pk+Wz8JwcVK7DgwxXCgMegyox+MyhUlXAAfIk+L4PJknw4EOCjDIY4DO4RgVm9SAmKm/gnN6DruTDvCN+CzLR1ncMAud5ztjqDYRhMxwbewFFbx47Eh9HKpHGbdpnUSqU8PyZv0L0VBqfSf4JF0ZHww0HYxo4FPi+BIlpAFdxM4PRZ8cg8moU6TPGIFHMXUMNN9oY6WpgCPLGMH9r9jt8MPsiXGMWDpOh+DHYig9XdqHZHArnMCQOxiSwsgHuk1cESD7AdIZKBNB9GTEWQpVyS5w4Qjq4rWHKOolC4SxGEzuwqelR3pO+S/zdKzFEhPnqON6e/DHCkQjWt9+JsNbEJH+Bf2DL5zFbnsWJ8f0Yzh7DhuaNXJEbbvgucjwfrscgcS48MP8mplQEoM+XPhf6icNnHLxmi2q4kcbIdrNcU4KO+JHCAX5s8nFMlIbggyHMIwA3YMiu8IDIy6nMVxAbdpEa85HotxErcvhUuWIUAjG4kod8awhmdxhmpwynDeCpOhRUIGotQFFCMDwFVuE4is4YCtUxvrHufkT0K0uOvjn0I8yXRrG+8270Nm4X/89TGOoz3ewTt/8Of/zVQewf+C7WpP93xCK44SBj7HHyIlz4HoNHFvomBplSKkgEBRD6qlmiGm60Z+QHDxmce4m/OPFVmOYMmOvD1DxwXxbuTsU00XAGaHg1j8xRA/U5D1GZUkY2FO5DcSWRR6LT02MepKEqpFdLKIJhsj2K7E4b87dG4XUnwGwfpgIofhFOieNA9buw3AL6Gj7KU5G2Va34yYUBfnzwx0jEmnDfpl9BJhZUrSJK4F21129gt3R9nv/kzJ8hXx5GLJLGjQbtWZc8Q5+oDwr4Te5GBFd/3jW6ud9LDTeJMdK0JDs5/yp/bfIfUTHHAF+DAgeaF4LPPLATFrY8baLzzQKiThGSHIKuhqAwJljQLhkfBSJXRJ4RufQS7UqZIapIaBitoDxQRPYFB6fuKmHmAQ1SQxweC8OXbTBbw+vT30NBKuNe/AYPRy5fcTPNPFdlF3mjhOeP/i1K7gwe2PEH2NL84GXf15qmDXCPmzg8+iOk4l08Fr6xnB/OpcCbIPsODZzd1HzT95gjLt4UpzDtZo88a/iZYsUd0T93kB8c/TtUKgWQI+QyB7InwylXkHmmgs6XZ9E1bYPrKiJKBLJgDnLIlCNinLYddVVAkoLFSwRESuSKxCd8EZYVIi4ydhF3/pBj7FgcJx/hyN0RRcoKwQo58A0db08eQNxvxo6mj/CIfqnhYChjvlTF02//Fd4YfQp3rPsi9qx7FJHI5XNNzbF29KZ34ZnTX0V33XZs734UNxIe8Zk4Je8lEdJ6N70zsWha2UWeUg013AhB/slCPz8w+jjmKnMiN2B7ITi+gkq2gN6/r2LHEzPom+eIQEPSoX6vsKichVQNEUVHTFIRgYwQCaJBA5OjYGoMLBSBHIpC0ROQQ0m02jG0GFHUIYZ1Q1Xc9tUZND9bQNX3UYUK8W+ziqNT38aocfyy1zpjVPDkG3+JQwPfwaaOh/HAti8hpupLvjctBPS07kTVKOLN0R/gRsMDg+WTSqUE1/fh+z9fbgSx2QMDVUMNN8AzOjL9AwwVT0KSiCFEDy1AmWHo/MoC+o6ZQj/I8nwo8RA0E5A9HzpjkDmDJOwcCxjHigaoOhRZF+EZMVMozSAzCZ7iA1Ff5FM0swidS2ixSwg9nseRko7hX3bgswhUlyPctBY6T11ynWcm3+Q/OvTnODO7Hx3xNfjgpi+gJd6x7DHteRrqkxsRZxEsmCXcaFCTLvfcIG8mEtn4uYMo99dQw/U2RocnnuKn5/YDkgafWfApsVyVse3/G0XvgARNdcF8GSFJA3M5ZIXaPCQooNxQ4L77cgi+rIIvfpHd8XwPTAJk2oyuB00WZBVhwJRwCrCi0LkGKDns/dc8LCWMoU9JuK3hEWxqewzt8a4LVvwb557g/3L4f2KiMAhJCmFj791ozqy/5P24Vo4roYCAKN64wlEf70BYb4Tv2rjhoHK+4FxRfkVkWt4XMN15riv179yXqpfnEizoco1JfXFDMHyOpBa6rha34Bo8qYTfec0Fx+JpdfV/I2tbXGEukmr0iq6r4JV4Uo6z970xyhZG+KHZJ1GwHUiSA+YrsHgO675rYEO/j6TjIsQUMDUsqmkhzwd9RqqnweEKJOZCUnV4WgSuRDkiH4x7cCVXnJ8yD6JDLwI4URncBZSKJ8T2PV2Fr6eQLKmQ3QXs/ImF3q13YdvHPo+wHhLPK1JDrmvj2PDT+N7B/wfZ6hQycR23tN+PXZ2/iqh2qTj/ew1R0S5ww6six/KIJdbBUubwTP/fcU1SEJNiUNUIQlocUbUJcb0RqXCK2XaOc5khdJV9dMQxsn0Zvkw8LNC6viY4HiXsU2yuOsfLVh5VJ4uyNSOag4nFqcthhDTK48WQUFvRmu657HWfN0RlKyvIBhJZS18DrpDuIIzsMr+fLRZ5vlTF1EIec+UiypYNxyXpFgnxUAhNsTgaUyk0xmOoSyVYwazypB657pul4Lk8KSvidRcqJV42POTKBubyecyWiii61FfpI6qqiKoKmuiaknFkdA2NmWsf+jBbznMVFB1wqIqClB674DUr+SLOzC/w0ayDgmEjqkvoSsbR1RJDOhlCWLtQ390zKmBwkGMuzyQu1X6fzM7zoek8RnIVVCwL6ZiONckY2utSSDa++7h81eC+SxELFw5DY/L6N7vnzCr3bCeIiEAjx2SkYu++/0uMUcEu8/7CUczmc+C+A5v5kKGg+Q0V218eR0Sy4KoyojwuqEUS5YgkOSjf02pWXPhyBEyNiMqaxCnEIxUh8pYkkVuwiXcUC0HprgMPEzObgxsO2KwFOVeC5zH4kSQiho3W6jzi33odpTs/i1TdpuDCKzZeH/hH/OTs36LKbOzecD/2tn8SnY27kUpe/kSv+jkekTKsf/4I759/CWOF4yi4WUgpD0VbwY9HvoGwRDtQFfkxWbKQiNShIbYea9O38A3xTWiMr7vqD4jY6Q6l9X3AvQZDZNpZrmt1bLa0gHPzP+TD+WOYNcZR8Yuw/eDeUqsGFRIk7kNWdCTUBLpT3bwrswNrk7uQvEib6Vz2FD80+ThcTwJ4FV2xjbi14+M8oi+3+YJfCZ7RYi6bZtpdjKH5ef786WEcHclhfCKHmWI1WDeOCZcxwcWnIoeqqlBjKezoyGBHZz2/u7cJyZbrTwA7b4gO9Y/w589N4fTwPMZzeVQqNlzLAKMCDF2X5ImfmaKjPhpGT1McWzrT/L4tvVjfdHVG6Qf7j/Nnzw6Lg1zmOrZubMAXbt+Cgu/wpKSyl4/388ffOIW3J7JwKw64x+FTBKJp2LuxE//xg7eiCQVuQkNKC7PHDw/wgycHQKc51yK4t6+VP7BlDcjTKhdK/MDQLL575BzeHp9GpWLCYa6IRNSQhoc2rcFvfWAvb0kHBv/F02PYd2wQnDuwJRl3rM3wR3dsQzJ2/Q6EZ4714+DJMTg64LoOdq1twW/s3Y0ljZFtlvHG7D5ULRue4kHzFLhlG71PzyBG9txnCElhcC6LKR2q8HzI0Mggs8UkH56qQJJl4Q2B04cq+LqBsaJHKxKY48I3bXjxCFTO4KgyVEWDL/tQZyviWnioDmGHwXn7HArfeByV3//P3A3LODz1FP7l2N+DKSo+tOlXcF/vbyKVWL6fba44hbfGvsZPzb2Fkj0pbrgtMcQdSl7J0KQIbLpKz4JMeS1PxUwpi1z5NQzMHsXb0U7c2vkw35TciXj43bBmtSCDS0RHyqZRfuxqUXFMHBz/R/7W7CuYMabh+h6450GTZBE2q7SXuCG8I9PnUB0LU9Y8Js1xvDXTjzWZfdjV+Qm+NX3bO+/Bcks4PX0ALuIwYKDqyti+gjqvYF8Hn7w4ZDTfFh70eeTKc/zQmXl89/V+nJmdhOEBvsugwoUDA54cEjlEDw4qzIBCB1XBxP7SHF7rfxs/PNmER2/dzB/Z3IVk9MpCkOUwND3Pnzp8Ej85OYbZfB6yw2DSPZNd+JpK3U7ku4PRZ8WrUB0HC4UyDpWK2D84iRfeOouP7NzI79u6Du2Zd73t1WA0b+KFY0OIhxV4ho5IhmrOgF2p4B/eGuTffukwshULniyJaENEFdQuVXUQUWMUikHXIux8WebsxDhePtUPlQ54FkJ3OoHkLWE2XS7ybx05g++9/ha8chU2k8ElHyqXhOdrmSUkQxLOGyJCKqbhzZEFVKtzsKFjdGYOt3e3kTG6Lvd9JjfP/+Wt0zh5dgG65iCmhPBAZ9sFj7nEGE0VhjBaOhWEVKL6w9B4aB6tg0VENAmWz0WYxWVKQPtQJJ3sDblIwsWjkwQKERzJ5RfyRsEpSj9zTr2z8CQm2kb8sTyYJsONhqDQoRyWIbWniIkENm/QC0CKxqB7BVReeBYz996Dqa4S9p1+HDaK2NPzady38d8hFb2UDGl6C1xfDKn2zz7DXxr8BgrFGZicwksfzHeF8bQ1BZxJMLkHyXEQFf1jsnAjPcmDylXYrothqx/D5WFMtNyHO5s/yhPRFMKXCQeXArV/uF5gmMlNv9IyuGUt8HFrFs+d+xoGsochkzfJaGOr8P0wXBI9YWT8Q5C5DOa6kCUKr6lRWYbCNFSUORyfmcBocRDzHR/lOxsfhhwik6LAkTR4LgmnSHCZQZ/A8he02NZCLE7GPNEWdN4xGp6d5t84eBbPvDGIsm3AhwvJAyRPg6fpCEsaVJnkZGTYHlUZKVT3IHkeXPIgHYb+kRn8zdiC2HBfuOMW3p7SYYYiSMpXrqFUsB2e1FS2r3+I/+0zxzE4NgmDKpoyNUVbYOQFuRo0SRKUEyoy0AKWfBmGTxceQtgFLMXG2VkTQz8+ikMjefzavX18x5rlCyXvhctckVOVuAmyIDLXkK/k+fePnMSXn+mnR4jcIrVFVSTKgEgAI0UEHZ/ctQ6pi7wUchQUrgmyDCOOP2fIly3+jeeP4TtHBuA7ttDn8mVJrHFSjKDDq7e1BQ/t6rvg2ja3xLG5LYV9g/NQJY6pnIP9Q3Pobe/A9cDrA6MYmc5B00JgvofWugT2bOxZ3hidLh9E1SlC81PQ/CrKto+1R6qogwILLiJMhSprULgHlSwINX5K5BU5EBZF1cUbv4gWJ/5DFkaJ2iK4cNFDJgfvz8JbVweWpFPSE7pCXlsCoYoH26LX5AhFotDH83j5K3+Mww/OQJEjuGvdY3hk+x8gql3ecpMhKloF/sbUC3hl8LsoVadR0RPQXQeKx1FWFCSzLprGq2gYNaBUPcQdjoWEjPmWMGaaJLh1Oqo6GVkbMoWbNvDy5E+Qrc7go12/jnBd3ao/DPIhXE7qALQoV58zqrp5TszxwZkB/GDqy5jJj4O2o+vGYVNVkvuIxzQ0RbrRFu1DfbgJISUEj1uoOEWMl6cxVe1HvjQIbjBwRUW+4uJH536AkmfjgaZHIfk2ysLwalB9c7Gpd1nWx+KnSyc7VQY5HEmFK5k4OT3P/+Zfj+Dw2REw7kL3VFSZinSdjr6Oemxpb8WaVAjhcBh0ovmOj1K1isPDE9g/kUVppgCVvEjHQVX28K0jExjJlfDbD92KXR1JlrdtntKuVFmyiqfeHOdf/slBDOcc6LIhVCWYY0ANp9CQSGJrcwYbO1KI6zIkRYJN3QHZMt6cnsPEtIHq/Dwsn/IzEnwuYf+xYcwUK/gPDxn8rvXrWd6yeCq0fOKZdoLMPJiOEJIBt208ffgcvv78OShuFSbX0ZqMYdvaFmxsrYPlMpxYKOC2NVH0JC8tssiix9ERhRFJ1WBJZXz3zTN44vBJ+EYJthJDQ0Mr9vQ0Y00qDt+zMJYrYOfadehOXbhvGuJ17K7NbfzQ8BR8bsBzXTx7ahof3jLJG9LvNqxfDeaKef7CmRysKumHeTCVKPZu6EJ744WH+SXGaLA0DM9ThVdSUWSkBgz0DJqwdS7ccBUKmE8eES1XEkwL2NX0X1xSwYlufb5VSXRxB/1L9BNtQtqMuhu4xpbMRGuJNpKH15WGHNNgK4DFONSWKOTRAsA1lPV6hKqj6Hh7ErGPfxZb93wUjakexC/jEb0XB6aexXND30TZqsLXdYS9PHwvDGlOx32vjWPbGxVoFoPkcMRcuhUMFkzIXgkLCQlza6I4dmcU59ZrsDUdElX9bB8n5o/D9b+CTyi/ydNaPULhlYdG+pz60YJOd8+nlP7qrBEZohNTB/kTc3+H6fkxyCEd3PHgKnmkw43Y3rAd25IPIB1thaKGkbqISZ43p3jZLOBcvh9HZl/GaPUMWLUC3wH2DTwD1ZFQr6wF83QYjMI9RXxOK3V4BB8xubOqEKhLOSbm5qr4+tG3sa9/CDKz4TIdzckoHtu2Bvds7EJrfRrNyctXcHb3tfPHFqbxyokZ/OvxMUwU6XOZRsYu4fhAGX8NDX/4EHhfx9or3hjH+ofxly+fxdxcGQnJJ7VhOEoMvZ3NeKSvEbvW1yOVrENz/MJk8kK1yh+zbczNL+DFkXm88PYYRqbnA+qKauLMxDT+57MKNJnz9Z2tJF6z7HXQYRxUkyNCX31oMoejZwZRsqsIqSruXNuAL9y9BZ3N9YiGQkhqGpsvFbiiqkgtJvNNL8t1eXETkwfMFLiaB9/3cGYwj1crIzC4ATUUwt3r1uIzd2/AhqYU6mIJ8ZxcqcQz8eAzuFit87Z17ehrncCx0SFIqoNz49N4bTCPj++k93b1GJsu4PhoTnh9EnPQkkph98auSx53gTGaLAzyOTMP5ibhSiVYkoqmUQdRw4GqkDGKgElM5IJUlQwRtXww+BRfU85C0kTbA5kmMjrkDQSlbGJXBqEapWiIMxSSSWeahNZksKoNNpyF39ciKk26zODUa1ALEqQ5ByHJgiPr6DRk9IS3o73tnhUX5OHJ5/lL/d/HPM8jSm6qYcD1VXS/mcV9T8+hed6CyqLi70nwQX6ZrTBQkZW8B0pyNJ4y0D1o4NitOl67L465ZhWqrUPSFRzJHUPs7Pfw0c1fQAjJFT8QSuMT8ZHcf/p5tTyjwWw//8G5xzFeGRGnn+vQvQ5jfWY7Hun6Anrq+97N/Vj5S141pbewlN6C9tRGbGvYw18fexYvTD+FvJmF5lXwzPgT2NHwQfguh4kyJJ4WxmUxG7Qkznfrg9p9qPnZcfH/vnYCp4fmEPY5LFXHns5O/MqDW3Dn2jUrfl4NsSRriCWxtWMD7ts4zf/y+RdxdCAJ27YghUI4PjCMvw+F8PsfyfC29OorPW9NzPEvvzCK/MQMVFWBaziQo8147NZm/Mrdm9Fa37jka6UjEYZIRGyebeu68dH17fxr+47j2VMDKNuaCGcGhkfwN894+KNPxpBqii97LZSP4nJEHOTcL+PUBP038egYbuttwx98ZBc6Lrqe+viFB907hohAURytK84Q8l0cG81C5hVEfY7bd2zBf3x4BzpSSVYx310X5w0R4WLZ4K6GDLtrXRM/MjokIgHHqeKFE/O4t8/kqYh+Vd5Rvmryff2zqFRm4Yg8M8Penga01116ry7wxResIsr+LBRfhecpkE0HiamqIDK6MoO8qBlBukbcp5ySsDLim/gVGSR23sEPTv/gBD3/PugspVCBNiV1aDFIHheJZN9wwaaK4uRQPB+cElHxmBBnk3kIGr2qw2EdG1/xBozlTvMnB79OpUTIvg7H5dAcFXc+lcVjX59B9yyDRkRKyUWYyvVqBL6WgKZkoEaawcKNiITrocXr0eRncM9+jse+OoPOIQ9GWIJrU7JWxaHpA9g//ezqPhXK8RDPinvwqMS/iq79bGWaPz38z5jKDUNmIXBbAndc3LHmHnyx7/cvMESEUGj5TZqO1rNHNn6OfaLnV9ES6YRLyVvLxsHJ52BzUuRU4bgWTLdKesTLXhv9WlDEyLTKPmbKVRwfngZRLnwphHt3dOI/fXLXqgzRxdjU1cz++JMP4qHb1sCXJLjEA+MMr5wcxpNvnkbeKKzKlE8tTPKvvfIm+qenxdokRUo1EcH/8oE+/MYHdyxriC6H7o4W9jsf2ot/c9duJIjW4lfBNQknh6fxxIHBFZ8vMTr2PMjUx0e5SeLvOQbWNTfiNx/YeYkhWgl076mCyVwZFnl8KMHzNXS3ZfB7920RhogedyVCgbevb0RjglIt5Kc4OD06i/7JBVwtZgpFvNQ/JOQFdVlDLBTFnX0NqItdWpS4wBjljTw8z4fhEddCAbeA1JghWjspC0+9acK4EMt68emBhASZm/esj0XSY1BxCb5E9TewXYFBO0/+C9SKAg9roQzZ8IIEN3ExUiFwGinEZciKCsWzYR4/jmp2fsnFWC7P82cmv4Ox8jhc3wX3fFA28LYfzmP3K3mEoMCTITy9mBj5ocFXI0A4DugRIXwmszA0JQ4mx8D1OELReqwpNODh7xfROVCC64dgMleMNXp26jkcnz624uYgj5GMEJ1iLnkeyzzDtILNdmTqII7OHITtAY5J4mUK7u1+GB9q/WWkolde0TuP7Y134GNdX0QyGoHtq7B8C6ZDTo4Ch6qfkox4aHk+lThm6B9aF+RdUkLNY3A1Fbt3rsFv796J7vqrJ05G41H82t4tePC2PkRodUkU4th48sAZHJ/Ireo1Xjg9iwOnp+D7Vfgk8BeK4bG9G/HRW9ciHbs6Hk0mHWMP7+rBZ+5ej7iSFoevL5Xx1IlhPPNG/wrrgJL9wUOobcqnfaWG8PDONdjccTX3KmDyc5lDpYqSqyKkq/jE3beiLnZ14n1tmRju39wDj9RaZRn5/DxeOHkOV4tXB0cxMVcVa8SWHGxo60RfU+ayj73AGBluGY5LeR/K20iQDQlNC8QRospCkPdZ5CuKfJHIGbxb4BUIflrdfT3fxU6vT0Vv7nBIcxVRG6CFTZViKUwt/ypcxoXpYMP9cIyg9H85nKn0463Rt2A5qSA3Y0toO13F3S/nRZWJ8lVRhSonqjjBpXAMEuVhZPJ5KQT1IZOXUKdAaY9AbomA6TIQ1tE1reHu54pIFRyolgxT9jE/P4uDsy8gb+WWXYjU02dz4hopomE2uJuXhx5KstniNH918kVU7CoMRUJFddEb34oPdX4O9YlrY0dHQ0m2q/Nu9mDXJ8BDEhxHg8SiIPldDyHBiSpdJuR7L4QCA+UCF9UdVaFgCWxoSuPf3rUDa9uuTZw/JYdZd1Mz++LdG9DZUB8sFIkjt2Dj+2+s7IXMZHP8uWNjMAwDEiXKPQV3dLfjl3Z1I50I8idXg7xT5ZFkGJ+4bR02beyE5BpI+ElU8hX8YGAAecPgK8uuUBRBD5PR1dSMu7pXXwi5+BWZz8TcP9DsPymKdW11uL2rCdGLwrvVIpVIsfs2dSEjh+HRvtNcvHpyEG9PZq+YHTczP8sPnZ2CS+RpaNCYjPs3dKI1c3kxwwuNETdABSzfo5GHHqQKLct3ZUXJcTuf2KS8AvFL3gnDzl/qlUiPLrpNYmoI5aIWuSbMCsqUGp3WmgyHpErgIySFYOXLcMs0QfZSFI15fmjmJRhmCR6vwGMW4jMhfPSpCcSodCwzKLIKT1LhIUhKQ9ah+Apkj/I6pKXkg3LZTkSG1RKB0xGHuy4jSuCqHMLOfhk7DhREpcemKUemiqNTryFXWv60JsVrm7yixS/KEyyHw1Ov4FxhWPC3uOsgLTXgoZ6H0JC8dlXKgl8Rn9b2pgewJXmLCLNdxxVkTDoU3CuQN6F1IQwSrZGwhI/tXI8tzddPOXNTczP72O51gg6guzRSiuHo2Qns6x9ZdnMcHZ0VCWYwyg0qSIYZfmlHF7oyq9PEWgopNcLSksaaU/Xs89u7EI7VoSQxyLKBgYEpvDU6teRzg0ObyMFBGoJC4TvXN6O3tZsVXPOqqLC0gVUmiT3iyRy3d7eibYnNvlqsb8pgfUcDmMXgqpLgPr1ymkKtK8PRiTzODs5DlouC67Q21Yw9G5bOr15gjKibnFIZxORl4vQmXhBVbhhkssDBrVwMtYKkNN1QEaIJpccru58imiM3kyRq/cAo+Y4HLxt4Ry59OT5Uz4Ti+KCIi0I2VMxLXmvBq/DZygKOzZyECR0yXakD3L5vEM0zxApXEPdlaEQpoPYV8vwU0mQianpgZIUx9CUongZMVBCaqAqJRimsQWlNg8VVsFAdbj3oIz1eIcVvlCMeFioGTsydXva9Ct6S74l7TEaJbtdSWCjO8IPTR+H7inieIbnYlrkdW9r2XpdNnpSCeL0pXs/uaf8QdJ2qpxQGqXA8E45DFdGVckbB7yn3FUTqEjZ3tuK+rZ243njolh5sXdcqwmKif+TNCl4+PYZ89fK5o0LZ4M+dGkXWoeSwBtvzsGtdM/rWXFtV6GKs727Alu52GK4FX9KQq3p4/cwIStWFZbwjqkDSTxwxLYytXcGEmKRydQliOtToqKa1G4vI2Lb22t9jJhFnH96+AeEwR4RUVy0H+04OYnhudtUbfL5a4s/1j6Dq+fAUGR4zsaevDWualh7PdYExkgUpyodP7pnH4QjSoohsAyIihWrnJWzew9sLvpE1oXP1KlRthFEK8lK0qKWCQfVvSKYNv0w8CkeUxn2FQ/ZN4SlcjLQcZbOleeTMMgzKj7sMsSxw64kiuEyNtyp0XwKjMdaCeahAEoJvQegp9pNIyjJ4zIXqcaiTRSBbBlHxeEyGUqcLDkq9G8Keo8QXMcU9sX2OY4W3sGAsF6oF7TI+bSj6vsztyHlFTFfG4DAbzNIFM3hn87WNTFoKu9r2sky0R5BZibrhUm+ht7oO/PMhGt1HV1Kxt60OjYkrYyWvBulwnN3T1wYj7CDmUi6EY2BiFtUl+puL1QqGsyVI1Afo2FCiCdzR24SmJWgFV4tMNME+0NuAmBoRAye4xzCWLQlu3uVBx3bwRbmjuB5G47UynCUmcnyqpCKta2gIX5/pEnvXZLC2OQnTcqFLCsZnizgwvHLx6DyG50o4dm4C3KG9HEFzPIJ7Nrcv+5wL/PEwGSNGuY2ATW3LpEgozNBifocqQsEUCDJRomAtDAkXnfiUxPR8mnEfPIMIefScIL/wTsR8Cc4nteklPXpsxYE/lIVkUvNsUIGiKoQYJSRLkLXLJ+dOFo7BtG1ongpDcdBxJo94VSYNW4TIa6PmXqjC6tBJRn+S+reEsRVEzXfZP1SlqHAPkfEyXGrQTcpgmTBUWuSOjE3DBp70NMHOjnJgvDCAnLmAdPjyybnziWtidWsUFy1jjSaKsyiaZWGMfITRmehEd7gbNwrrE5txdOow6pEUlc3VaArQo0QrIif/0Ieqc+xYd+PmwG1rq0c6HYI3FUyWmcuWkSvl0Zq61O0fXMhhKpsNsl/cQyIcR3NdPSbmipxY68KGCuUEyrm4IpksCLkX4bxE07u/CfJktFbE68hAYzyJeDIMK+eK9TI6UxCNty2XKt0srnRKYtNpJCMS0ZAOL625tRLouihPRwx3uBLq41E0XKd2vsbGOrZn43p+bOSQCAEt28czxydwb08312MxpLTlmfCvnR3BbN5ATOawXRl3retER31i9cYopMZEbiNEJ47sw9A0lCMqlFwVXFXEVlV8BkcoOBID1FskOQbuBen1cCrDKtTwEOQS6IqDkOTdZOelWGRsL7aQiMpaiap4sij9+74JjxFrG3BkBTxy+cH3Y+UpGG5gAPUqR/u0BdnjwhsSkiVBKXDRrFJ5nf6C/w6TeFEUV1wz9ZERydH3fPiTC5DidfBpBlxdHFJpAfG8i8ysjfm2ECq0IMwKcuUF9Cwhp80XeSY0vZZyM8tV9kcK46gIN4rEPBz0xNeh/grLvleCjcl10LU4yiYXhtbnCmKrKAcHOWUKOX2saWpEc/1ld+B1QSYWR08qgxMzWXGolAwHM6UStrznMZaT5yE1xcZzJTjUeC0BXhiwigX8+fdfBlepeZgOsove2hULw4nVDQYTru2jaJiiWVVSPGQNG7nK0jPxxAFNB7wvQdc1aOrVyw+zQJlGHK40fSYW0aGHgjr39cDta1vxQkszBicmwWQbQyN5nJ3K4p7Ny1daR6fz/PUzA3DgosqAxkQY9/R1IxNdPql+wZ2IhlKQiU3NFdi+AVmVsRChUyMQBnMUCSHiHInRNAzMs8WpwmTyguilfEg+9TeR4VrMCVEeRpwGS5+35F2RhScPK/C4gpwKJStlm/JFlkgW25xDSRFTO3rJa8yWZnmpUoLEqc/KRcjyUZ+zodguWGjRdSXjychYLVbvAvqPWBzvFU4N8mAMEeqdkgCtZMPPVuA1R4XKAFc4Eh4TgwfmGhksTYbnOsiZyySxF1NqootI5MmW/lzmqtPCGHKP+sR8dOvLu7fXio5kKyJKHAteCYrrw/Y95Mw8z6xgkAItfi7oIPWxOGLajRtA15xOsXXJen5MmRM7sGr7mCzSgfUuyBDR96mFqpClYVoINrMgGTmMmCHRxH3+wtkFdigYu7R6ULqCCQ6c6/kIMx+WTFqmKizHFm0iSz5PEIGDilo0rKMucSHr+0pxPndHsieRsIZI5PqFyd31UWzvbcW5ySlo8FAulXHg3DTu2bxu2ee9OTmKocmymBzNXRedrWn0tTas+PcuyBklwmnoUli0YxgKUJI9DLWF4SoSHCofesFIIsqTWKKXMNjWIvG8mJiTXAvwyLUisyIocQGfaLmEqHA1301GkSKAJIUhO46IOR2rKjwjui5s2gg1GrvkJUq+iZJnCK4MdcjbxOSueuAa0RLOd6fQdJL35rYEhXURi/wP+mBFMptMcJDLYpS/ylvwPSp8C78JzDIQNj1UJSDs+KLRs+wVl3yL9PYpVBPhGi3kJR5HhD7Dr8K1XXguqdBJNHAbNxKkvCDRJF1qh5FsWJw6s1YgZbJ3AnfxXfY93Aj9ofdC01SRvQzWFoO1ZM7IFS0S4gC0Y7C0MDxJXizQOGJ98sUvsVZ9kutY/ZdPBzN34DkU4jlwqehCiX/bRt7yMWct1dcnTr53tl14iXTDlYLSJtSSFdJW6ie8MiSiSbZ7Qz30ZAKmFwLTHLx0agrHzg0suZmnynn+9Klz4I4M5rmij/XOnnY0pVemGlzgGTWGM2gJt+J47oxIZhvcQ64pCo48TEqbWFxIEVBOSIQaQiZkMSUnjD0luR1wuwopFAZI6XHxtckgLXk1i5MlgsdSV3OQOOdWVXhfHsn4cw+yLyG++RZEUpe6iWSsCnAFQZC8Nt0nZQAJrkhikgEKqAi0DmSP8k8kAau/pwnrvaTNIKbyFUmEiSBpiaIJVozCLfmCFyV7DjTLQ5lzRGzqjJaF57YUXApv6TIYfacGR+/yj6NcHTiI3UCJQ5o55y7jRV0XiKSwLjrvQVNZhPrUCgt7MbQ5X7D4aUjOElmVsv+MwmXRdHr5kMQXPVsSJN8T1dNNzQ3obEwKqRiqnl4uc3llV08HLHXdU5GHjJ4qDjmd1pXvYVNddIlnBVVqWu8SPZ4o7NcAfl7KhUjIqgxFvv6z+LbVp3BrZwterJSheBamF8p4tX8K23ou7x2dHJvDmZEKwrIrtNBamhpw77oLpUJWZYySeoJ1xbr5YZxE1A1D8h0MtkQwEVfRVgEMmWQqXGgkCwsJDlWcaFqIEMUg94Mo2jIkyhuR8aHNTJKz4o69Q0S65CKIuBX8IDJMgQ6eZYK5lCui0k4IVV5GOZlAy7ZgIOPFoCsIM5o6QgaRqPYeTFWBblaDkdqckq1kDejvkYdngfFYIHsRxJPBJYheNTJo1OeyKHvikRyHDHdwAb6nQiKrQr1cCuW0NJQk8gBpcMDSyUjyHF3hPS62ySxhuKiaR7IllMeiRmLSO3Nv8MBHUrAkb1RQOiQ6Uq6AZ3R+Q0jX91S+7N8S1ycHhQxxBJJy6KWg8IB5gbFyWBV7Nrbhtx7afeOt5Qo4X+wRZFFOSofX+LnyRbrxolVSRGL0+iKdrGMPbmrlRwfOoezRfbXx2uAsPjKT5WsuEpnLVeb5oTNZWAUTLkmkOCHcv6EVne2rCx0vWUE9qbXC7bO5IipnIw0xvN2jQLWAqhpClRpKaTGQ1pFofKUVQsaH8kg0uJGMh9C4ADcrgF0VWiu0uRmdWPSg99wzCql84jDRAqJfeQ5sqwJmViA5LqrCIEkoSBzO2lb4ay+vrxJBBFEpvCjvasFmEeTiKlQaq8RUkUfyqX/HJW9JBUjcjUInqrD55HXZQfKcJD4orU09P4uLnjRoKBlHYaPqVMGrVVQ1CQvRECTLh0V0AJkjJpQiLw9qTSE9I3qvolp5nsp+8QfCGMJqWkydpaVqWh4KvoUbCcsxULVtuPRZOJbQF1rR06EigxgiLImvSqUqJFVv1DVmSxWeLTtBLyQdPZKEDLHz6R45wd81vOB7XYQ2jSfaD0jWNlv4KWicrwKCJiOY18G6IgHCawEXB/xi4Mrorlx9ZW45UDd/V2NC0FJIO35wNot9py5tESGvaf/AMOBZohKciMSwe+3KuaLzuGRHbE33ojXdLghmZoiOZRevba3HWEZCsupAdYmHQzvWFcYlSCPRZqFGS0f8v3eqU4xUCC34VjUwSiSfIPJMQTmJvlMEIhHDmoyBWYFiBup6FEZRSV/xGKrMQpKHkbjvESQTl39zqhJCLJyERXkj5qPMXOSiHHmauyZxUsMVgmQiJBTtJh4kuygMEPGQSKRMeC7k3gs3enHDMXmx+hU09cKtimbQouxjPA3YGrGrPaFE0BmtX/JGCyKEMLzU7xsk0C+HpJZgTZF6WBKHSXrBHkd/fhK5cumGbfSB4iSmKjOQ6D4IvXM6PFbo2heVSCqNUxDNMJ6rYCF79Q2VK6FsWjg3Py+o7ORbxhWO5nRQ1j8faQfbEmjKREVFV5ZVwTebL5SxUCn+zGcgiOrXOz3jlOe5Ds4ao30WZO/Od4xebzQm4uyeTWuhyGEQRdhzOPYNTWEmdyEJ8vBQFpMLZUDxwLwIbl/fgo7mpqs3RsloA+5u3S0SfSZtGcfFYFMa+zbFAZlKlh5s+h15QEJKlsEmliV11fqkBRTExe/cc4qpbQOyWQW3ioBVAnPK4gt2GcyuwLOLkCsL4E5J9PpQQpEU6agTmWRMqlYZ2e4ORD/4EYRSl68+yKqK5lg3HAkoknwtlfpbIrCEK2zBosoHGULih9BGosqcXQJcU3gpvkz1AhLOCkKzIOEcJNZJPE6RqBHRhm8YKOkuRpo1zMUose/Dc2ykow1oji59CggFRZ9yDEFif6lSct4r8bXJVqhamEy7YKEfn+1HySzgRuFU+RyqHhUKHHicxPNWlhAhUAsPHfSqJGG6bGDgGrq7V8JYdgGj5QJkkWgHEikFdZEgNxNeHFt+flhCR30KekQVEsIkkDVulFCoXD6kux7I+1X+8z7aac+6NrTUZ0TVmOL5tyeL6B+de+f3MwtZ/pPTk5CtgIMYUhO4f0MbWuKr7wOULrepH2zajbp4UkiCVlUVuYiEF7c3YaQuIUh7lHtxSe+Ek4AWiQOQfGhATqTqQuAhUX+Z6PEIXpcvEswcEx4ZJtMELBNwDEieBcml5/mwFKDCyRB6gmNDDYCgrvrPfgotm9Yv/cYYsDm+EbqShGoqKMrA8c44sslYUPkgYyBaF2wo5KEsJg+5bUK2y9A9AypNNaHWFFHRC04c0qxRiPVtlWB7JdhkzMoW3m6WYPC4UG+UPBk9Db2IaEvr2RCDnLYDhbaitL/E8k3JcdYcbUZaI8KSDMdnGC1M4tjcGdwIzBtFfmz6BDQvLNpyiFxK3oRgwy8DMWmKsjYUPtPzXBP7hvIolMs3xAN56dwYzGIJDp0JkoQ1DfUkw3rZx7YnE2irS4uyvqYootR+ajp/Iy4LuWKJl+aqqFpzq3vfizI81xsMNxaNmSh2r68DtCgkyUcxX8SPz05g3gj6HI8MjWFgdBpQHFhMxYYWHZvarqw15RJjlFLDrK91I7ujcTsUrgu3mGRAR1NR/NMDnViI6AEDm/mw4YrFSBKyjifDJgVHbgR6zGKpkvdEHKOABiBIfyIUol4oSjIzUY2gsjgZIZ84Lq4Qn4Wt0gAWD0NxA9/+eB/k+3aJ61twiVRwGfgOOiMNaIjUi9dTuY/pVBgv98YhOyQj6sGkCbUu9YeRkaPrpg42HzKFkEYBzKqQVgc8zxZ6zBJpCJtFcKMIySwLjWjicwxlZDyzrUEwcWk0k8N03NGwGcno0u0GZLxJiJ9Ij2LqwzKeB1EsNiTXilE+3JdhGVX8aOwAbgQOzp3AmbkRuFxDiabBwIe9KO+yHM7/WnyGPkdI8nFweA4nJ6//pj89NMUPnB4TgvIUP5PntrWzDQ1LnLoddWm2qa1FSL04UhV2wcbrpwaQLV5/Q/ny2Un83jdfxtf2jeHM3PLKDYTzhf3r6xWxxX/fQJOkSbh3YxviYZr8Q3xDjtcGJzE2E3jsz5+dhCcKVy5UVcdDfa3oaLoymZYlSyCf7X0UbckWsflohA2Vrl9en8K3drdgPC4j6vqiVYP4R4KOLqa0ApbnweSOSBhT5S3oV7fg8woYNyGTZ8JtSL4pvkiug7SSXdcFtcfSRvWIn2CamAhr+OoHNuDr20L489FncHTiFE8rl9cZTmpx1pxpxB0tt4gEteHS3AkNT99Sj6G6EJhDCt4cRcZRFdcTeG6ifkfeikexsAWX6AQUvlkVcEqk24ZgldNMKVgMBnPx3OY6jKd1WL4JxWVoruvAtsaNy95o6tIWXfHEVCfPbBnPoz4cZw+uuR26FoIliNgyjk/24zunn7/mzVSgLOQiJvJT/Ecnn8dCqSJCYjG3zqHP21xRdpbuGZWUJZ+JrnF61WLVwHffOIb50sqbcrXIlwr8O28NYi5L64eqlw6aEkns6Vm+9eTBTWtQH4oFzGjGsZ/4MSPzuJ7on5zg33zlTZybmMJXnz+GP/n2K9g/uLSawCI1K6iqrUJl/IpwA7yt94KGO/Q1NmNTZ6MoIHBFQTlfxYsnRnBwYIgfGykKm0hRUms6gt09l8rKroQl70dnuA1fWv8R+PFUMN+KjnUm4emdDXhqZzOyFJPLjujG9VwTDreEm+9JNMiRNHIA2w2aSMkrIE8pUA+keI68DxMWt2DBQ4XMmaMI1mxersCQbZyqU/G3D7Th5fVROC7DgYHj+D8P/jVenlhayCwdjrAPdO5Gk96McjiEkuRjLhnD1+5shSmpqCgVRA2qrhEniJJsFomGgMFePK1oIoMrKjHcC4wneXmUI8uRuqVs4/m1YfH+ZUrc04glCXiwfQ9608vP9iExFiI8UvKa5DcvzzJ6FztbdmBz+3ZYno2qL2PGqeArZ57EkdlT17TRk5LMcm6VZytF/szIQbw0dxKerIp5ax4pcNLMOEpJr6iLGygc0JYS3i73EXJdvHp2FD84MoS8cW0J96xX5Dkzx186PY2fvH1WGGX6hCjMvbdvDfo6l5cC2dicwq0bWyHxiGh0zlcdfPfocQxPT14XQzm1sMD/8eUzOD03B42mo1CKwbWRii5d0SLRQNEQvkgGvtZKPF/U3wpqDRSt3Li8WFKKsFQqzh7Y3A5ZiYgWIBqsse/0EL7z+jEslMqBU8EU3NXdju72K9fcWtIYqckwu6fzNvzG+kdEU6mlyKhKDuY0Cf+0uwv/48EeDKbDYK4itnPF98T8K0b5FQpHRGjCYHpUeqWyqywaCS3XA0WZVSbDRAiOHxY5B1upoiKVIdk+jjdF8N8f7cKzW+vE3yXRfos7qDoeYqIrbmnc3tbHHlp3F2I2icRxVCSG5zYn8M3d9SIUKWg2HN9A1XdQ5T4s3xXGxiNPjVtQqBpnV4VXR6V4wwn6fih5faBFwRN3NGIiTp6VJsYb9TRvwMfW3LHijRbsKUEbCCQfVtrr9dEU+3TnvWLah2a58CQfZ+ZG8RcnnsTJhdFrWsay4eL5udfxlVM/QMW0UBGDHxk8mzw/qqipK+otBW0z4lMOjLmkiM/OcmR8/fUzePnNU8gZS0tprISw7eHQuUl8ed8RuEVDnMxUiuxpb8WHdzSv+Px0Is4euWUtorEouC7B1mwcOjGGJw4NYTa/OtnapTBfyvMnDg/g5TNnxMh2wUuTGT65vRUbm5behPwi5dNr92XYhf9eoQJ6PbC7qwnb2qKCx+WpHqZyBezrnwLskjicG6Jh7Nl4de1Ly3qKkq7jsxs/hI913yUIfqpBw+UUuJKDZzfF8H9/eCNe7G4UG0VVLKi2irwkoSjbguvjCm/JWZTapE3oiHYDR3ZFpze1V7guVds8WH4ZhivhK3t68N8+3oejLQnotgTfVUVVL55K4nd2fB4b0yt3hn+u9wPY2rwFXtkCddaR6/gPexvxz7e1wVQA1XaEZ1ai6wRHlTEUGEfF80F1kaIkwbBUlEQMR4bKwmtdHH/2wV6caM5Ad3TRHBuNJfHb6x5Fb/0KEw8Xe+CEx+gR5+h8W8Dy2Nu8HZ/e+BDskALZJY6ShFfO7MOfHv5HnJwbvqqVV6ga/PtDr+HPXvs65vM5eJ6FuBQSYnkOFc1FKw+duMtfn9CqJFqGRCc8NWnGkUjHBOWjtDCNv3ihH8+8NYFS+eoM0gsn5/A3P+rH7HgWhkbVTRvxRAy/vncj1tStPACBsLMtg4d3rodshRD1XTiehycOHsPXDg1gNn91pf7p3Dz/5v5BfOvVkzAqrhgbRdNy7uprwb23XDiL7OcRTXUZdve6enikkupS6kOCY1H7liTaxjZ3NmBd6+o+n4uxLNU2JWssFc3gd3d+mpPG0RNvPysqUxSbmEzBWx3A6U+04u6hOB48lcXewRKitNGZA0dIkYTAXRJmc8GVgJcU9NQHPT1hkpnlwEhCwevrWvH8pgxOtMVRUlSoPkOViIqeJSQ0/uCWT+BjvXeu6jBpTTey39v2Sf5H1TwGp4fBdQVRE/jq3mYcbeH49QMFbJjJI2wbKKsMCVMVUiIlXcwSheyYIolLYdxoNIRnN3XiO7cnMRHWodO4Jpmo/xJ+ve9j2Nu5dVU3mvhFpHdDtTpHXhQkWwGpSIx9fsP9fDQ/he+Nvi56ooh39dy5wxjNl/Hbmx7i93bvRH1kdYnCo+On+bdGXsUTZ14N5FhlCS3xetxftw2PTx4Qs7IU1xBTW4jftByC9h2iQhDXzENC5/jM7h34h/1vIJ8zUSjN4C9+fABnx7rx6Ts38L7WlRUWy9YCH5228OSbI/jxiWOYK5lIqz58JwxJt/GFPZvx8K0XDiFYDrKu4LHdGzA1U8Br/eegqjQgsYpvvngYs3Nj+NU9u3lfdyCPW7AtntSWnnuWNyr81FgW33rtJA4MjIncmoQQyjCxqaMBX9qzHfXJ66/l9H7E1t416Dg2jvEpk5IPQoHApXmKIeCevjVXrWm1Kt5/e7yR/e7WX+JSSMK/nHoBc84CdJOE7XXRsvBMbyte72xC79wkbh0pYceYg4aKgwyRJCkvs0giJLVIalotaTJKehgTGR2H2jS81ZbE2y0Z+IoCJpEmko2458FiIWxs7sMf7vgU9sSX7xS+GJvrevDH6z+B/8P7HsZnB5APMUT9MA6sXYPBBhd3DOaxd2QeHTkD9UpJzPkSbbCeDq5xjCd1HG+tx0/60jjRGofiKpAVA9yhlpgoPr7tg/j02ruR0lcn2CWaiamSRt4R5Z9WeS6HIwn8hx2fQoX5ePbcQSGUThSKE7Nn8V/Lk7h18ggead/Fd9T1IBOOI8xkpBdnZM2aBV6wqhjMTePA6En8ZOoATmfPUaefGDwQSdThd3Z9Gikk8PjE6+COBoO0sBm18Kzwfhabm0Unj8idRbB9rYJfC+3E379wEPmFBUhuBT98YxAHJmZwW28rv3NNI7obo4hoEdFAKcT8fQrjLQzmith/bhZvnh3HyNQcTDiolzxhiPSEi0d234KP7FqPK0FMTTIWzfMv3b0WE56D/sFhEQtQbuu5t4t4c/YVfHh9K7+npxWNjcR6d3k6/O7UitligZdJqG06j5fO5vHawAhmyyXIngVdJuVOGeta2/C799+GrWuWVjD8ecPW9nZ238YW/o25WVFBD6uUQAV60424vfPyel6rwaqbkDozjewPt32G90Y68Q8nnsSwMwmPGI5CnraAiqrgjbZ2HG7zUG9YiJkOGgsuGsuBMJoY/Eiz4kMMkwkVlUgIFS2E+bAMS/Eh+xb0xROZGNn5WAKf6b4H/7bvEexoCsKgnGXxzApTO88jHQ6zD227G15Y4//j0BM4tNCPolSCokmY9X184/YYntqqY+2cgojhIuyYiDgcVU1GNqGJayyEFLiqi6jnoKwCOnlQMU2ETr+96eOIRJefk/VekKMhwiBw4fWt1hjRCOjGulb8l22PIcplfGfoZXBPQchTUSrbeO7U69g3eATNiXr0JtvQEEnT47jLHRS9MsZLczhZmEDOMBF1GKIsjrJqojeTwr/f8hi+uP6D7Af9h4RSQMxPiNCUeDwrZTSCR9BQPg8SKXBSO4+UxEe2haC46/C3r05gfn4OCcVEdszCj8bm8FxER0O6CfVxBWFSWaVUnEuDBS1MLCwgb1YRZRIU1YNOfWVmBKwhis/dthafvG0LiYdd8YanMT19vSn8oa7wv/6hgSOjBXDZhO6XUBgv4J+mFvCvx0bRWRdCW109dPLfSTeL+chVShiarwhJEtekmXIOdIkqyzRRJYKtnXX43Xs3YOfmTpbzDZ6RaOreLwbuWNuBpw+dQ96wA3K0Sl5RNzoar15364qUneojcfalbQ9ha30X/6ezr+LH/a9j3sxB8UMwZAkqJXo9F5MhBVJIw1AiIOh7oh9ncQIt6VgLHhGFLj50mwvJTtlTBddIV0K4tb4XX9j4Aezt6ENn6l1x8dUaovfikd47WDqR5H/15g/wyvBRVA0Dti9DrUiiwnaqkXIlpL9EI4qImEmhIzE2qP3fg+qosGkwpcTQXN+Mf3/Lx/DRztsRVsOXDMFbDqRg6dEEDeIPe6oQd1sNkotUhnRTF/5ozxd4Y7oB/3zqFUzNz8Gh5D418LoOBmcnMTgzLUTwhOQJNfjSbpcZfMdFRKKwmcMJybincw9+b8MHsbU1mHVOJH/ZS4iKGlVOxdj2VfRF+ZIKmcYbUW+fawg1zYSeZA9v6+PpaBT/tE/BqckCoAUDFEgVc2J6HKMzoltZzBELJumRcXahEf9LjqIiVBtkbOhM4TP39OH27m7Ux69NnmRnRzf7z4+G+NcOn8Trbw6CZjpYmgcdFnJ5C8UscFyZDqbpEjt/0djagrpAHjtVYGUojodkRMGdt/Tgc7f3YeNi1Wg1hkhM8hDVNBmcWqWWaPRdLYIeb0rckQoFdVDe+Gbl86gy0mYnwq8JX4qgLqnjjq6rnXIS4Kpk5u5oXc82ptv4J9fsxBNn9+Hg5AkMV7Nilhi57WKqB32QYrDcYk+X+JCp9CCLxlLJCgT9iWEMWUF9PIEtjZ34UNcOPLruDrRcR5GoPU0b2Zq9DfypxoN4cvAAzs6cQ8EuosJoOpsvPJWQT93gxMwOWjaYRPPqXUQVBa3RRtzRtQW/tfF+7GjYwAqex5Pylek/KDTbXdEX5SdCYvzQlaI13sB+Z+vH+W3Nm/D1Ey/g8MhpTBl5+CpJf/gi/GOuBY1yU1Sh9D3BByHdO10NY1u6Ex/u3o5f6bkHrXVNLOsGY3UEA0vRYWu0uEjFUxbTQpaTUXLIi9Wor8aDKjNIWjBaihCLZdiD2zPoaVnLn3zjJF48cRpT1Soch/rYJCiuK8bg0Ew8h3hmtAx9mrARgUZtPZmkmMX+8W3rsL796ufDXYwN7a3sP6WS/OX2dvzozdMYmJ6HQTMXSP9bcoX4HrUJCZWuxfAzRA3TkidE+yKajC09afzSri24bW0XkokrOxxlWUNElUiiCrYfvqzU7ZVA0T2ENNFbILh1yo1pTbsE2WqFHzszhmLZQ4jIy76N27rbsb2n65reEFtW9GwVmDMrfDY7i0NzQzgy048zs4MY9Bcwa5ehFMlqUsJWqNiK0mOI1AupMheLokdNoTNF8+J7sKe5F5vq16Axtryk5bViMjfPX507gf2zpzFemMdIdhqT5bxoQYHCoMkqYrKGjlgavdEW7GrahJ0tvViTbED9Yi7mavDK4DF+sjhDwiBiOuyutj5srW+/6tfLlgv8SPYs9s2ew7nsBM7Oj2OmWkCVVDG5L9og4qEo1kbrsS3Tjp2tm7CroQfrGy5NJJ+dHec/mXkbIWLAMwl1mQY8WLcJmejSp/1cpcgPnJmFYVZgSCYl23FvTxeS0QtDKaOY58NzVRyfzuHY+CSGZouYKZdQNC0h6xtiMqKajIZUGC1N9bhtTSv62uqxqfX6jTu6HGbmc/zsdA5Hx7I4O1vEXKGMmeyC0JwiLSQiqeqqgngshJ7GOLobE+hrbMAtazuQSVx5uEg4OjbNz0zMQ6UKrRxFTyaCW3uvfg28MjLMR8fz4vCwJQWbW+K4pevqX2+1ODkxz//rt36IickKmOwiFIniTz5zL/ZuWPezNUbvRc4o87xZRskuY76Yx5CZR5mUH8+PtQEXi69Oj2NNohFpPYaEFkZr/KdfhaDqiOEaKNomSrYB06WMTqCFE4GMuBZFMhRGXfzGGsfrgelKjhcqBRRtAxVy/al5VVYRVnWkQ1GklYiozN2ov29YBR4Orazkt1Aq86JlomS5cEiZgUJiX0FY1aCHJESjwkP+qd/vmUKJV60iSlXiwQVTchWSLpaBiBZCOE7TLa5uAu3PI77+0nH+3595CbobjBjbvX0z/sujt6I5dW336OrVwC+DTDjGMuFFSdjVKwf8TJAKR1kKUdy4eRY/PTRHM6w5uvoqBg0MvNo5XRcj79rcl3SYtsnT2vKvmY7HWDp+qWTwzxrBCKPVFyN+kTFbyvPXzg5CtWXQeEHKN97d23TNhui6G6Mabg5cL0NESClazWP4BcJbA7M4OTkPpjBIdgntXeuwpfPaEtfn8dNLv9dQQw03NSqVAn/h7CxKVRsKJfVDcdzR3YQNLQFx9FpRM0Y11FDDqnA2m8XhkSnRgUAV52Qiibt6V+4TXC1qxqiGGmpYFV49NYlqbj4YjMAUbG+vw9rmq2dcX4yaMaqhhhpWxMB8lr/YvwATBgwZiIWiuL+vGZnrWGWsJbBrqKGGFXF4eAoTY3kxjtt3JfS2prG96/qWzGvGqIYaalgW2UqVP3d0AL5XEXLRIabink1tSIWvz0Tc86iFaTXUUMOyODQ2h6GpGdg6qaCqaG2L4I61rQjr15esXPOMaqihhmWRkDl+ec92ODRG25Kwtrsevc3Xp5x/w9pBaqihhhquFrUwrYYaanhfoGaMaqihhvcFasaohhpqeF+gZoxqqKEGvB/w/wN2eGxCoe1qJAAAAABJRU5ErkJggg==" alt="Colaberry">
+  Colaberry Enterprise AI Leadership Accelerator — Solution Architect Field Guide — Generated by Claude Code — 2026-08-05
+</footer>
+
+<button id="askFab" onclick="toggleAsk()">&#128172; Ask the guide</button>
+<div id="askPanel">
+  <div id="askHead">
+    <div><div class="ah-t">Ask the Field Guide</div><div class="ah-s">Offline Q&amp;A — answers from this guide only</div></div>
+    <button id="askClose" onclick="toggleAsk()">&#10005;</button>
+  </div>
+  <div id="askBody">
+    <div class="ask-welcome">Ask about ClaimSight AI's architecture, an ADR, an NFR target, or a foundations concept. Try:</div>
+    <div style="margin-top:8px;">
+      <span class="ask-suggest" onclick="askSuggested(this)">Why event-driven microservices over a monolith?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What's the fraud scoring latency target?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What is a fitness function?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">Why Kafka over RabbitMQ?</span>
+    </div>
+  </div>
+  <form id="askForm" onsubmit="return handleAsk(event)">
+    <input id="askInput" type="text" placeholder="Type a question...">
+    <button id="askSend" type="submit">Ask</button>
+  </form>
+</div>
+
+<script id="deepdive-metadata" type="application/json">
+{
+  "guide_type": "Solution Architect Field Guide",
+  "curriculum_type": "deep_dive",
+  "week": 2,
+  "discipline": "Solution Architect",
+  "student_id": "abdinur2468",
+  "project_id": "claimsight-ai-claims-triage-fraud-platform",
+  "repository": "colaberry-enterprise-ai-leadership-accelerator",
+  "generated_by": "Claude Code",
+  "generated_date": "2026-08-05",
+  "version": "1.0.0",
+  "build_number": "1"
+}
+</script>
+
+<script>
+/* ==================================================================================================
+   GENERIC HELPERS
+   ================================================================================================== */
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function pbadge(p){ const cls = p==='Must'?'badge-must':p==='Should'?'badge-should':'badge-could'; return `<span class="badge ${cls}">${esc(p)}</span>`; }
+function levelBadge(l){ const cls = l==='High'?'badge-hi':l==='Medium'?'badge-med':'badge-lo'; return `<span class="badge ${cls}">${esc(l)}</span>`; }
+function adrBadge(s){ const cls = s==='Accepted'?'badge-accepted':s==='Proposed'?'badge-proposed':'badge-superseded'; return `<span class="badge ${cls}">${esc(s)}</span>`; }
+function svgWrap(inner,w,h){ return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;height:auto;display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--muted)"/></marker><marker id="arrowhead2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--berry)"/></marker></defs>${inner}</svg>`; }
+function kpiTile(label,value,target,delta,good){
+  return `<div class="kpi-tile"><div class="kpi-label">${esc(label)}</div><div class="kpi-value">${esc(value)}</div><div class="kpi-delta" style="color:${good?'var(--leaf)':'var(--cherry)'}">${esc(delta||'')}</div><div class="kpi-target">${esc(target||'')}</div></div>`;
+}
+
+/* ---------- C4-style box / arrow SVG builders ---------- */
+function c4box(x,y,w,h,title,sub,kind){
+  const colorMap={person:'var(--leaf)',system:'var(--berry)',external:'var(--muted)',container:'var(--berry)',db:'var(--amber)',component:'var(--berry)',bus:'var(--cherry)'};
+  const c = colorMap[kind]||'var(--berry)';
+  const rx = kind==='person'?16:8;
+  let s = `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${c}" fill-opacity="0.12" stroke="${c}" stroke-width="1.5"/>`;
+  s += `<text x="${x+w/2}" y="${y+20}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${c}">${esc(title)}</text>`;
+  const subs = sub||[];
+  subs.forEach((line,i)=>{ s += `<text x="${x+w/2}" y="${y+37+i*13}" text-anchor="middle" font-size="9" fill="var(--text)">${esc(line)}</text>`; });
+  s += `</g>`;
+  return s;
+}
+function c4arrow(x1,y1,x2,y2,label,dashed){
+  const dash = dashed?' stroke-dasharray="4,3"':'';
+  let s = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#arrowhead)"${dash}/>`;
+  if(label){
+    const mx=(x1+x2)/2, my=(y1+y2)/2;
+    s += `<rect x="${mx-label.length*2.7}" y="${my-14}" width="${label.length*5.4}" height="13" fill="var(--surface)" opacity="0.9"/>`;
+    s += `<text x="${mx}" y="${my-4}" text-anchor="middle" font-size="8.6" fill="var(--muted)">${esc(label)}</text>`;
+  }
+  return s;
+}
+function legend(items){
+  return `<div class="legend-row">${items.map(i=>`<span><span class="legend-swatch" style="background:${i[1]}"></span>${esc(i[0])}</span>`).join('')}</div>`;
+}
+
+/* ---------- Chart builders ---------- */
+function renderBarChart(data,w,h,color,unit,targetLabel){
+  const max = Math.max(...data.map(d=>Math.max(d.value,d.target||0)))*1.2;
+  const padL=42,padB=40,padT=18,padR=16;
+  const cw=w-padL-padR, ch=h-padT-padB;
+  const gap = cw/data.length; const bw = gap*0.5;
+  let grid='',bars='',labels='';
+  for(let i=0;i<=4;i++){
+    const gy = padT + ch - (ch*i/4);
+    grid += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="var(--border)" stroke-width="1"/><text x="${padL-8}" y="${gy+3}" text-anchor="end" font-size="9" fill="var(--muted)">${Math.round(max*i/4)}</text>`;
+  }
+  data.forEach((d,i)=>{
+    const x = padL + gap*i + (gap-bw)/2;
+    const bh = ch*(d.value/max); const y = padT+ch-bh;
+    bars += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="3" fill="${color}"/><text x="${x+bw/2}" y="${y-6}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--text)">${d.value}${unit||''}</text>`;
+    if(d.target){ const ty = padT+ch-(ch*(d.target/max)); bars += `<line x1="${x-5}" y1="${ty}" x2="${x+bw+5}" y2="${ty}" stroke="var(--cherry)" stroke-width="2" stroke-dasharray="3,2"/>`; }
+    labels += `<text x="${x+bw/2}" y="${padT+ch+16}" text-anchor="middle" font-size="9.3" fill="var(--muted)">${esc(d.label)}</text>`;
+  });
+  const legendHtml = targetLabel?`<text x="${w-padR}" y="${padT-4}" text-anchor="end" font-size="8.6" fill="var(--cherry)">- - ${esc(targetLabel)}</text>`:'';
+  return svgWrap(`${grid}${bars}${labels}${legendHtml}`, w, h);
+}
+function renderHBarChart(data,w,h,unit){
+  const max = Math.max(...data.map(d=>d.value))*1.15;
+  const padL=170,padR=50,padT=10,padB=10;
+  const cw=w-padL-padR; const rowH=(h-padT-padB)/data.length;
+  let bars='';
+  data.forEach((d,i)=>{
+    const y = padT + i*rowH + rowH*0.22; const bh = rowH*0.56;
+    const bw = cw*(d.value/max);
+    bars += `<text x="${padL-10}" y="${y+bh/2+4}" text-anchor="end" font-size="10" fill="var(--text)">${esc(d.label)}</text>`;
+    bars += `<rect x="${padL}" y="${y}" width="${bw}" height="${bh}" rx="3" fill="${d.color||'var(--berry)'}"/>`;
+    bars += `<text x="${padL+bw+8}" y="${y+bh/2+4}" font-size="10.5" font-weight="700" fill="var(--text)">${d.value}${unit||''}</text>`;
+  });
+  return svgWrap(bars, w, h);
+}
+function renderDonut(data,w,h){
+  const total = data.reduce((s,d)=>s+d.value,0);
+  const cx=w*0.30, cy=h/2, r=Math.min(w*0.24,h*0.38), ir=r*0.56;
+  let a0=-Math.PI/2, paths='', legendG='';
+  data.forEach((d,i)=>{
+    const a1=a0+(d.value/total)*Math.PI*2;
+    const large=(a1-a0)>Math.PI?1:0;
+    const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0);
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    const xi0=cx+ir*Math.cos(a1), yi0=cy+ir*Math.sin(a1);
+    const xi1=cx+ir*Math.cos(a0), yi1=cy+ir*Math.sin(a0);
+    paths += `<path d="M${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 ${large} 1 ${x1.toFixed(1)},${y1.toFixed(1)} L${xi0.toFixed(1)},${yi0.toFixed(1)} A${ir},${ir} 0 ${large} 0 ${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${d.color}"/>`;
+    legendG += `<g transform="translate(${w*0.58},${h/2-data.length*11+i*22})"><rect width="11" height="11" rx="2" fill="${d.color}"/><text x="18" y="10" font-size="10.3" fill="var(--text)">${esc(d.label)} — ${d.value}</text></g>`;
+    a0=a1;
+  });
+  paths += `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">${total}</text>`;
+  return svgWrap(`${paths}${legendG}`, w, h);
+}
+function renderRiskHeatmap(risks,w,h){
+  const pad=44, botPad=34;
+  const gridW=w-pad-16, gridH=h-16-botPad;
+  const cellW=gridW/5, cellH=gridH/5;
+  let cells='', dots='', axis='';
+  for(let l=1;l<=5;l++){
+    for(let im=1;im<=5;im++){
+      const score=l*im;
+      const color = score>=15?'rgba(251,40,50,.16)':score>=8?'rgba(232,146,12,.16)':'rgba(91,166,60,.14)';
+      const x = pad+(l-1)*cellW, y = 16+gridH-(im)*cellH;
+      cells += `<rect x="${x}" y="${y}" width="${cellW-2}" height="${cellH-2}" fill="${color}"/>`;
+    }
+  }
+  for(let i=1;i<=5;i++){
+    axis += `<text x="${pad+(i-1)*cellW+cellW/2}" y="${16+gridH+16}" text-anchor="middle" font-size="9" fill="var(--muted)">${i}</text>`;
+    axis += `<text x="${pad-8}" y="${16+gridH-(i)*cellH+cellH/2+3}" text-anchor="end" font-size="9" fill="var(--muted)">${i}</text>`;
+  }
+  axis += `<text x="${pad+2.5*cellW}" y="${h}" text-anchor="middle" font-size="10" fill="var(--text)" font-weight="700">Likelihood &#8594;</text>`;
+  axis += `<text x="12" y="${16+gridH/2}" text-anchor="middle" font-size="10" fill="var(--text)" font-weight="700" transform="rotate(-90 12 ${16+gridH/2})">Impact &#8594;</text>`;
+  const seen={};
+  risks.forEach(r=>{
+    const key=r.likelihood+'-'+r.impact;
+    const idx = seen[key]||0; seen[key]=idx+1;
+    const cx = pad+(r.likelihood-1)*cellW+cellW/2 + (idx*11-5*Math.min(idx,1));
+    const cy = 16+gridH-(r.impact)*cellH+cellH/2;
+    dots += `<circle cx="${cx}" cy="${cy}" r="10" fill="var(--berry)" stroke="var(--surface)" stroke-width="1.5"/><text x="${cx}" y="${cy+3}" text-anchor="middle" font-size="8" fill="#fff" font-weight="700">${r.id.replace('RISK-','')}</text>`;
+  });
+  return svgWrap(`${cells}${dots}${axis}`, w, h);
+}
+function seqLifelines(actors,w,h,topY){
+  const gap = (w-80)/(actors.length-1);
+  let heads='', lines='';
+  actors.forEach((a,i)=>{
+    const x = 40+i*gap;
+    heads += `<rect x="${x-56}" y="${topY}" width="112" height="30" rx="6" fill="var(--berry)" fill-opacity="0.14" stroke="var(--berry)" stroke-width="1.2"/><text x="${x}" y="${topY+19}" text-anchor="middle" font-size="9.4" font-weight="700" fill="var(--berry)">${esc(a)}</text>`;
+    lines += `<line x1="${x}" y1="${topY+30}" x2="${x}" y2="${h-14}" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="3,3"/>`;
+  });
+  return {heads,lines,x:i=>40+i*gap};
+}
+function seqMsg(y,x1,x2,label,dashed,color){
+  const dash = dashed?' stroke-dasharray="4,3"':'';
+  const marker = color==='cherry' ? 'url(#arrowhead2)' : 'url(#arrowhead)';
+  const strokeColor = color==='cherry'?'var(--cherry)':'var(--text)';
+  return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${strokeColor}" stroke-width="1.3" marker-end="${marker}"${dash}/><text x="${(x1+x2)/2}" y="${y-5}" text-anchor="middle" font-size="8.6" fill="var(--text)">${esc(label)}</text>`;
+}
+
+/* ==================================================================================================
+   DATA LAYER — ClaimSight AI (Meridian Mutual Insurance)
+   ================================================================================================== */
+const DOC_META = {
+  sad:      {code:'CSA-SAD-01',  title:'Solution Architecture Document — ClaimSight AI', version:'1.0', status:'Approved for Build', owner:'AI Solution Architect', date:'2026-08-04', desc:'The single reference architecture for the ClaimSight AI claims intake, triage, and fraud-risk platform.'},
+  c4:       {code:'CSA-C4-01',   title:'C4 Model Diagrams — ClaimSight AI', version:'1.1', status:'Approved', owner:'AI Solution Architect', date:'2026-08-03', desc:'System Context, Container, and Component views per the C4 model.'},
+  adr:      {code:'CSA-ADR-SET-01', title:'Architecture Decision Records — ClaimSight AI', version:'1.0', status:'Approved', owner:'Architecture Review Board', date:'2026-08-04', desc:'The six load-bearing architecture decisions for ClaimSight AI, with rejected alternatives.'},
+  nfr:      {code:'CSA-NFR-01',  title:'Non-Functional Requirements Specification — ClaimSight AI', version:'1.2', status:'Approved', owner:'AI Solution Architect', date:'2026-08-02', desc:'Measurable quality-attribute targets the architecture is contractually held to.'},
+  tradeoff: {code:'CSA-TDM-01',  title:'Technology Selection &amp; Trade-off Matrix — ClaimSight AI', version:'1.0', status:'Approved', owner:'AI Solution Architect', date:'2026-07-31', desc:'Weighted scoring of the claims event-backbone technology options.'},
+  sequence: {code:'CSA-SEQ-01',  title:'Sequence &amp; Data-Flow Diagrams — ClaimSight AI', version:'1.0', status:'Approved', owner:'AI Solution Architect', date:'2026-08-03', desc:'Runtime interaction and data-flow views for the two highest-risk journeys.'},
+  risk:     {code:'CSA-RISK-01', title:'Architecture Risk Register — ClaimSight AI', version:'1.3', status:'Living Document', owner:'AI Solution Architect', date:'2026-08-05', desc:'Architecture-level risks, scored, mitigated, and owned.'},
+  package:  {code:'CSA-PKG-01',  title:'Architecture Package Summary — ClaimSight AI', version:'1.0', status:'Ready for Sign-off', owner:'AI Solution Architect', date:'2026-08-05', desc:'One-page executive package for architecture sign-off.'}
+};
+
+const NFR = [
+  {id:'NFR-01',cat:'Availability',pri:'Must',target:'99.9% monthly uptime, FNOL intake (24/7/365)',rationale:'Losses occur at any hour; intake must never be the reason a policyholder cannot report a claim.'},
+  {id:'NFR-02',cat:'Availability',pri:'Must',target:'99.5% monthly uptime, Adjuster Workbench (06:00–22:00 ET, 7 days)',rationale:'Workbench downtime outside operating hours has materially lower business impact.'},
+  {id:'NFR-03',cat:'Latency',pri:'Must',target:'Fraud risk score returned ≤ 2.0s p95, ≤ 4.0s p99 from claim submission',rationale:'Score must be present before the adjuster workbench renders the claim, or triage stalls.'},
+  {id:'NFR-04',cat:'Latency',pri:'Should',target:'Triage routing decision ≤ 5.0s p95 from ClaimReceived event',rationale:'Keeps the adjuster queue populated in near-real time during normal volume.'},
+  {id:'NFR-05',cat:'Throughput',pri:'Must',target:'Sustain 500 claims/minute for 6+ hours during a declared CAT (catastrophe) event',rationale:'A single hurricane landfall can generate more claims in a day than a normal month.'},
+  {id:'NFR-06',cat:'Scalability',pri:'Must',target:'Auto-scale ingestion &amp; triage tiers to 10× steady-state within 15 minutes of CAT declaration',rationale:'Manual scaling cannot react fast enough to storm-driven volume spikes.'},
+  {id:'NFR-07',cat:'Durability',pri:'Must',target:'Zero claim data loss; at-least-once event delivery with idempotent consumers',rationale:'A dropped claim event is a dropped claim — an unacceptable and regulator-visible failure.'},
+  {id:'NFR-08',cat:'Security',pri:'Must',target:'AES-256 at rest, TLS 1.2+ in transit for all claim, PII, and payment data',rationale:'Claims data includes PII, medical, and financial detail subject to state DOI and SOC 2 obligations.'},
+  {id:'NFR-09',cat:'Compliance',pri:'Must',target:'SOC 2 Type II control coverage; state DOI data-handling requirements for all 9 licensed states',rationale:'Non-negotiable regulatory floor for a licensed P&amp;C carrier.'},
+  {id:'NFR-10',cat:'Auditability',pri:'Must',target:'100% of AI recommendations and adjuster overrides logged, retained 7 years',rationale:'State market-conduct exams require a reconstructable decision trail for every claim.'},
+  {id:'NFR-11',cat:'Disaster Recovery',pri:'Must',target:'RPO ≤ 15 min / RTO ≤ 2 hrs for claims-critical services; RPO ≤ 24 hrs / RTO ≤ 24 hrs for analytics tier',rationale:'Claims-critical services carry regulatory and customer-harm exposure; analytics does not.'},
+  {id:'NFR-12',cat:'Maintainability',pri:'Should',target:'Each service independently deployable; &lt; 1 business day for a new engineer to ship a reviewed change',rationale:'Team topology (4 squads) requires deploy independence to avoid release-train bottlenecks.'},
+  {id:'NFR-13',cat:'Cost',pri:'Should',target:'Fully-loaded infrastructure cost ≤ $0.85 per claim processed at steady-state volume',rationale:'Architecture must not erode the projected loss-adjustment-expense savings that fund the business case.'},
+  {id:'NFR-14',cat:'Interoperability',pri:'Must',target:'ClaimCore legacy sync: nightly full batch + near-real-time webhook subset (policy status, coverage limits) &lt; 5 min lag',rationale:'ClaimCore is not being replaced in this initiative; ClaimSight must tolerate its batch-oriented nature.'}
+];
+
+const ADR = [
+  {id:'ADR-001',title:'Adopt Event-Driven Microservices over a Modular Monolith',status:'Accepted',
+   context:"Claims volume is highly bursty — steady state is ~40 claims/min, but a single CAT event (hurricane, hailstorm) can push sustained volume to 500+ claims/min for hours (NFR-05, NFR-06). Four squads (Intake, Triage/Fraud, Adjuster Experience, Platform/Integration) need to ship and deploy independently without a shared release train. Fraud scoring and triage have materially different scaling and latency profiles than document intelligence.",
+   decision:"Build ClaimSight AI as event-driven microservices communicating over a durable event bus (see ADR-002), with each service independently deployable and independently scalable. A claim's lifecycle is modeled as a sequence of published domain events (ClaimReceived, ClaimTriaged, FraudScoreComputed, SIUReferralCreated) rather than synchronous service-to-service calls for the core pipeline.",
+   good:["Triage and fraud-scoring tiers scale independently of each other and of the adjuster-facing UI tier during CAT surges.","Each squad owns and deploys its service boundary without coordinating a shared release.","Event log gives a natural, replayable audit trail (supports NFR-10)."],
+   bad:["Eventual consistency: the adjuster workbench may briefly show a claim without a fraud score attached; UI must handle a pending state.","Higher operational complexity than a monolith — requires schema governance, consumer-group monitoring, and dead-letter handling per NFR/Failure-First requirements.","Distributed tracing (correlation IDs) becomes mandatory, not optional, to debug a single claim's path."],
+   rejected:[{opt:'Modular monolith (single deployable, internal module boundaries)',reason:'Cannot scale fraud scoring independently from triage or the UI tier; a CAT-driven traffic spike would force scaling the entire monolith, wasting cost and increasing blast radius of any single-module defect.'},
+             {opt:'Fully synchronous microservices (REST-to-REST, no event bus)',reason:'Creates tight temporal coupling — if the fraud scoring service is slow or down, claim intake itself would degrade. Violates the failure-isolation goal and NFR-01 (99.9% intake availability) since intake would inherit fraud-scoring downtime.'}]},
+  {id:'ADR-002',title:'Apache Kafka as the Claims Event Backbone',status:'Accepted',
+   context:"The event-driven architecture (ADR-001) needs a durable, ordered, replayable message backbone. Candidates evaluated: Apache Kafka (self-managed on the existing Kubernetes platform), RabbitMQ, and AWS SNS+SQS. Full scoring is in the Trade-off Matrix (Document 5).",
+   decision:"Adopt Apache Kafka, deployed as a managed cluster (Confluent Cloud) fronting all core claim domain events. Topics are partitioned by claim ID to preserve per-claim ordering; retention is set to 400 days on claim-lifecycle topics to double as a partial audit/replay source.",
+   good:["Native replay capability supports both the 7-year audit requirement (NFR-10, replay to rebuild state) and safe reprocessing after a bug fix.","Partition-level ordering guarantees a single claim's events are processed in sequence, which the triage and fraud pipelines depend on.","Proven throughput headroom well above the 500 claims/min CAT target (NFR-05), with room for Meridian's planned multi-state expansion."],
+   bad:["Higher operational learning curve for squads with no prior Kafka experience — mitigated by using Confluent Cloud (managed) rather than self-hosting brokers.","Consumer-group rebalancing during a rolling deploy can cause brief processing pauses; mitigated with cooperative-sticky rebalancing and canary deploys."],
+   rejected:[{opt:'RabbitMQ',reason:'Strong at low-latency task queuing but weaker native replay/retention story; replaying 7 years of audit-relevant events would require a bolt-on store, which is what Kafka gives natively.'},
+             {opt:'AWS SNS + SQS',reason:'No native per-key ordering across a fan-out without FIFO queues (which cap throughput well below the 500 claims/min CAT target); would require a custom sequencing layer to match Kafka'+String.fromCharCode(39)+'s partition-ordering guarantee.'}]},
+  {id:'ADR-003',title:'Hybrid Build-vs-Buy for Fraud Risk Scoring',status:'Accepted',
+   context:"Fraud leakage currently runs ~7.2% of paid losses. A pure rules-engine buy (e.g., an off-the-shelf SIU rules product) is fast to stand up but does not learn from Meridian's own claim outcomes. A pure in-house build (rules + ML from scratch) captures Meridian-specific fraud patterns but takes 9-12 months to reach parity with an established industry consortium ruleset and forfeits access to cross-carrier fraud-ring signals.",
+   decision:"Buy a third-party SIU rules engine with an industry fraud-consortium data feed (ISO ClaimSearch) for baseline, cross-carrier, and known-pattern detection. Build a custom ML overlay, trained and owned by Meridian's data science team, that scores against Meridian-specific historical claim/outcome data and known regional fraud patterns (e.g., staged-collision rings). The Fraud Risk Scoring Service composes both signals into a single score (see Component diagram, Document 2).",
+   good:["Time-to-value: baseline fraud detection live in the first release using the bought rules engine, while the ML overlay is trained in parallel.","Meridian retains and improves a proprietary asset (the ML model) rather than being fully dependent on a vendor's black-box scoring.","Composite scoring lets each signal cover the other's blind spot — consortium data catches known cross-carrier rings; the ML overlay catches Meridian-specific patterns the consortium has no visibility into."],
+   bad:["Two fraud signals to maintain, monitor for drift, and keep synchronized in the composite score logic — more moving parts than a single-source approach.","Vendor dependency for the rules-engine component; contract and data-sharing terms must be renegotiated on renewal (tracked in Risk Register, RISK-05)."],
+   rejected:[{opt:'Full buy (rules engine only, no in-house model)',reason:'Cannot capture Meridian-specific fraud patterns or improve with Meridian'+String.fromCharCode(39)+'s own outcome data; caps fraud-detection improvement at whatever the vendor ships.'},
+             {opt:'Full build (rules + ML entirely in-house)',reason:'9–12 month build timeline for the rules layer alone to reach parity with an established consortium dataset; delays the entire ClaimSight AI launch and forfeits cross-carrier fraud-ring visibility Meridian cannot replicate alone.'}]},
+  {id:'ADR-004',title:'Anti-Corruption Layer (Strangler Fig) for Legacy ClaimCore Integration',status:'Accepted',
+   context:"ClaimCore is Meridian's 20-year-old policy administration and legacy claims system of record (mainframe-adjacent, batch-oriented, limited real-time API surface). It is out of scope for replacement in this initiative (NFR-14) but is the authoritative source for policy and coverage data.",
+   decision:"Introduce a dedicated Anti-Corruption Layer (ACL) service that translates between ClaimCore's legacy data model/batch cadence and ClaimSight's domain model and event contracts. The ACL consumes ClaimCore's nightly batch extract, exposes a thin real-time webhook-triggered lookup for the narrow subset of fields that change intra-day (policy status, coverage limits), and is the only service permitted to speak ClaimCore's native protocol.",
+   good:["ClaimSight's domain services never depend on ClaimCore's data shapes directly; a future ClaimCore replacement only requires rewriting the ACL, not every consuming service.","Isolates a single point of legacy-integration failure and legacy-specific error handling, keeping that complexity out of the core claims pipeline."],
+   bad:["The ACL becomes a single, must-be-highly-available chokepoint for policy/coverage lookups; it requires its own SLA, caching strategy, and circuit breaker (see Failure-First Design in the SAD, Section 11).","Policy data freshness is bounded by the nightly batch outside the narrow real-time webhook subset — triage logic must tolerate up to 24-hour-old non-critical policy fields."],
+   rejected:[{opt:'Direct integration (each service calls ClaimCore natively)',reason:'Would spread ClaimCore'+String.fromCharCode(39)+'s legacy data model and batch quirks across every consuming service, making a future legacy replacement require touching all of them — high coupling, high future migration cost.'},
+             {opt:'Full ClaimCore replatform before ClaimSight launch',reason:'Out of approved scope and budget for this initiative (governance boundary — large refactor, escalation required); would delay the fraud-leakage and triage-time business case by 18+ months.'}]},
+  {id:'ADR-005',title:'Polyglot Persistence — PostgreSQL (Transactional) + S3 Data Lake (Analytical)',status:'Accepted',
+   context:"ClaimSight has two distinct data workloads: transactional claim state (needs ACID guarantees, low-latency point lookups, strong consistency for the adjuster workbench) and analytical/model-training data (needs cheap bulk storage, schema flexibility, and large-scan performance for feature engineering and BI).",
+   decision:"Use PostgreSQL (managed, Multi-AZ) as the system of record for live claim, party, coverage-reference, and fraud-score state. Stream all domain events via the Kafka outbox pattern into an S3-based data lake (Parquet, partitioned by date/claim-type) for model training, historical analytics, and the SIU/ops reporting layer.",
+   good:["Each store is optimized for its workload — Postgres for consistency and low-latency reads on the live claim; S3/Parquet for cheap, massively scannable historical data.","Data science team can iterate on feature engineering against the lake without imposing query load on the transactional database that serves the adjuster workbench."],
+   bad:["Two data stores to keep synchronized and monitor for drift; the outbox-to-lake pipeline is itself a dependency that can lag (bounded by NFR-11 DR targets for the analytics tier).","Higher operational surface area than a single database for both workloads."],
+   rejected:[{opt:'Single relational database for everything, including analytics',reason:'Analytical queries and model-training bulk scans would compete for resources with live transactional traffic from the adjuster workbench, risking NFR-02 availability.'},
+             {opt:'NoSQL-only (e.g., DynamoDB) for transactional claim state',reason:'Claim state has genuinely relational structure (claim–party–coverage–document–fraud score) and needs ACID multi-row consistency for adjuster edits and override audit logging; a NoSQL-only model would push that consistency logic into application code.'}]},
+  {id:'ADR-006',title:'API Gateway + Backend-for-Frontend (BFF) per Channel',status:'Accepted',
+   context:"ClaimSight AI serves three very different front-end channels — the policyholder-facing FNOL web/mobile app, the independent-agent portal, and the internal adjuster workbench — each with different auth models, payload shapes, and rate-limit needs.",
+   decision:"Front all channels with a shared API Gateway (authentication, rate limiting, WAF, TLS termination) and give each channel a dedicated Backend-for-Frontend service that composes and shapes data from the core domain services specifically for that channel's UI.",
+   good:["Each channel's BFF can evolve its response shape without forcing changes on the other two channels or on core domain services.","Gateway centralizes cross-cutting security concerns (auth, rate limiting) instead of duplicating them per channel."],
+   bad:["Three BFFs to maintain instead of one generic API — more services, more deploys, more on-call surface.","Risk of business logic leaking into a BFF if boundaries aren't enforced in code review; BFFs must stay composition-only."],
+   rejected:[{opt:'One shared generic API for all three channels',reason:'Forces awkward compromises in payload shape (e.g., the adjuster workbench needs full audit history the policyholder app must never see) and couples unrelated channel release cycles together.'}]}
+];
+
+const TRADEOFF_CRITERIA = [
+  {key:'throughput',label:'Sustained Throughput (CAT-surge headroom)',weight:0.25},
+  {key:'ordering',label:'Per-Claim Ordering &amp; Replay',weight:0.20},
+  {key:'ops',label:'Operational Simplicity (managed option available)',weight:0.15},
+  {key:'audit',label:'Native Audit / Retention Fit (NFR-10)',weight:0.20},
+  {key:'familiarity',label:'Team Familiarity',weight:0.10},
+  {key:'cost',label:'Cost at Steady State + CAT Burst',weight:0.10}
+];
+const TRADEOFF_OPTIONS = [
+  {name:'Apache Kafka (Confluent Cloud, managed)',scores:{throughput:5,ordering:5,ops:4,audit:5,familiarity:3,cost:3},color:'var(--berry)',chosen:true},
+  {name:'RabbitMQ (self-managed)',scores:{throughput:3,ordering:3,ops:3,audit:2,familiarity:4,cost:4},color:'var(--muted)',chosen:false},
+  {name:'AWS SNS + SQS',scores:{throughput:3,ordering:2,ops:5,audit:2,familiarity:3,cost:4},color:'var(--amber)',chosen:false}
+];
+
+const RISK = [
+  {id:'RISK-01',title:'ClaimCore nightly batch window failure or overrun',cat:'Integration',likelihood:3,impact:4,mitigation:'ACL detects a missed/late batch (staleness check), halts triage on affected policies, and falls back to the last-known-good policy snapshot with a visible "Policy Data Delayed" flag for the adjuster.',owner:'Platform/Integration Squad Lead',status:'Mitigated'},
+  {id:'RISK-02',title:'Kafka consumer backlog during a sustained CAT surge exceeds auto-scale reaction time',cat:'Scalability',likelihood:3,impact:4,mitigation:'Pre-provisioned CAT-mode capacity reservation triggered by NOAA severe-weather advisory; load-tested to 750 claims/min (1.5× target) in staging quarterly.',owner:'Platform/Integration Squad Lead',status:'Mitigated'},
+  {id:'RISK-03',title:'ML fraud-overlay model drift reduces detection accuracy over time',cat:'Model Risk',likelihood:4,impact:3,mitigation:'Weekly model performance monitoring against labeled SIU outcomes; automatic alert and human review triggered if precision drops &gt;5 points from baseline; quarterly retrain cadence.',owner:'Data Science Lead',status:'Mitigated'},
+  {id:'RISK-04',title:'Fraud-score bias against a protected class or geography triggers a regulatory finding',cat:'Compliance',likelihood:2,impact:5,mitigation:'Quarterly fairness audit on the ML overlay across protected attributes (proxy-tested via geography/zip); Legal and Compliance sign-off required before any model version promotes to production.',owner:'AI Solution Architect + Compliance Officer',status:'Mitigated'},
+  {id:'RISK-05',title:'SIU rules-engine vendor lock-in / unfavorable renewal terms',cat:'Vendor',likelihood:3,impact:3,mitigation:'Contract includes a data-portability clause; composite scoring architecture (ADR-003) ensures the ML overlay continues functioning if the vendor relationship changes, avoiding a hard dependency.',owner:'Procurement + AI Solution Architect',status:'Accepted',},
+  {id:'RISK-06',title:'PII exposure via third-party OCR/document-intelligence vendor',cat:'Security',likelihood:2,impact:5,mitigation:'Vendor contractually bound to SOC 2 Type II + no data retention beyond the processing transaction; documents pre-redacted for SSN/account numbers before leaving Meridian'+String.fromCharCode(39)+'s network where feasible.',owner:'Security &amp; Compliance Lead',status:'Mitigated'},
+  {id:'RISK-07',title:'Key-person dependency on the ACL'+String.fromCharCode(39)+'s ClaimCore integration knowledge',cat:'Operational',likelihood:3,impact:3,mitigation:'Runbook + architecture decision log required for every ACL change; minimum two engineers cross-trained; ACL protocol logic isolated and unit-tested independent of the rest of the platform.',owner:'Platform/Integration Squad Lead',status:'In Progress'},
+  {id:'RISK-08',title:'Uncontrolled auto-scaling cost overrun during an extended CAT event',cat:'Cost',likelihood:3,impact:2,mitigation:'Hard ceiling on auto-scale group size (25× baseline) with budget alert at 15×; CAT-mode is time-boxed and requires explicit re-declaration every 24 hours.',owner:'AI Solution Architect + FinOps',status:'Mitigated'},
+  {id:'RISK-09',title:'Adjuster over-reliance on AI triage/fraud recommendations ("automation complacency")',cat:'Process',likelihood:4,impact:3,mitigation:'UI always shows the recommendation as advisory with visible confidence and top contributing factors, never auto-decisions above a claim-value threshold; override rate tracked as a leading indicator and reviewed monthly.',owner:'Adjuster Experience Squad Lead',status:'In Progress'},
+  {id:'RISK-10',title:'Third-party weather/CAT data provider outage degrades triage accuracy mid-event',cat:'Availability',likelihood:2,impact:3,mitigation:'Triage falls back to a static regional-severity table and flags affected claims "Reduced Confidence — Weather Data Unavailable" rather than blocking triage entirely.',owner:'Platform/Integration Squad Lead',status:'Mitigated'}
+];
+
+const FAQ = [
+  {q:"Why event-driven microservices instead of a monolith?",k:['event','driven','microservices','monolith','why','architecture','style'],a:"Claims volume is bursty — steady state is ~40 claims/min but a CAT event (hurricane, hailstorm) can push it to 500+/min for hours. Event-driven microservices let the triage and fraud-scoring tiers scale independently of the UI tier, and let four squads deploy independently. See ADR-001.",jump:'doc-adr'},
+  {q:"What's the fraud scoring latency target?",k:['fraud','scoring','latency','target','speed','2s','score'],a:"NFR-03: the fraud risk score must be returned within 2.0 seconds p95 (4.0s p99) of claim submission, so it's present before the adjuster workbench renders the claim.",jump:'doc-nfr'},
+  {q:"Why Kafka over RabbitMQ or SQS?",k:['kafka','rabbitmq','sqs','sns','broker','message','event','bus'],a:"Kafka won on a weighted trade-off across throughput, per-claim ordering, native audit/replay fit, and managed-ops availability (Confluent Cloud). RabbitMQ lacked the native long-retention replay story needed for the 7-year audit requirement; SQS/SNS lacked per-key ordering at the required throughput without a FIFO cap. See ADR-002 and the Trade-off Matrix.",jump:'doc-tradeoff'},
+  {q:"What is a fitness function?",k:['fitness','function','definition','what is'],a:"A fitness function is an automated, repeatable check that verifies an architecture characteristic still holds as the system evolves — e.g., a CI check that fails the build if a service's p95 latency regresses past its NFR target, or a dependency-graph check that fails if a new circular import appears. It turns an architectural intent into something enforced, not just documented.",jump:'twenty'},
+  {q:"What is the C4 model?",k:['c4','model','context','container','component','code','diagram'],a:"C4 is a set of four zoom levels for describing software architecture: Context (the system and who/what it talks to), Container (the deployable services/apps/data stores inside it), Component (the internal building blocks of one container), and Code (class-level detail, rarely diagrammed). ClaimSight AI's guide covers Context, Container, and Component.",jump:'c4model'},
+  {q:"What is an Architecture Decision Record?",k:['adr','decision','record','what is'],a:"An ADR is a short, permanent document capturing one significant architecture decision: the context that forced it, the decision itself, its consequences (including downsides), and the alternatives that were seriously considered and rejected — with the reason why. ClaimSight AI has six. See ADR-001 through ADR-006.",jump:'adrmodel'},
+  {q:"Why buy the fraud rules engine instead of building it?",k:['fraud','build','buy','vendor','rules','engine','siu'],a:"A hybrid approach was chosen: buy an industry-consortium SIU rules engine (ISO ClaimSearch) for fast time-to-value and cross-carrier fraud-ring visibility Meridian can't replicate alone, and build a custom ML overlay in-house trained on Meridian's own claim outcomes. See ADR-003.",jump:'doc-adr'},
+  {q:"How does ClaimSight integrate with the legacy ClaimCore system?",k:['claimcore','legacy','integration','acl','anti-corruption','mainframe'],a:"Through a dedicated Anti-Corruption Layer (ACL) service — the only service permitted to speak ClaimCore's native protocol. It consumes ClaimCore's nightly batch extract plus a narrow real-time webhook subset for policy status and coverage limits. See ADR-004.",jump:'doc-adr'},
+  {q:"What's the availability target for claim intake?",k:['availability','uptime','sla','intake','fnol'],a:"NFR-01: FNOL (First Notice of Loss) intake must hit 99.9% monthly uptime, 24/7/365 — losses happen at any hour. The Adjuster Workbench has a lower bar (99.5%, business hours) since its downtime impact is smaller.",jump:'doc-nfr'},
+  {q:"What is the disaster recovery target?",k:['disaster','recovery','rpo','rto','dr','backup'],a:"NFR-11: claims-critical services carry RPO ≤ 15 minutes and RTO ≤ 2 hours. The analytics/reporting tier has a looser bar — RPO/RTO of 24 hours — since it carries no direct customer or regulatory harm if delayed.",jump:'doc-nfr'},
+  {q:"What are the top architecture risks?",k:['risk','top','biggest','register','highest'],a:"The highest-scored risks are RISK-04 (fraud-score bias triggering a regulatory finding, impact 5) and RISK-06 (PII exposure via a third-party OCR vendor, impact 5) — both high-impact/lower-likelihood. The highest combined-score operational risk is RISK-02 (Kafka backlog during a CAT surge). See the full Risk Register.",jump:'doc-risk'},
+  {q:"What database does ClaimSight use?",k:['database','postgres','postgresql','data','store','s3','lake'],a:"Polyglot persistence: PostgreSQL for live transactional claim state (ACID, low-latency adjuster reads), and an S3-based Parquet data lake for analytics and model training, kept in sync via the Kafka outbox pattern. See ADR-005.",jump:'doc-adr'},
+  {q:"How is throughput handled during a hurricane / CAT event?",k:['cat','catastrophe','hurricane','surge','throughput','scale','volume'],a:"NFR-05/06: the platform must sustain 500 claims/minute for 6+ hours and auto-scale ingestion and triage tiers to 10× steady-state within 15 minutes of a CAT declaration. Pre-provisioned CAT-mode capacity mitigates the risk of auto-scale lagging demand (RISK-02).",jump:'doc-nfr'},
+  {q:"What is a quality attribute / non-functional requirement?",k:['quality','attribute','nfr','non-functional','what is'],a:"A quality attribute (or non-functional requirement) describes how well the system does something — availability, latency, security, scalability — as opposed to a functional requirement, which describes what it does. Quality attributes must be measurable; 'the system should be fast' is not an NFR, '≤2s p95' is.",jump:'twenty'},
+  {q:"What's the difference between good and bad architecture?",k:['good','bad','architecture','difference','signs'],a:"Good architecture makes trade-offs explicit and reversible where possible, is justified against actual measured load rather than guesses, and can be explained to a new engineer in an hour. Bad architecture optimizes for resume-driven complexity, hides trade-offs, and can't survive its first real incident without a rewrite. See the Good vs. Bad Architecture section.",jump:'goodbad'},
+  {q:"What KPIs measure architecture health?",k:['kpi','metrics','dora','deployment','frequency','mttr'],a:"The DORA four (deployment frequency, lead time for changes, change failure rate, mean time to restore) plus architecture-specific measures like cost per transaction and defect escape rate. See the Architecture KPIs section.",jump:'kpis'},
+  {q:"What is the architect's review lens?",k:['review','lens','evaluate','approve','checklist','ai-generated'],a:"A seven-point checklist an AI Solution Architect uses to direct, evaluate, and approve AI-generated technical designs — covering load justification, explicit trade-offs, failure-path coverage, security boundary review, cost sanity, testability, and reversibility. See The Architect's Review Lens.",jump:'lens'},
+  {q:"What's the current fraud leakage rate?",k:['fraud','leakage','rate','current','baseline'],a:"Meridian's current fraud leakage runs approximately 7.2% of paid losses — the business driver behind the hybrid build-vs-buy fraud scoring decision (ADR-003).",jump:'initiative'},
+  {q:"What is the claims-to-triage time target?",k:['triage','time','target','claims','speed','4.5 days','4 hours'],a:"The business case targets reducing claims-to-first-triage time from the current 4.5 days to under 4 hours for auto/property claims under $25,000.",jump:'initiative'},
+  {q:"What is a fitness function example in ClaimSight?",k:['fitness','function','example','ci','check'],a:"A CI-enforced check that fails a service's build if its p95 latency in load testing exceeds its NFR target (e.g., fraud scoring &gt;2.0s p95), or a nightly job that fails if the Kafka consumer-lag metric exceeds a threshold during a load-test CAT simulation.",jump:'patterns'},
+  {q:"What pattern handles the legacy system boundary?",k:['strangler','fig','pattern','legacy','boundary'],a:"The Anti-Corruption Layer / Strangler Fig pattern — ClaimCore's legacy data model is translated at a single, isolated boundary (the ACL service), so no other service depends on ClaimCore's native shape. See ADR-004 and Patterns &amp; Fitness Functions.",jump:'patterns'},
+  {q:"What happens if the fraud model or rules engine fails?",k:['fallback','failure','circuit','breaker','fraud','down'],a:"The Fraud Risk Scoring Service composes two independent signals (rules engine + ML overlay). If one signal is unavailable, a circuit breaker trips and the service degrades to single-signal scoring with a visible 'Partial Signal' flag, rather than blocking the claim from triage entirely.",jump:'doc-sad'},
+  {q:"Who signs off on the architecture package?",k:['sign','off','approve','signoff','package','summary'],a:"Prepared by the AI Solution Architect, reviewed by the Architecture Review Board (Principal Architect), and approved by Meridian's CTO sponsor. See the Architecture Package Summary.",jump:'doc-package'},
+  {q:"What's the cost target per claim?",k:['cost','per','claim','budget','target'],a:"NFR-13: fully-loaded infrastructure cost must stay at or under $0.85 per claim processed at steady-state volume, so the architecture doesn't erode the projected loss-adjustment-expense savings funding the business case.",jump:'doc-nfr'}
+];
+
+/* ==================================================================================================
+   DIAGRAM BUILDERS — C4, Sequence, Data-Flow, ERD
+   ================================================================================================== */
+function svg_c4Context(){
+  let s='';
+  s+=c4box(16,24,180,66,'Policyholder',['Reports a loss, tracks status'],'person');
+  s+=c4box(16,150,180,66,'Independent Agent',['Files FNOL on a client'+String.fromCharCode(39)+'s behalf'],'person');
+  s+=c4box(16,276,180,66,'Claims Adjuster',['Reviews, decides, settles'],'person');
+  s+=c4box(16,402,180,66,'SIU Investigator',['Works flagged fraud referrals'],'person');
+  s+=c4box(330,190,300,140,'ClaimSight AI',['AI-assisted claims intake,','triage & fraud-risk platform','(this system)'],'system');
+  s+=c4box(760,16,204,80,'ClaimCore',['Legacy policy admin &','claims system of record'],'external');
+  s+=c4box(760,116,204,80,'ISO ClaimSearch',['Cross-carrier fraud','consortium data feed'],'external');
+  s+=c4box(760,216,204,80,'NOAA / CAT Feed',['Weather & catastrophe','event signal'],'external');
+  s+=c4box(760,316,204,80,'Disbursement Platform',['Claim payment','issuance'],'external');
+  s+=c4box(760,416,204,80,'Notification Provider',['Twilio / SendGrid','SMS & email'],'external');
+  s+=c4arrow(196,57,330,235,'Submits FNOL');
+  s+=c4arrow(196,183,330,255,'Files claim');
+  s+=c4arrow(196,309,330,275,'Reviews & decides');
+  s+=c4arrow(196,435,330,300,'Investigates referral');
+  s+=c4arrow(630,240,760,56,'Policy & coverage lookup');
+  s+=c4arrow(630,265,760,156,'Fraud cross-check');
+  s+=c4arrow(630,285,760,256,'CAT/weather signal');
+  s+=c4arrow(630,305,760,356,'Payment instruction');
+  s+=c4arrow(630,325,760,456,'Status notification');
+  return svgWrap(s,980,530);
+}
+function svg_c4Container(){
+  let s='';
+  s+=c4box(10,10,150,60,'FNOL Web / Mobile',['[SPA]'],'container');
+  s+=c4box(180,10,150,60,'Agent Portal',['[SPA]'],'container');
+  s+=c4box(350,10,160,60,'Adjuster Workbench',['[SPA]'],'container');
+  s+=c4box(180,100,180,54,'API Gateway / BFF',['Auth, rate limit, WAF'],'container');
+  s+=c4box(60,190,180,58,'Claims Ingestion Svc',['Validates & persists FNOL'],'container');
+  s+=c4box(280,190,220,58,'Claims Event Bus',['Apache Kafka — Confluent Cloud'],'bus');
+  s+=c4box(540,190,170,58,'Triage & Routing Svc',['Severity & queue assignment'],'container');
+  s+=c4box(60,290,200,64,'Fraud Risk Scoring Svc',['Rules + ML composite score'],'container');
+  s+=c4box(300,290,200,64,'Document Intelligence Svc',['OCR + damage-photo CV'],'container');
+  s+=c4box(540,290,170,64,'Notification Svc',['SMS / email status updates'],'container');
+  s+=c4box(60,400,200,58,'Anti-Corruption Layer',['Translates ClaimCore <-> domain'],'container');
+  s+=c4box(300,400,150,58,'Claims DB',['PostgreSQL, Multi-AZ'],'db');
+  s+=c4box(480,400,150,58,'Data Lake',['S3 + Parquet'],'db');
+  s+=c4box(660,400,190,58,'Identity Provider',['OAuth2 / OIDC SSO'],'container');
+  s+=c4arrow(255,70,260,100,'');
+  s+=c4arrow(340,100,270,190,'');
+  s+=c4arrow(270,190,150,190,'');
+  s+=c4arrow(390,220,540,220,'ClaimTriaged');
+  s+=c4arrow(150,248,150,290,'ClaimReceived');
+  s+=c4arrow(280,220,300,290,'');
+  s+=c4arrow(390,240,540,290,'');
+  s+=c4arrow(160,354,160,400,'Policy lookup');
+  s+=c4arrow(260,354,300,400,'Persist state');
+  s+=c4arrow(400,290,480,400,'Stream to lake');
+  s+=c4arrow(430,10,270,100,'');
+  return svgWrap(s,900,480);
+}
+function svg_c4Component(){
+  let s='';
+  s+=c4box(20,20,190,60,'Inbound API Adapter',['Consumes ClaimReceived'],'component');
+  s+=c4box(240,20,190,60,'Feature Aggregator',['Builds model feature vector'],'component');
+  s+=c4box(20,140,220,64,'SIU Rules Engine Adapter',['Calls 3rd-party consortium API'],'component');
+  s+=c4box(280,140,220,64,'ML Inference Client',['Calls internal model-serving'],'component');
+  s+=c4box(150,250,220,64,'Score Composer',['Blends rules + ML w/ circuit breaker'],'component');
+  s+=c4box(20,360,220,60,'Decision Publisher',['Emits FraudScoreComputed'],'component');
+  s+=c4box(280,360,220,60,'Audit Logger',['Append-only decision trail'],'component');
+  s+=c4arrow(115,80,135,140,'');
+  s+=c4arrow(335,80,390,140,'');
+  s+=c4arrow(130,204,220,250,'rule score');
+  s+=c4arrow(390,204,300,250,'ML probability');
+  s+=c4arrow(200,314,130,360,'');
+  s+=c4arrow(280,314,390,360,'');
+  return svgWrap(s,540,440);
+}
+function svg_seqFnol(){
+  const actors=['Policyholder','FNOL Web App','API Gateway','Claims Ingestion','Event Bus','Triage Service','Adjuster Workbench'];
+  const gap=(880-80)/(actors.length-1);
+  const X=i=>40+i*gap;
+  let heads='',lines='';
+  actors.forEach((a,i)=>{
+    heads+=`<rect x="${X(i)-58}" y="8" width="116" height="32" rx="6" fill="var(--berry)" fill-opacity="0.14" stroke="var(--berry)" stroke-width="1.2"/><text x="${X(i)}" y="28" text-anchor="middle" font-size="9.2" font-weight="700" fill="var(--berry)">${esc(a)}</text>`;
+    lines+=`<line x1="${X(i)}" y1="40" x2="${X(i)}" y2="470" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="3,3"/>`;
+  });
+  let msgs='';
+  msgs+=seqMsg(70,X(0),X(1),'1. Submit First Notice of Loss');
+  msgs+=seqMsg(110,X(1),X(2),'2. POST /claims (FNOL payload)');
+  msgs+=seqMsg(150,X(2),X(3),'3. Route & authenticate');
+  msgs+=seqMsg(190,X(3),X(3),'4. Validate & persist claim');
+  msgs+=seqMsg(230,X(3),X(4),'5. Publish ClaimReceived');
+  msgs+=seqMsg(270,X(4),X(5),'6. Consume ClaimReceived');
+  msgs+=seqMsg(310,X(5),X(4),'7. Publish ClaimTriaged (severity, queue)');
+  msgs+=seqMsg(350,X(4),X(6),'8. Consume ClaimTriaged');
+  msgs+=seqMsg(390,X(6),X(6),'9. Populate adjuster queue');
+  msgs+=seqMsg(430,X(1),X(0),'10. Ack + Claim # (async return)',true,'cherry');
+  return svgWrap(`${heads}${lines}${msgs}`,900,470);
+}
+function svg_seqFraud(){
+  const actors=['Event Bus','Fraud Scoring Svc','SIU Rules Engine','ML Model Serving','Adjuster Workbench','SIU Queue'];
+  const gap=(880-80)/(actors.length-1);
+  const X=i=>40+i*gap;
+  let heads='',lines='';
+  actors.forEach((a,i)=>{
+    heads+=`<rect x="${X(i)-58}" y="8" width="116" height="32" rx="6" fill="var(--berry)" fill-opacity="0.14" stroke="var(--berry)" stroke-width="1.2"/><text x="${X(i)}" y="28" text-anchor="middle" font-size="9.2" font-weight="700" fill="var(--berry)">${esc(a)}</text>`;
+    lines+=`<line x1="${X(i)}" y1="40" x2="${X(i)}" y2="520" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="3,3"/>`;
+  });
+  let msgs='';
+  msgs+=seqMsg(70,X(0),X(1),'1. Consume ClaimReceived');
+  msgs+=seqMsg(110,X(1),X(2),'2. Evaluate rule indicators');
+  msgs+=seqMsg(150,X(2),X(1),'3. Return rule score',true);
+  msgs+=seqMsg(190,X(1),X(3),'4. Score(feature vector)');
+  msgs+=seqMsg(230,X(3),X(1),'5. Return probability + top factors',true);
+  msgs+=seqMsg(270,X(1),X(1),'6. Compose composite score (≤2.0s p95)');
+  msgs+=seqMsg(310,X(1),X(0),'7. Publish FraudScoreComputed');
+  msgs+=seqMsg(350,X(0),X(4),'8. Attach score to claim');
+  msgs+=`<rect x="${X(0)-6}" y="380" width="${X(5)-X(0)+12}" height="110" fill="none" stroke="var(--amber)" stroke-width="1.2" stroke-dasharray="5,3" rx="6"/><text x="${X(0)+6}" y="396" font-size="8.8" fill="var(--amber)" font-weight="700">alt: composite score &#8805; high-risk threshold</text>`;
+  msgs+=seqMsg(420,X(0),X(0),'9. Publish SIUReferralCreated');
+  msgs+=seqMsg(460,X(0),X(5),'10. Route to SIU investigator queue');
+  return svgWrap(`${heads}${lines}${msgs}`,900,520);
+}
+function svg_dataFlow(){
+  let s='';
+  s+=c4box(10,20,160,56,'FNOL Intake',[],'container');
+  s+=c4box(210,20,160,56,'Claims DB (Postgres)',[],'db');
+  s+=c4box(420,20,170,56,'Outbox / CDC',[],'container');
+  s+=c4box(630,20,170,56,'Event Bus (Kafka)',[],'bus');
+  s+=c4box(630,130,170,56,'Data Lake (S3)',[],'db');
+  s+=c4box(420,220,170,56,'Feature Store',[],'container');
+  s+=c4box(420,310,170,56,'Offline Model Training',[],'container');
+  s+=c4box(210,310,170,56,'Model Artifact Registry',[],'db');
+  s+=c4box(10,220,170,56,'Fraud Scoring Svc (online)',[],'container');
+  s+=c4box(630,240,170,56,'BI / SIU Reporting',[],'container');
+  s+=c4box(10,340,170,56,'ClaimCore (nightly batch)',[],'external');
+  s+=c4arrow(170,48,210,48,'writes');
+  s+=c4arrow(370,48,420,48,'change events');
+  s+=c4arrow(590,48,630,48,'publish');
+  s+=c4arrow(715,76,715,130,'stream');
+  s+=c4arrow(630,158,505,248,'batch load');
+  s+=c4arrow(505,276,505,310,'train');
+  s+=c4arrow(420,338,380,338,'promote');
+  s+=c4arrow(210,338,120,276,'serve');
+  s+=c4arrow(715,186,715,240,'aggregate');
+  s+=c4arrow(95,340,95,276,'policy sync');
+  s+=c4arrow(180,368,210,48,'nightly extract',true);
+  return svgWrap(s,830,410);
+}
+function svg_erd(){
+  function box(x,y,w,title,fields){
+    const h=30+fields.length*16;
+    let s=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="var(--surface)" stroke="var(--berry)" stroke-width="1.3"/>`;
+    s+=`<rect x="${x}" y="${y}" width="${w}" height="26" rx="6" fill="var(--berry)"/><rect x="${x}" y="${y+14}" width="${w}" height="12" fill="var(--berry)"/>`;
+    s+=`<text x="${x+w/2}" y="${y+18}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">${esc(title)}</text>`;
+    fields.forEach((f,i)=>{ s+=`<text x="${x+10}" y="${y+44+i*16}" font-size="9" font-family="var(--font-mono)" fill="var(--text)">${esc(f)}</text>`; });
+    return {svg:s,h};
+  }
+  let s='';
+  const b1=box(20,20,190,'Claim',['claim_id (PK)','policy_id (FK)','status','loss_date','reported_date']);
+  const b2=box(280,20,190,'Party',['party_id (PK)','claim_id (FK)','role','name']);
+  const b3=box(280,190,190,'Document',['doc_id (PK)','claim_id (FK)','type','ocr_status']);
+  const b4=box(20,190,190,'FraudScore',['score_id (PK)','claim_id (FK)','composite','rules_signal','ml_signal']);
+  const b5=box(540,20,190,'PolicyRef',['policy_id (PK)','coverage_limits','status (from ClaimCore)']);
+  const b6=box(20,360,190,'AdjusterAction',['action_id (PK)','claim_id (FK)','user_id','override_reason']);
+  s+=b1.svg+b2.svg+b3.svg+b4.svg+b5.svg+b6.svg;
+  s+=`<line x1="210" y1="45" x2="280" y2="45" stroke="var(--muted)" stroke-width="1.2"/><text x="245" y="40" text-anchor="middle" font-size="8" fill="var(--muted)">1..*</text>`;
+  s+=`<line x1="375" y1="82" x2="375" y2="190" stroke="var(--muted)" stroke-width="1.2"/><text x="385" y="140" font-size="8" fill="var(--muted)">1..*</text>`;
+  s+=`<line x1="115" y1="82" x2="115" y2="190" stroke="var(--muted)" stroke-width="1.2"/><text x="125" y="140" font-size="8" fill="var(--muted)">0..1</text>`;
+  s+=`<line x1="210" y1="35" x2="540" y2="35" stroke="var(--muted)" stroke-width="1.2"/><text x="480" y="30" text-anchor="middle" font-size="8" fill="var(--muted)">1..1 (ref)</text>`;
+  s+=`<line x1="115" y1="248" x2="115" y2="360" stroke="var(--muted)" stroke-width="1.2"/><text x="125" y="310" font-size="8" fill="var(--muted)">0..*</text>`;
+  return svgWrap(s,760,440);
+}
+
+/* ==================================================================================================
+   FOUNDATIONS BODY FUNCTIONS
+   ================================================================================================== */
+function body_why(){
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="why">Why Solution Architecture Exists</h1>
+  <p class="section-lede">Business requirements describe <em>what</em> the system must do. Solution architecture is the discipline that decides <em>how</em> it holds together under real load, real failure, and real change — and makes those decisions visible and reviewable before a line of code ships.</p>
+  <div class="card">
+    <p>An AI system can draft a technical design, a service diagram, or a database schema in seconds. That is not the bottleneck anymore. The bottleneck — and the job of the AI Solution Architect — is knowing whether that generated design is <strong>any good</strong>: whether it was sized against the actual load, whether its trade-offs were made on purpose instead of by accident, and whether it will survive its first real incident.</p>
+    <p>This guide teaches the roughly 20% of solution architecture knowledge that lets you <strong>direct</strong> an AI's design work with the right constraints up front, <strong>evaluate</strong> what comes back against a consistent standard, and <strong>approve</strong> (or send back) with specific, defensible reasons — not vibes.</p>
+  </div>
+  <div class="callout key"><div class="co-label">Core idea</div>Architecture is the set of decisions that are expensive to reverse. Everything else is implementation detail negotiable at code review. Your review time is finite — spend it on the decisions that are hard to undo.</div>
+  <div class="grid grid-3" style="margin-top:18px;">
+    <div class="card"><h3>Without architecture discipline</h3><p class="muted">Every service reinvents its own retry logic, error handling, and data model. Nobody can say why Kafka was chosen over SQS six months later. The system that works in the demo falls over on the first real traffic spike.</p></div>
+    <div class="card"><h3>With architecture discipline</h3><p class="muted">Quality targets are numbers, not adjectives. Every irreversible decision has a written record with its rejected alternatives. A new engineer can read eight documents and understand the whole system in an afternoon.</p></div>
+    <div class="card"><h3>Your job specifically</h3><p class="muted">You are not the one drawing every box. You set the quality bar, ask the AI-generated design the hard questions, and sign your name to what survives the questioning.</p></div>
+  </div>`;
+}
+function body_twenty(){
+  const items=[
+    ['Quality Attributes (NFRs)','The measurable "how well" — availability, latency, throughput, security. If it can\'t be measured, it isn\'t a requirement.'],
+    ['Architecture Styles','Monolith, microservices, event-driven, serverless — each is a bet about where load and change will concentrate.'],
+    ['The C4 Model','Four zoom levels — Context, Container, Component, Code — so every audience gets the altitude they need.'],
+    ['Architecture Decision Records','A permanent, short record of every decision that would be expensive to reverse, including what was rejected and why.'],
+    ['Trade-off Analysis','No decision is free. A good trade-off analysis states the cost of the winning option, not just its benefits.'],
+    ['Key Patterns','A small vocabulary — API Gateway, BFF, Anti-Corruption Layer, Circuit Breaker, Outbox — that lets architects communicate in shorthand.'],
+    ['Fitness Functions','Automated checks that keep an architectural intent true as the system evolves, instead of letting it rot in a document.'],
+    ['Build vs. Buy','A deliberate, criteria-based call — not a default. Buying forfeits control; building forfeits speed. Both are sometimes right.']
+  ];
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="twenty">The Vital 20%</h1>
+  <p class="section-lede">Eight concepts cover the large majority of what you need to direct, evaluate, and approve real architecture work. Everything else in the discipline is a deeper application of these eight.</p>
+  <div class="grid grid-2">
+    ${items.map(i=>`<div class="card"><h3>${i[0]}</h3><p class="muted">${i[1]}</p></div>`).join('')}
+  </div>`;
+}
+function body_c4model(){
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="c4model">The C4 Model</h1>
+  <p class="section-lede">Four levels of zoom, each answering a different question for a different audience. Skipping a level either loses your executive sponsor in wiring detail, or loses your engineer in a box that just says "the system."</p>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Level</th><th>Question it answers</th><th>Audience</th><th>ClaimSight AI example</th></tr></thead><tbody>
+  <tr><td><strong>1. Context</strong></td><td>What is this system, and who/what does it talk to?</td><td>Executives, sponsors, new stakeholders</td><td>Policyholders, agents, adjusters, ClaimCore, ISO ClaimSearch</td></tr>
+  <tr><td><strong>2. Container</strong></td><td>What are the deployable/runnable pieces inside it?</td><td>Architects, tech leads, ops</td><td>FNOL app, API Gateway, Kafka event bus, Fraud Scoring Service, Postgres</td></tr>
+  <tr><td><strong>3. Component</strong></td><td>What are the internal building blocks of one container?</td><td>Engineers building or reviewing that container</td><td>Inside Fraud Scoring Service: Rules Adapter, ML Client, Score Composer</td></tr>
+  <tr><td><strong>4. Code</strong></td><td>Class/module-level detail</td><td>The engineer editing that file, right now</td><td>Rarely diagrammed — the code itself is the diagram</td></tr>
+  </tbody></table></div>
+  <div class="callout info"><div class="co-label">Review habit</div>When an AI hands you a single sprawling diagram mixing people, services, and database tables, that's a C4-level violation — ask for it split by zoom level. Document 2 in this guide shows all three levels done correctly for ClaimSight AI.</div>`;
+}
+function body_adrmodel(){
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="adrmodel">Architecture Decision Records</h1>
+  <p class="section-lede">An ADR is a short, permanent record of one decision that would be expensive to reverse. Its most important section is not the decision — it's the alternatives that were rejected, and why.</p>
+  <div class="grid grid-2">
+    <div class="card"><h3>The four required parts</h3>
+      <ul>
+        <li><span class="def-term">Context</span> — the forces in tension that made a decision necessary.</li>
+        <li><span class="def-term">Decision</span> — what was chosen, stated as a commitment, not a suggestion.</li>
+        <li><span class="def-term">Consequences</span> — both the wins <em>and</em> the costs. An ADR with no downsides was not seriously analyzed.</li>
+        <li><span class="def-term">Rejected alternatives</span> — every option seriously considered, with the specific reason it lost.</li>
+      </ul>
+    </div>
+    <div class="card"><h3>Why this is the highest-leverage review artifact</h3>
+      <p class="muted">Anyone can generate a plausible-looking architecture. An ADR forces the reasoning into the open. If an AI-generated ADR has no rejected alternatives, it wasn't a decision — it was a default. Send it back.</p>
+      <p class="muted">Document 3 in this guide contains six ADRs for ClaimSight AI, each with rejected options and the concrete reason each one lost.</p>
+    </div>
+  </div>
+  <div class="callout warn"><div class="co-label">Red flag when reviewing an AI-generated ADR</div>"We chose X because it's industry standard" is not a reason. A reason names the specific quality attribute or constraint X satisfies that the alternatives didn't.</div>`;
+}
+function body_patterns(){
+  const pats=[
+    ['API Gateway','A single entry point that centralizes auth, rate limiting, and TLS termination in front of many services.'],
+    ['Backend-for-Frontend (BFF)','A thin service per client channel that shapes data for that channel only, instead of one generic API serving all channels awkwardly.'],
+    ['Anti-Corruption Layer / Strangler Fig','A translation boundary that isolates a legacy system\'s data model so nothing else depends on it directly — and lets you replace the legacy system later by rewriting one layer.'],
+    ['Circuit Breaker','Stops calling a failing dependency after N failures, so one slow downstream doesn\'t cascade into a full outage.'],
+    ['Outbox Pattern','Writes a domain event to the same transaction as the database write it describes, so "save the record" and "publish the event" can never disagree.'],
+    ['Saga','Coordinates a multi-step transaction across services using compensating actions instead of a distributed lock — because distributed transactions don\'t scale.']
+  ];
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="patterns">Patterns &amp; Fitness Functions</h1>
+  <p class="section-lede">A small shared vocabulary of patterns lets architects communicate a whole design in a sentence. Fitness functions keep that design's intent true after six months of feature work.</p>
+  <div class="grid grid-3">${pats.map(p=>`<div class="card"><h3>${p[0]}</h3><p class="muted">${p[1]}</p></div>`).join('')}</div>
+  <hr class="rule">
+  <h2>Fitness Functions</h2>
+  <p>A fitness function is an <strong>automated, repeatable check</strong> that verifies an architecture characteristic still holds as the system changes — turning an intention into something enforced by CI, not just written in a document nobody rereads.</p>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Fitness Function</th><th>What it catches</th></tr></thead><tbody>
+  <tr><td>CI load test fails the build if Fraud Scoring Service p95 latency exceeds 2.0s</td><td>Latency regression on NFR-03 before it reaches production</td></tr>
+  <tr><td>Nightly job fails if Kafka consumer lag exceeds threshold under simulated CAT load</td><td>Throughput/scalability regression on NFR-05/06</td></tr>
+  <tr><td>Dependency-graph check fails if any service imports ClaimCore\'s client library directly</td><td>A new service bypassing the Anti-Corruption Layer (ADR-004)</td></tr>
+  <tr><td>Quarterly fairness audit fails the model-promotion gate if fraud-score disparity exceeds threshold</td><td>Model bias drift (RISK-04)</td></tr>
+  </tbody></table></div>`;
+}
+function body_goodbad(){
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="goodbad">Good vs. Bad Architecture</h1>
+  <p class="section-lede">Complexity is not the enemy — <em>unjustified</em> complexity is. The test is whether every piece of the design earns its place against a real constraint.</p>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Signal</th><th class="text-leaf">Good architecture</th><th class="text-cherry">Bad architecture</th></tr></thead><tbody>
+  <tr><td>Justification</td><td>Every style/pattern choice traces to a measured load or constraint</td><td>Chosen because it's trendy or "what we used last time"</td></tr>
+  <tr><td>Trade-offs</td><td>Stated explicitly, including the cost of the winning option</td><td>Only benefits are listed; costs are discovered in production</td></tr>
+  <tr><td>Complexity</td><td>Matches the actual blast radius and scale of the problem</td><td>Twelve microservices for a system with 40 requests/minute</td></tr>
+  <tr><td>Failure handling</td><td>Designed before the happy path; every external call has a timeout and fallback</td><td>"We'll add error handling later"</td></tr>
+  <tr><td>Reversibility</td><td>Expensive-to-reverse decisions are few, explicit, and recorded (ADRs)</td><td>Every decision looks equally permanent because none were written down</td></tr>
+  <tr><td>Explainability</td><td>A new engineer understands the system from 8 documents in an afternoon</td><td>Understanding requires tribal knowledge from the original author</td></tr>
+  </tbody></table></div>
+  <div class="callout tip"><div class="co-label">Rule of thumb</div>If you can't say what load number or constraint justifies a piece of the design, assume it's over-engineered until proven otherwise.</div>`;
+}
+function body_kpis(){
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="kpis">Architecture KPIs</h1>
+  <p class="section-lede">The DORA four measure how safely and quickly a team can ship through the architecture. Add cost and defect-escape metrics to see whether the architecture is paying for itself.</p>
+  <div class="grid grid-4">
+    ${kpiTile('Deployment Frequency','Daily','Elite: on-demand, multiple/day',true)}
+    ${kpiTile('Lead Time for Changes','&lt; 1 day','Elite: &lt; 1 hour',true)}
+    ${kpiTile('Change Failure Rate','8%','Elite: 0–15%',true)}
+    ${kpiTile('Mean Time to Restore','38 min','Elite: &lt; 1 hour',true)}
+  </div>
+  <div class="grid grid-2" style="margin-top:16px;">
+    <div class="card"><h3>Cost per Transaction</h3><p class="muted">For ClaimSight AI: infrastructure cost per claim processed. Target ≤ $0.85 (NFR-13). A rising trend line here means the architecture is scaling worse than linearly with volume.</p></div>
+    <div class="card"><h3>Defect Escape Rate</h3><p class="muted">Defects found in production vs. pre-production. A high rate against a well-tested codebase often points to an architecture gap (missing contract tests at a service boundary), not a coding gap.</p></div>
+  </div>`;
+}
+function body_lens(){
+  const items=[
+    ['Load-justified','Does every major style/pattern choice trace to a stated, measured (or credibly estimated) load number — not a guess?'],
+    ['Trade-offs are explicit','Does each significant decision name what was rejected and the specific cost of what was chosen?'],
+    ['Failure path exists','Does every external call have a timeout, a retry policy, and a defined fallback or fail-fast behavior?'],
+    ['Security boundary is drawn','Is there a clear trust boundary, and is every input across it validated?'],
+    ['Cost is sane','Is the infrastructure cost proportional to the problem, with a stated target and a way to detect drift?'],
+    ['It is testable','Can the design\'s key claims (latency, throughput, idempotency) be verified by an automated test or fitness function?'],
+    ['It is reversible where it can be','Are irreversible decisions kept to the minimum necessary, and are they the ones with an ADR?']
+  ];
+  return `
+  <div class="section-kicker">Foundations</div>
+  <h1 id="lens">The Architect's Review Lens</h1>
+  <p class="section-lede">Seven questions to run against any AI-generated technical design before you approve it. If a design fails more than one, it goes back with specific, cited feedback — not a vague "make it better."</p>
+  <div class="card">
+    ${items.map((it,i)=>`<div class="lens-item"><div class="lens-num">${i+1}</div><div><strong>${it[0]}</strong><div class="muted">${it[1]}</div></div></div>`).join('')}
+  </div>
+  <div class="callout key"><div class="co-label">How this guide models it</div>Every document that follows was built and reviewed against this exact lens. Documents 3, 4, and 7 (ADRs, NFRs, Risk Register) exist specifically to make lens items 1, 2, 3, and 7 checkable.</div>`;
+}
+function body_initiative(){
+  return `
+  <div class="section-kicker">The Initiative</div>
+  <h1 id="initiative">ClaimSight AI — Overview</h1>
+  <p class="section-lede">Meridian Mutual Insurance, a regional Property &amp; Casualty carrier (~1.2M policies, 9-state footprint, Southeast/Midwest US), is building an AI-assisted claims intake, triage, and fraud-risk scoring platform. Business requirements are assumed approved (BRD-2026-014) — this guide begins at the architecture stage.</p>
+  <div class="grid grid-4">
+    ${kpiTile('Claims-to-Triage Time','4.5 days','Target: &lt; 4 hours (auto/property &lt; $25k)',false)}
+    ${kpiTile('Fraud Leakage','7.2% of paid losses','Target: reduce materially within 2 quarters',false)}
+    ${kpiTile('Claim Volume Growth','+18%/yr','Adjuster headcount flat — architecture must absorb it',false)}
+    ${kpiTile('CAT Surge Ratio','12.5×','Peak claims/min vs. steady state during a hurricane landfall',false)}
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <h3>Approved Requirements Baseline</h3>
+    <p>Per BRD-2026-014 (approved 2026-07-30): Meridian requires an AI-assisted platform that ingests First Notice of Loss (FNOL) from three channels (policyholder self-service, independent agent, call center), automatically triages claims by severity and complexity, computes a fraud-risk score before an adjuster ever opens the claim, and routes high-risk claims to a Special Investigations Unit (SIU) queue — while remaining fully auditable for state Department of Insurance market-conduct exams and never fully automating a payout decision without human sign-off.</p>
+    <p class="muted">The eight documents in this guide are the solution architecture response to that approved baseline — how the system will be built, not what it must do.</p>
+  </div>
+  <div class="callout info"><div class="co-label">Why insurance claims for this teaching example</div>Claims processing forces every core architecture trade-off into the open at once: bursty, unpredictable load (catastrophes); a legacy system of record that cannot be replaced on this timeline; a build-vs-buy call with real regulatory stakes; and an audit requirement that shapes the data architecture itself.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 1 — SOLUTION ARCHITECTURE DOCUMENT
+   ================================================================================================== */
+function body_sad(){
+  return `
+  <h2>1. Purpose &amp; Scope</h2>
+  <p>This Solution Architecture Document (SAD) is the single reference architecture for ClaimSight AI — Meridian Mutual Insurance's AI-assisted claims intake, triage, and fraud-risk scoring platform. It translates the approved business requirements (BRD-2026-014) into a technical structure: the services that will exist, the data they own, how they communicate, and the quality bar each must meet. It is the parent document for the C4 Diagrams, ADRs, NFR Specification, Trade-off Matrix, Sequence &amp; Data-Flow Diagrams, and Risk Register that follow.</p>
+  <p><strong>In scope:</strong> FNOL intake (web/mobile, agent, call center), automated triage and severity routing, fraud-risk scoring, adjuster workbench, SIU referral workflow, and the integration layer to Meridian's existing systems.</p>
+  <p><strong>Out of scope:</strong> Replacement of ClaimCore (legacy policy admin/claims system of record — integrated, not replaced, per ADR-004); claims payment processing logic itself (ClaimSight issues a disbursement <em>instruction</em> to the existing Payment Disbursement Platform, it does not own payment rails); underwriting and new-policy issuance.</p>
+
+  <h2>2. Approved Requirements Baseline</h2>
+  <p>Per BRD-2026-014 (Approved, 2026-07-30), the following functional capabilities are locked and drive every architecture decision in this document: multi-channel FNOL intake; automated severity/complexity triage; pre-adjuster fraud-risk scoring with a visible confidence and top contributing factors; SIU referral for high-risk claims; mandatory human sign-off before any payout; and a complete, 7-year retained audit trail of every AI recommendation and every adjuster override. This SAD does not revisit whether these capabilities are needed — that decision has already been made. It answers <em>how</em> they will be built.</p>
+
+  <h2>3. Architecture Style &amp; Justification</h2>
+  <p>ClaimSight AI is built as <strong>event-driven microservices</strong> behind a shared API Gateway, communicating primarily through a durable, ordered event bus rather than direct synchronous calls for the core claims pipeline (full reasoning in <a href="#doc-adr" onclick="jumpTo('doc-adr')">ADR-001</a>).</p>
+  <div class="grid grid-3">
+    <div class="card"><h3>Load shape</h3><p class="muted">Steady state ~40 claims/min; CAT events push this to 500+/min for hours (NFR-05). A style that can't scale sub-systems independently wastes cost and increases blast radius during exactly the moment reliability matters most.</p></div>
+    <div class="card"><h3>Team topology</h3><p class="muted">Four squads (Intake, Triage/Fraud, Adjuster Experience, Platform/Integration) need independent deploy cadences (NFR-12). A monolith would force a shared release train across teams with materially different risk profiles.</p></div>
+    <div class="card"><h3>Failure isolation</h3><p class="muted">Fraud scoring calling a third-party rules engine must never be able to take FNOL intake down. Event-driven decoupling makes that failure isolation structural, not a promise.</p></div>
+  </div>
+
+  <h2>4. Quality Attribute Priorities</h2>
+  <p>Of the fourteen NFRs in Document 4, five carry the architecture's hardest constraints. Full targets and rationale are in the <a href="#doc-nfr" onclick="jumpTo('doc-nfr')">NFR Specification</a>.</p>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Rank</th><th>Attribute</th><th>Target</th><th>Why it's top-5</th></tr></thead><tbody>
+  <tr><td class="mono">1</td><td>Throughput / Scalability</td><td class="mono">500 claims/min sustained (CAT), 10× auto-scale in 15 min</td><td>The single hardest number to hit; drives the event-bus and auto-scale design end to end.</td></tr>
+  <tr><td class="mono">2</td><td>Auditability</td><td class="mono">100% AI recommendations + overrides logged, 7-yr retention</td><td>Non-negotiable for state DOI market-conduct exams; shapes the event-sourcing-adjacent data design.</td></tr>
+  <tr><td class="mono">3</td><td>Latency (fraud score)</td><td class="mono">&le; 2.0s p95</td><td>Directly gates adjuster workbench usability — a slow score is a claim opened blind.</td></tr>
+  <tr><td class="mono">4</td><td>Availability (FNOL intake)</td><td class="mono">99.9% monthly, 24/7</td><td>Losses occur at any hour; this is the system's front door.</td></tr>
+  <tr><td class="mono">5</td><td>Security / Compliance</td><td class="mono">SOC 2 Type II, state DOI, AES-256/TLS 1.2+</td><td>Regulatory floor for a licensed carrier handling PII and financial data.</td></tr>
+  </tbody></table></div>
+
+  <h2>5. System Context</h2>
+  <p>ClaimSight AI sits between four human actor groups (Policyholder, Independent Agent, Claims Adjuster, SIU Investigator) and five external systems (ClaimCore, ISO ClaimSearch, a weather/CAT data provider, the Payment Disbursement Platform, and a notification provider). The full Context diagram is in <a href="#doc-c4" onclick="jumpTo('doc-c4')">Document 2</a>.</p>
+
+  <h2>6. Component Overview</h2>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Container</th><th>Responsibility</th><th>Owning Squad</th></tr></thead><tbody>
+  <tr><td class="mono">FNOL Web / Mobile</td><td>Policyholder-facing loss reporting</td><td>Adjuster Experience</td></tr>
+  <tr><td class="mono">Agent Portal</td><td>Independent-agent-facing FNOL and status lookup</td><td>Adjuster Experience</td></tr>
+  <tr><td class="mono">Adjuster Workbench</td><td>Claim review, triage queue, override capture</td><td>Adjuster Experience</td></tr>
+  <tr><td class="mono">API Gateway / BFF</td><td>Auth, rate limiting, channel-specific composition</td><td>Platform/Integration</td></tr>
+  <tr><td class="mono">Claims Ingestion Service</td><td>Validates and persists incoming FNOL, publishes ClaimReceived</td><td>Platform/Integration</td></tr>
+  <tr><td class="mono">Claims Event Bus (Kafka)</td><td>Durable, ordered event backbone for the claim lifecycle</td><td>Platform/Integration</td></tr>
+  <tr><td class="mono">Triage &amp; Routing Service</td><td>Severity/complexity scoring and adjuster queue assignment</td><td>Triage/Fraud</td></tr>
+  <tr><td class="mono">Fraud Risk Scoring Service</td><td>Composite rules + ML fraud score, SIU referral decision</td><td>Triage/Fraud</td></tr>
+  <tr><td class="mono">Document Intelligence Service</td><td>OCR and damage-photo computer vision</td><td>Triage/Fraud</td></tr>
+  <tr><td class="mono">Anti-Corruption Layer</td><td>Sole translator between ClaimCore and ClaimSight's domain model</td><td>Platform/Integration</td></tr>
+  <tr><td class="mono">Claims DB (PostgreSQL)</td><td>System of record for live claim state</td><td>Platform/Integration</td></tr>
+  <tr><td class="mono">Data Lake (S3)</td><td>Analytics and model-training store</td><td>Triage/Fraud (data science)</td></tr>
+  <tr><td class="mono">Notification Service</td><td>Policyholder SMS/email status updates</td><td>Adjuster Experience</td></tr>
+  </tbody></table></div>
+
+  <h2>7. Data Architecture</h2>
+  <p>ClaimSight AI uses polyglot persistence (<a href="#doc-adr" onclick="jumpTo('doc-adr')">ADR-005</a>): PostgreSQL for live transactional claim state, and an S3/Parquet data lake — fed via the Kafka outbox pattern — for analytics and model training. This keeps the adjuster workbench's read latency isolated from data-science bulk-scan workloads. See the entity-relationship view in <a href="#doc-sequence" onclick="jumpTo('doc-sequence')">Document 6</a>.</p>
+
+  <h2>8. Integration Architecture</h2>
+  <p>ClaimCore integration is confined entirely to a dedicated Anti-Corruption Layer (<a href="#doc-adr" onclick="jumpTo('doc-adr')">ADR-004</a>) — no other ClaimSight service is permitted to speak ClaimCore's native protocol. Third-party integrations (ISO ClaimSearch, the weather/CAT provider, the notification provider) are each wrapped behind a dedicated adapter with its own timeout, retry policy, and circuit breaker, so a single vendor outage degrades gracefully rather than cascading.</p>
+
+  <h2>9. Security &amp; Compliance Architecture</h2>
+  <ul>
+    <li><strong>Encryption:</strong> AES-256 at rest, TLS 1.2+ in transit for all claim, PII, and payment data (NFR-08).</li>
+    <li><strong>Identity:</strong> OAuth2/OIDC via a central Identity Provider; role-based access separates Policyholder, Agent, Adjuster, SIU Investigator, and Admin scopes.</li>
+    <li><strong>Least privilege:</strong> The Fraud Risk Scoring Service and Anti-Corruption Layer are the only services with direct network reachability to their respective external systems.</li>
+    <li><strong>Compliance:</strong> SOC 2 Type II control coverage; state DOI data-handling requirements across all 9 licensed states (NFR-09).</li>
+  </ul>
+
+  <h2>10. Deployment &amp; Infrastructure Topology</h2>
+  <p>Kubernetes-hosted services across two availability zones (Multi-AZ), fronted by the API Gateway. The Claims Event Bus runs on Confluent Cloud (managed Kafka). CAT-mode capacity is pre-provisioned and reserved, not purely reactive, given the 15-minute auto-scale SLA (NFR-06) is faster than a cold node pool can typically provision from zero.</p>
+
+  <h2>11. Observability &amp; Operations</h2>
+  <p>Every service emits structured JSON logs with a correlation ID propagated from the originating claim event through every downstream hop. Required metrics per service: success rate, failure rate, retry count, p50/p95/p99 latency, and volume. A claim's full lifecycle must be traceable end-to-end from a single correlation ID — if it isn't, observability is considered incomplete.</p>
+
+  <h2>12. Cross-Cutting Concerns — Failure-First Design</h2>
+  <p>Every external boundary answers four questions before it ships:</p>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Boundary</th><th>Fails how?</th><th>Retry?</th><th>Recovery if exhausted</th></tr></thead><tbody>
+  <tr><td>ClaimCore (via ACL)</td><td>Batch late/missing, or real-time lookup timeout</td><td>3 attempts, exponential backoff</td><td>Serve last-known-good snapshot; flag "Policy Data Delayed"; page on-call</td></tr>
+  <tr><td>SIU Rules Engine (vendor)</td><td>Timeout or 5xx</td><td>2 attempts, 5s timeout</td><td>Circuit breaker trips; degrade to ML-only signal with "Partial Signal" flag</td></tr>
+  <tr><td>ML Model Serving</td><td>Timeout or malformed response</td><td>1 retry, 1.5s timeout</td><td>Circuit breaker trips; degrade to rules-only signal with "Partial Signal" flag</td></tr>
+  <tr><td>Weather/CAT Provider</td><td>Unavailable</td><td>2 attempts</td><td>Fall back to static regional-severity table; flag "Reduced Confidence"</td></tr>
+  <tr><td>Kafka publish</td><td>Broker unreachable</td><td>Unbounded with backoff (never drop a claim event)</td><td>Local durable queue buffers until publish succeeds; alerts if buffered &gt; 5 min</td></tr>
+  </tbody></table></div>
+
+  <h2>13. Architecture Governance &amp; Change Control</h2>
+  <p>Any change that alters a container boundary, introduces a new external dependency, or changes a Top-5 quality attribute target requires a new or amended ADR reviewed by the Architecture Review Board before merge. Implementation-level changes (internal refactors, non-breaking interface extensions) do not require review.</p>
+
+  <h2>14. Appendices</h2>
+  <p><strong>Glossary:</strong> FNOL — First Notice of Loss. SIU — Special Investigations Unit. CAT — Catastrophe (weather) event. ACL — Anti-Corruption Layer. DOI — Department of Insurance.</p>
+  <p><strong>Cross-references:</strong> C4 Diagrams (Doc 2) · ADRs (Doc 3) · NFR Specification (Doc 4) · Trade-off Matrix (Doc 5) · Sequence &amp; Data-Flow (Doc 6) · Risk Register (Doc 7) · Architecture Package (Doc 8).</p>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 2 — C4 DIAGRAMS
+   ================================================================================================== */
+function body_c4(){
+  return `
+  <h2>Level 1 — System Context</h2>
+  <p>ClaimSight AI in relation to the people who use it and the external systems it depends on.</p>
+  <div class="diagram-frame">${svg_c4Context()}</div>
+  ${legend([['Person','var(--leaf)'],['This system','var(--berry)'],['External system','var(--muted)']])}
+  <div class="diagram-caption">Figure 2.1 — System Context. Full actor and external-system list in the SAD, Section 5.</div>
+
+  <hr class="rule">
+  <h2>Level 2 — Container</h2>
+  <p>The deployable services, applications, and data stores that make up ClaimSight AI.</p>
+  <div class="diagram-frame">${svg_c4Container()}</div>
+  ${legend([['Application/Service','var(--berry)'],['Event bus','var(--cherry)'],['Data store','var(--amber)']])}
+  <div class="diagram-caption">Figure 2.2 — Container view. Component-level detail per container in Document 1, Section 6.</div>
+
+  <hr class="rule">
+  <h2>Level 3 — Component (Fraud Risk Scoring Service)</h2>
+  <p>Zooming into the highest-scrutiny container: the internals of the Fraud Risk Scoring Service, whose composite-scoring design is the subject of ADR-003.</p>
+  <div class="diagram-frame">${svg_c4Component()}</div>
+  ${legend([['Component','var(--berry)']])}
+  <div class="diagram-caption">Figure 2.3 — Component view, Fraud Risk Scoring Service. Rules and ML signals are composed with an independent circuit breaker on each path (SAD Section 12).</div>
+
+  <div class="callout info"><div class="co-label">Level 4 — Code</div>Not diagrammed. At class/module granularity the code is its own best documentation; a Code-level C4 diagram would be stale before it was reviewed.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 3 — ADRs
+   ================================================================================================== */
+function body_adr(){
+  return ADR.map(a=>`
+    <div class="adr-card">
+      <div class="adr-head">
+        <div><strong>${a.id}</strong> — ${a.title}</div>
+        <div>${adrBadge(a.status)}</div>
+      </div>
+      <div class="adr-body">
+        <h4>Context</h4><p>${a.context}</p>
+        <h4>Decision</h4><p>${a.decision}</p>
+        <h4>Consequences</h4>
+        <div class="grid grid-2">
+          <div><p class="cons-good" style="font-weight:700;margin-bottom:4px;">Positive</p><ul>${a.good.map(g=>`<li>${g}</li>`).join('')}</ul></div>
+          <div><p class="cons-bad" style="font-weight:700;margin-bottom:4px;">Cost / Downside</p><ul>${a.bad.map(b=>`<li>${b}</li>`).join('')}</ul></div>
+        </div>
+        <h4>Rejected Alternatives</h4>
+        ${a.rejected.map(r=>`<div class="reject-box"><div class="rj-title">${r.opt}</div><div class="muted">${r.reason}</div></div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* ==================================================================================================
+   DOCUMENT 4 — NFR SPECIFICATION
+   ================================================================================================== */
+function body_nfr(){
+  const cats={};
+  NFR.forEach(n=>{ cats[n.cat]=(cats[n.cat]||0)+1; });
+  const donutData = Object.keys(cats).map((k,i)=>({label:k,value:cats[k],color:['var(--berry)','var(--cherry)','var(--leaf)','var(--amber)','#8a6fd6','#3ba79c','#c46a3b'][i%7]}));
+  return `
+  <p>Fourteen measurable quality-attribute targets. Every target here is enforced either by a fitness function (automated) or a quarterly architecture review (manual) — see cross-references.</p>
+  <div class="diagram-frame">${renderDonut(donutData,720,240)}</div>
+  <div class="diagram-caption">Figure 4.1 — NFR distribution by category (${NFR.length} total).</div>
+  <div class="table-wrap" style="margin-top:16px;"><table class="data-table"><thead><tr><th>ID</th><th>Category</th><th>Priority</th><th>Measurable Target</th><th>Rationale</th></tr></thead><tbody>
+  ${NFR.map(n=>`<tr><td class="mono">${n.id}</td><td>${n.cat}</td><td>${pbadge(n.pri)}</td><td>${n.target}</td><td class="muted">${n.rationale}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 5 — TECHNOLOGY SELECTION & TRADE-OFF MATRIX
+   ================================================================================================== */
+function body_tradeoff(){
+  const totals = TRADEOFF_OPTIONS.map(o=>{
+    let t=0;
+    TRADEOFF_CRITERIA.forEach(c=>{ t+= (o.scores[c.key]||0)*c.weight; });
+    return {name:o.name, total:Math.round(t*100)/100, color:o.color, chosen:o.chosen};
+  });
+  const barData = totals.map(t=>({label:t.name.split(' (')[0], value:t.total, color:t.color}));
+  return `
+  <p>Message-bus technology selection for the claims event backbone (<a href="#doc-adr" onclick="jumpTo('doc-adr')">ADR-002</a>), scored 1 (poor) &ndash; 5 (excellent) per weighted criterion. Weighted total = &Sigma;(score &times; weight).</p>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Criterion</th><th>Weight</th>${TRADEOFF_OPTIONS.map(o=>`<th>${o.name.split(' (')[0]}</th>`).join('')}</tr></thead><tbody>
+  ${TRADEOFF_CRITERIA.map(c=>`<tr><td>${c.label}</td><td class="mono num">${(c.weight*100).toFixed(0)}%</td>${TRADEOFF_OPTIONS.map(o=>`<td class="mono num">${o.scores[c.key]}</td>`).join('')}</tr>`).join('')}
+  <tr style="font-weight:700;background:var(--surface-alt);"><td>Weighted Total</td><td></td>${totals.map(t=>`<td class="mono num">${t.total.toFixed(2)}${t.chosen?' <span class="badge badge-should">Chosen</span>':''}</td>`).join('')}</tr>
+  </tbody></table></div>
+  <div class="diagram-frame" style="margin-top:16px;">${renderHBarChart(barData,700,180)}</div>
+  <div class="diagram-caption">Figure 5.1 &mdash; Weighted total score by option.</div>
+  <div class="callout warn"><div class="co-label">Cost, stated plainly &mdash; not just the win</div>Kafka wins on throughput, ordering, and audit fit, but costs the team a genuine operational learning curve versus RabbitMQ or SQS. That cost is accepted deliberately &mdash; and offset by using Confluent Cloud (managed) instead of self-hosting brokers &mdash; not hidden from the record.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 6 — SEQUENCE & DATA-FLOW DIAGRAMS
+   ================================================================================================== */
+function body_sequence(){
+  return `
+  <h2>FNOL Intake &rarr; Triage</h2>
+  <p>From a policyholder submitting a First Notice of Loss to the claim appearing, triaged, in an adjuster's queue.</p>
+  <div class="diagram-frame">${svg_seqFnol()}</div>
+  <div class="diagram-caption">Figure 6.1 &mdash; FNOL to Triage sequence. Step 10 (claim-number acknowledgement) returns asynchronously and does not block triage.</div>
+  <hr class="rule">
+  <h2>Fraud Risk Scoring</h2>
+  <p>How a composite fraud score is computed and, when it crosses the high-risk threshold, routed to the SIU queue.</p>
+  <div class="diagram-frame">${svg_seqFraud()}</div>
+  <div class="diagram-caption">Figure 6.2 &mdash; Fraud Scoring sequence, including the SIU referral alt-path. Composite scoring must complete within 2.0s p95 (NFR-03).</div>
+  <hr class="rule">
+  <h2>End-to-End Data Flow</h2>
+  <p>How claim data moves from intake through the transactional store, the event bus, the data lake, and back into the online scoring path via a trained model.</p>
+  <div class="diagram-frame">${svg_dataFlow()}</div>
+  <div class="diagram-caption">Figure 6.3 &mdash; Data flow. ClaimCore's nightly batch feeds the Anti-Corruption Layer separately from the real-time event pipeline.</div>
+  <hr class="rule">
+  <h2>Core Data Model (ERD)</h2>
+  <p>The transactional entities behind the Claims DB (PostgreSQL), simplified to the relationships that matter for triage, fraud scoring, and audit.</p>
+  <div class="diagram-frame">${svg_erd()}</div>
+  <div class="diagram-caption">Figure 6.4 &mdash; Entity-relationship view. PolicyRef is a locally-cached read model populated by the Anti-Corruption Layer, not a live foreign key into ClaimCore.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 7 — ARCHITECTURE RISK REGISTER
+   ================================================================================================== */
+function body_risk(){
+  const sorted = [...RISK].sort((a,b)=>(b.likelihood*b.impact)-(a.likelihood*a.impact));
+  const high = RISK.filter(r=>r.likelihood*r.impact>=15).length;
+  const med = RISK.filter(r=>{const s=r.likelihood*r.impact; return s>=8&&s<15;}).length;
+  const low = RISK.filter(r=>r.likelihood*r.impact<8).length;
+  return `
+  <div class="grid grid-4">
+    ${kpiTile('Total Risks',RISK.length,'Tracked in this register',true)}
+    ${kpiTile('High (score &ge;15)',high,'Impact-5 items only',true)}
+    ${kpiTile('Medium (8&ndash;14)',med,'Actively mitigated',true)}
+    ${kpiTile('Low (&lt;8)',low,'Monitored / accepted',true)}
+  </div>
+  <div class="diagram-frame" style="margin-top:16px;">${renderRiskHeatmap(RISK,560,420)}</div>
+  <div class="diagram-caption">Figure 7.1 &mdash; Likelihood &times; Impact heat map. Bubble labels are the risk ID suffix.</div>
+  <div class="table-wrap" style="margin-top:16px;"><table class="data-table"><thead><tr><th>ID</th><th>Risk</th><th>Category</th><th>L</th><th>I</th><th>Score</th><th>Mitigation</th><th>Owner</th><th>Status</th></tr></thead><tbody>
+  ${sorted.map(r=>`<tr><td class="mono">${r.id}</td><td>${r.title}</td><td>${r.cat}</td><td class="mono num">${r.likelihood}</td><td class="mono num">${r.impact}</td><td class="mono num">${r.likelihood*r.impact}</td><td class="muted">${r.mitigation}</td><td>${r.owner}</td><td>${r.status}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 8 — ARCHITECTURE PACKAGE SUMMARY (ONE-PAGE, SIGN-OFF)
+   ================================================================================================== */
+function body_package(){
+  return `
+  <div class="grid grid-4">
+    ${kpiTile('Architecture Style','Event-Driven','Microservices &mdash; ADR-001',true)}
+    ${kpiTile('Fraud Latency Target','&le;2.0s p95','NFR-03',true)}
+    ${kpiTile('CAT Throughput Target','500/min','claims &mdash; NFR-05',true)}
+    ${kpiTile('Open High-Severity Risks','0','of 10 tracked in the register',true)}
+  </div>
+  <h2>Problem</h2>
+  <p>Claims-to-triage time averages 4.5 days against a &lt;4-hour target; fraud leakage runs ~7.2% of paid losses; claim volume is growing 18%/yr against flat adjuster headcount.</p>
+  <h2>Chosen Architecture</h2>
+  <p>Event-driven microservices (ADR-001) on a Kafka event backbone (ADR-002), with a hybrid build-vs-buy fraud scoring engine (ADR-003), an Anti-Corruption Layer isolating the legacy ClaimCore system (ADR-004), polyglot persistence (ADR-005), and channel-specific BFFs (ADR-006).</p>
+  <h2>Top Quality Targets</h2>
+  <ul>
+    <li>99.9% FNOL intake availability, 24/7 (NFR-01)</li>
+    <li>&le;2.0s p95 fraud-score latency (NFR-03)</li>
+    <li>500 claims/min sustained during CAT events, 10&times; auto-scale in 15 min (NFR-05 / NFR-06)</li>
+    <li>100% audit coverage of AI recommendations and overrides, 7-year retention (NFR-10)</li>
+  </ul>
+  <h2>Top Risks</h2>
+  <ul>
+    <li>RISK-04 &mdash; Fraud-score bias triggering a regulatory finding (impact 5, mitigated via quarterly fairness audit)</li>
+    <li>RISK-06 &mdash; PII exposure via a third-party OCR vendor (impact 5, mitigated via SOC 2 + no-retention contract terms)</li>
+    <li>RISK-02 &mdash; Kafka backlog during a CAT surge (mitigated via pre-provisioned CAT-mode capacity)</li>
+  </ul>
+  <div class="callout key"><div class="co-label">Recommendation</div>Architecture is approved for build. All six governance-boundary decisions have Architecture Review Board sign-off; no unmitigated high-severity risks remain open.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT CHROME — cover / control strip / sign-off / footer, reused in-page and standalone
+   ================================================================================================== */
+function logoSrc(){ const el=document.querySelector('#topbar .brand img'); return el?el.src:''; }
+function coverBlock(key){
+  const m=DOC_META[key];
+  return `<div class="doc-cover"><img src="${logoSrc()}" alt="Colaberry"><div class="dc-kicker">Colaberry Enterprise AI Leadership Accelerator &mdash; ClaimSight AI</div><h1>${m.title}</h1><div class="dc-sub">${m.desc}</div><div class="dc-code">${m.code} &middot; Version ${m.version} &middot; ${m.date}</div></div>`;
+}
+function docControlStrip(key){
+  const m=DOC_META[key];
+  return `<div class="doc-control-strip">
+    <div><span class="dcs-label">Document Code</span>${m.code}</div>
+    <div><span class="dcs-label">Version</span>${m.version}</div>
+    <div><span class="dcs-label">Status</span>${m.status}</div>
+    <div><span class="dcs-label">Owner</span>${m.owner}</div>
+  </div>`;
+}
+function signoffBlock(){
+  return `<div class="signoff">
+    <div><div class="so-role">Prepared By</div><div class="so-name">AI Solution Architect (Claude Code)<br><span class="muted" style="font-weight:400;">Directed by abdinur2468 &mdash; Colaberry Accelerator</span></div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Reviewed By</div><div class="so-name">Priya Natarajan<br><span class="muted" style="font-weight:400;">Principal Architect, Architecture Review Board</span></div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Approved By</div><div class="so-name">Grace Whitfield<br><span class="muted" style="font-weight:400;">CTO, Meridian Mutual Insurance</span></div><div class="so-line">Signature / Date</div></div>
+  </div>`;
+}
+function footBlock(key){
+  const m=DOC_META[key];
+  return `<div style="margin-top:26px;padding-top:14px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.76rem;">ClaimSight AI &middot; ${m.code} &middot; Meridian Mutual Insurance &mdash; Confidential &middot; Colaberry Enterprise AI Leadership Accelerator</div>`;
+}
+
+/* ==================================================================================================
+   STANDALONE DOCUMENT CSS (embedded in every downloaded / printed document)
+   ================================================================================================== */
+const DOC_CSS = `
+:root{--cherry:#FB2832;--berry:#367895;--leaf:#5BA63C;--amber:#E8920C;--text:#1A1A1A;--muted:#6B6B6B;--border:#E4E4E3;--surface:#FFFFFF;--surface-alt:#F8F8F7;--font-body:'Roboto',system-ui,-apple-system,Arial,sans-serif;--font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;--radius:10px;--shadow:0 1px 2px rgba(26,26,26,.06),0 4px 14px rgba(26,26,26,.06);}
+@media print{:root{--cherry:#FB2832;--berry:#367895;--leaf:#5BA63C;--amber:#E8920C;--text:#1A1A1A;--muted:#6B6B6B;--border:#E4E4E3;--surface:#FFFFFF;--surface-alt:#F8F8F7;}}
+*{box-sizing:border-box;} html,body{margin:0;padding:0;}
+body{font-family:var(--font-body);color:var(--text);background:var(--surface-alt);line-height:1.55;font-size:14px;}
+.docwrap{max-width:980px;margin:0 auto;padding:34px;background:var(--surface);}
+h1,h2,h3,h4{font-family:var(--font-body);color:var(--berry);font-weight:700;line-height:1.25;margin:0 0 .5em;}
+h1{font-size:1.7rem;} h2{font-size:1.25rem;margin-top:1.4em;} h3{font-size:1.05rem;} h4{font-size:.92rem;color:var(--text);}
+p{margin:.4em 0 .9em;} a{color:var(--berry);} code,.mono{font-family:var(--font-mono);} .muted{color:var(--muted);}
+.text-cherry{color:var(--cherry);} .text-leaf{color:var(--leaf);} .text-amber{color:var(--amber);} .text-berry{color:var(--berry);}
+ul,ol{padding-left:20px;} li{margin-bottom:3px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:16px;}
+.grid{display:grid;gap:14px;} .grid-2{grid-template-columns:repeat(2,1fr);} .grid-3{grid-template-columns:repeat(3,1fr);} .grid-4{grid-template-columns:repeat(4,1fr);}
+.callout{border-radius:var(--radius);padding:12px 15px;margin:14px 0;border:1px solid var(--border);border-left:4px solid var(--berry);background:var(--surface);}
+.callout .co-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:4px;}
+.callout.tip{border-left-color:var(--leaf);} .callout.tip .co-label{color:var(--leaf);}
+.callout.warn{border-left-color:var(--amber);} .callout.warn .co-label{color:var(--amber);}
+.callout.key{border-left-color:var(--cherry);} .callout.key .co-label{color:var(--cherry);}
+.callout.info{border-left-color:var(--berry);} .callout.info .co-label{color:var(--berry);}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.66rem;font-weight:700;font-family:var(--font-mono);white-space:nowrap;}
+.badge-must{background:rgba(251,40,50,.12);color:var(--cherry);} .badge-should{background:rgba(54,120,149,.14);color:var(--berry);} .badge-could{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-hi{background:rgba(251,40,50,.12);color:var(--cherry);} .badge-med{background:rgba(232,146,12,.15);color:var(--amber);} .badge-lo{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-accepted{background:rgba(91,166,60,.14);color:var(--leaf);} .badge-proposed{background:rgba(232,146,12,.15);color:var(--amber);} .badge-superseded{background:rgba(107,107,107,.16);color:var(--muted);}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table.data-table{width:100%;border-collapse:collapse;font-size:.78rem;background:var(--surface);}
+table.data-table thead th{background:var(--berry);color:#fff;text-align:left;padding:8px 10px;font-weight:600;font-size:.7rem;text-transform:uppercase;}
+table.data-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.data-table tbody tr:nth-child(even){background:var(--surface-alt);}
+table.data-table td.mono{font-family:var(--font-mono);} table.data-table td.num{font-family:var(--font-mono);text-align:right;}
+.doc-cover{background:linear-gradient(135deg,var(--berry),#22506a);color:#fff;border-radius:var(--radius);padding:40px 36px;margin-bottom:20px;}
+.doc-cover img{height:32px;margin-bottom:18px;filter:brightness(0) invert(1);}
+.doc-cover .dc-kicker{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;opacity:.85;margin-bottom:6px;}
+.doc-cover h1{color:#fff;font-size:1.7rem;margin-bottom:8px;} .doc-cover .dc-sub{opacity:.9;font-size:.88rem;max-width:640px;}
+.doc-cover .dc-code{margin-top:18px;font-family:var(--font-mono);font-size:.74rem;opacity:.85;}
+.doc-control-strip{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;font-family:var(--font-mono);font-size:.72rem;}
+.doc-control-strip div{padding:9px 12px;border-right:1px solid var(--border);background:var(--surface);} .doc-control-strip div:last-child{border-right:none;}
+.doc-control-strip .dcs-label{display:block;color:var(--muted);text-transform:uppercase;font-size:.6rem;margin-bottom:2px;}
+.kpi-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);}
+.kpi-tile .kpi-label{font-size:.68rem;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.kpi-tile .kpi-value{font-family:var(--font-mono);font-size:1.6rem;font-weight:700;color:var(--berry);margin:3px 0 2px;}
+.kpi-tile .kpi-delta{font-size:.74rem;font-family:var(--font-mono);} .kpi-tile .kpi-target{font-size:.68rem;color:var(--muted);margin-top:3px;}
+.signoff{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:20px;}
+.signoff div{padding:14px;border-right:1px solid var(--border);background:var(--surface);} .signoff div:last-child{border-right:none;}
+.signoff .so-role{font-size:.66rem;text-transform:uppercase;color:var(--muted);font-weight:700;} .signoff .so-name{font-weight:600;margin:8px 0 22px;font-size:.82rem;}
+.signoff .so-line{border-top:1px solid var(--border);padding-top:5px;font-size:.7rem;color:var(--muted);}
+.diagram-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;overflow-x:auto;}
+.diagram-caption{font-size:.74rem;color:var(--muted);margin-top:6px;text-align:center;}
+.legend-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:.74rem;color:var(--muted);}
+.legend-swatch{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;}
+.adr-card{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:18px;overflow:hidden;}
+.adr-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;background:var(--surface-alt);}
+.adr-body{padding:14px 16px;} .adr-body h4{margin-top:12px;font-size:.72rem;text-transform:uppercase;color:var(--berry);}
+.reject-box{border-left:3px solid var(--amber);padding:7px 10px;background:rgba(232,146,12,.06);border-radius:0 8px 8px 0;margin-top:6px;}
+.reject-box .rj-title{font-weight:700;color:var(--amber);font-size:.8rem;}
+.cons-good{color:var(--leaf);} .cons-bad{color:var(--cherry);}
+svg text{font-family:var(--font-body);}
+@media print{
+  body{background:#fff;} .docwrap{padding:0;max-width:100%;}
+  @page{margin:14mm;}
+}
+`;
+
+/* ==================================================================================================
+   STANDALONE DOC ASSEMBLY, DOWNLOAD, PRINT, CSV
+   ================================================================================================== */
+function standaloneHtml(key){
+  const m = DOC_META[key];
+  const body = window['body_'+key]();
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>${m.title.replace(/&amp;/g,'&')} — Colaberry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;0,900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>${DOC_CSS}</style></head><body><div class="docwrap">
+  ${coverBlock(key)}${docControlStrip(key)}${body}${signoffBlock()}${footBlock(key)}
+  </div></body></html>`;
+}
+function downloadDoc(key){
+  const blob = new Blob([standaloneHtml(key)], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download = DOC_META[key].code+'.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function printDoc(key){
+  const w = window.open('', '_blank');
+  if(!w){ alert('Please allow pop-ups to use Save as PDF.'); return; }
+  w.document.open(); w.document.write(standaloneHtml(key)); w.document.close();
+  setTimeout(()=>{ try{ w.focus(); w.print(); }catch(e){} }, 350);
+}
+function csvCell(v){
+  let s = String(v==null?'':v).replace(/<[^>]+>/g,' ');
+  const tmp = document.createElement('textarea'); tmp.innerHTML = s; s = tmp.value;
+  s = s.replace(/\s+/g,' ').trim().replace(/"/g,'""');
+  return /[",\n]/.test(s) ? '"'+s+'"' : s;
+}
+function toCSV(rows){ return rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); }
+function downloadCSVBlob(filename, rows){
+  const blob = new Blob([toCSV(rows)], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function downloadCSV(kind){
+  if(kind==='nfr'){
+    const rows=[['ID','Category','Priority','Target','Rationale']];
+    NFR.forEach(n=>rows.push([n.id,n.cat,n.pri,n.target,n.rationale]));
+    downloadCSVBlob('CSA-NFR-01.csv', rows);
+  } else if(kind==='tradeoff'){
+    const rows=[['Criterion','Weight'].concat(TRADEOFF_OPTIONS.map(o=>o.name))];
+    TRADEOFF_CRITERIA.forEach(c=>{ rows.push([c.label,(c.weight*100)+'%'].concat(TRADEOFF_OPTIONS.map(o=>o.scores[c.key]))); });
+    const totals = TRADEOFF_OPTIONS.map(o=>{ let t=0; TRADEOFF_CRITERIA.forEach(c=>{t+=(o.scores[c.key]||0)*c.weight;}); return t.toFixed(2); });
+    rows.push(['Weighted Total',''].concat(totals));
+    downloadCSVBlob('CSA-TDM-01.csv', rows);
+  } else if(kind==='risk'){
+    const rows=[['ID','Risk','Category','Likelihood','Impact','Score','Mitigation','Owner','Status']];
+    RISK.forEach(r=>rows.push([r.id,r.title,r.cat,r.likelihood,r.impact,r.likelihood*r.impact,r.mitigation,r.owner,r.status]));
+    downloadCSVBlob('CSA-RISK-01.csv', rows);
+  }
+}
+
+/* ==================================================================================================
+   PAGE ASSEMBLY
+   ================================================================================================== */
+const DOC_ORDER = ['sad','c4','adr','nfr','tradeoff','sequence','risk','package'];
+const CSV_DOCS = ['nfr','tradeoff','risk'];
+const SECTION_IDS = ['why','twenty','c4model','adrmodel','patterns','goodbad','kpis','lens','initiative',
+  'doc-sad','doc-c4','doc-adr','doc-nfr','doc-tradeoff','doc-sequence','doc-risk','doc-package'];
+
+function renderInPage(){
+  const foundationFns = [body_why, body_twenty, body_c4model, body_adrmodel, body_patterns, body_goodbad, body_kpis, body_lens];
+  let html = foundationFns.map(f=>`<section class="page-section">${f()}</section>`).join('');
+  html += `<section class="page-section">${body_initiative()}</section>`;
+  DOC_ORDER.forEach((key,i)=>{
+    const m = DOC_META[key];
+    html += `<section class="page-section" id="doc-${key}">
+      <div class="section-kicker">Document ${i+1} of ${DOC_ORDER.length}</div>
+      <h1>${m.title}</h1>
+      <p class="section-lede">${m.desc}</p>
+      ${docControlStrip(key)}
+      <div class="doc-toolbar">
+        <button class="btn btn-primary" onclick="downloadDoc('${key}')">Download HTML</button>
+        <button class="btn btn-outline" onclick="printDoc('${key}')">Save as PDF</button>
+        ${CSV_DOCS.includes(key)?`<button class="btn btn-ghost" onclick="downloadCSV('${key}')">Export CSV</button>`:''}
+      </div>
+      ${window['body_'+key]()}
+      ${signoffBlock()}
+    </section>`;
+  });
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+/* ---------- Search ---------- */
+let SEARCH_INDEX = [];
+function buildSearchIndex(){
+  SEARCH_INDEX = [];
+  SECTION_IDS.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const sectionEl = el.closest('.page-section') || el;
+    let title;
+    if(id.indexOf('doc-')===0){
+      const tmp=document.createElement('div'); tmp.innerHTML=DOC_META[id.replace('doc-','')].title; title=tmp.textContent;
+    } else {
+      const h1 = sectionEl.querySelector('h1'); title = h1 ? h1.textContent : id;
+    }
+    const text = sectionEl.textContent || '';
+    const ledeEl = sectionEl.querySelector('.section-lede, p');
+    const snippet = ledeEl ? ledeEl.textContent.slice(0,140) : '';
+    SEARCH_INDEX.push({id, title, text:(title+' '+text).toLowerCase(), snippet});
+  });
+}
+function runSearch(q){
+  const box = document.getElementById('searchResults');
+  q = q.trim().toLowerCase();
+  if(!q){ box.style.display='none'; box.innerHTML=''; return; }
+  const terms = q.split(/\s+/).filter(Boolean);
+  const scored = SEARCH_INDEX.map(item=>{
+    let score=0;
+    terms.forEach(t=>{ if(item.text.indexOf(t)!==-1) score += (item.title.toLowerCase().indexOf(t)!==-1?3:1); });
+    return {item,score};
+  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,8);
+  if(!scored.length){ box.innerHTML='<div class="res-empty">No matches. Try a different term, or ask the guide directly.</div>'; box.style.display='block'; return; }
+  box.innerHTML = scored.map(r=>`<div class="res-item" onclick="jumpTo('${r.item.id}');closeSearch();">
+    <div class="rk">${r.item.id.indexOf('doc-')===0?'Document':'Foundations'}</div>
+    <div class="rt">${esc(r.item.title)}</div>
+    <div class="rs">${esc(r.item.snippet)}</div>
+  </div>`).join('');
+  box.style.display='block';
+}
+function closeSearch(){ document.getElementById('searchResults').style.display='none'; document.getElementById('searchInput').value=''; }
+function jumpTo(id){
+  const el = document.getElementById(id);
+  if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  closeSearch();
+}
+
+/* ---------- Nav scroll-spy ---------- */
+function setupNavHighlight(){
+  const links = document.querySelectorAll('#sidenav a.navlink');
+  function onScroll(){
+    let current=null;
+    SECTION_IDS.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el && el.getBoundingClientRect().top - 90 <= 0) current = id;
+    });
+    links.forEach(l=>{ l.classList.toggle('active', l.getAttribute('href')==='#'+current); });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+}
+
+/* ---------- Theme ---------- */
+function toggleTheme(){
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeBtn').textContent = next==='dark' ? 'Light mode' : 'Dark mode';
+}
+
+/* ---------- Ask assistant (offline Q&A over FAQ) ---------- */
+function toggleAsk(){
+  const panel = document.getElementById('askPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')) document.getElementById('askInput').focus();
+}
+function scoreFaq(query){
+  const q = query.toLowerCase();
+  const words = q.split(/\s+/).filter(w=>w.length>2);
+  let best=null, bestScore=0;
+  FAQ.forEach(f=>{
+    let score=0;
+    const qtext = f.q.toLowerCase();
+    if(qtext===q) score+=100;
+    f.k.forEach(k=>{ if(q.indexOf(k)!==-1) score+=4; });
+    words.forEach(w=>{ if(qtext.indexOf(w)!==-1) score+=2; });
+    if(score>bestScore){ bestScore=score; best=f; }
+  });
+  return bestScore>=2 ? best : null;
+}
+function pushAsk(question, answerHtml){
+  const body = document.getElementById('askBody');
+  const q = document.createElement('div'); q.className='aq'; q.textContent=question;
+  body.appendChild(q);
+  const a = document.createElement('div'); a.className='aa'; a.innerHTML=answerHtml;
+  body.appendChild(a);
+  body.scrollTop = body.scrollHeight;
+}
+function handleAsk(e){
+  if(e && e.preventDefault) e.preventDefault();
+  const input = document.getElementById('askInput');
+  const q = input.value.trim();
+  if(!q) return false;
+  const match = scoreFaq(q);
+  if(match){
+    pushAsk(q, `${match.a} <a class="aa-link" href="#${match.jump}" onclick="jumpTo('${match.jump}')">Jump to source &rarr;</a>`);
+  } else {
+    pushAsk(q, `I couldn't find a confident match in the guide for that. Try rephrasing, or browse <a class="aa-link" href="#twenty" onclick="jumpTo('twenty')">The Vital 20%</a>, or use the search box above.`);
+  }
+  input.value='';
+  return false;
+}
+function askSuggested(el){
+  document.getElementById('askInput').value = el.textContent;
+  handleAsk(null);
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', function(){
+  renderInPage();
+  buildSearchIndex();
+  setupNavHighlight();
+  document.addEventListener('click', function(e){
+    const wrap = document.querySelector('.searchwrap');
+    if(wrap && !wrap.contains(e.target)) document.getElementById('searchResults').style.display='none';
+  });
+});
+</script>
+</body>
+</html>

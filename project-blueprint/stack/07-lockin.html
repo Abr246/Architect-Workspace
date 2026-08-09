@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lock-in — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="lockin">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">07 · Lock-in</span>
+    <h1>How hard each decision would be to undo</h1>
+    <p class="lede">Not every mistake costs the same to fix. A wrong frontend framework is an afternoon; a wrong payment processor touches accounting, refunds, and the operator's bank.</p>
+  </div>
+
+  <div id="fig-lockscale"></div>
+
+  <div class="card">
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Technology</th><th>Undo difficulty</th><th>Why</th></tr></thead>
+      <tbody id="lockin-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  var levelLabel = { low: "Low", medium: "Medium", high: "High" };
+  var levelColor = { low: "green", medium: "amber", high: "red" };
+
+  document.getElementById("lockin-tbody").innerHTML = STACK.lockIn.map(function (l, i) {
+    return '<tr id="lock-' + i + '" data-searchable="' + Site.escapeHtml(l.tech + " " + l.level + " " + l.reason) + '">' +
+      "<td><strong>" + l.tech + "</strong></td>" +
+      '<td><span class="fit-chip ' + levelColor[l.level] + '"><span class="fit-dot ' + levelColor[l.level] + '"></span>' + levelLabel[l.level] + "</span></td>" +
+      "<td>" + l.reason + "</td></tr>";
+  }).join("");
+
+  document.getElementById("fig-lockscale").innerHTML =
+    Site.figureShell("fig-lockscale-svg", "Lock-in scale, low to high", true);
+
+  Site.mount("lockin");
+
+  Site.registerFigure("fig-lockscale-svg", "svg", { svg: Site.fullIllustration("lockin") });
+  Site.renderFigure("fig-lockscale-svg");
+  Site.renderInterp("fig-lockscale-svg", "The dot's position is the undo difficulty. Stripe and Clerk sit furthest right because they hold real customer data (payment history, identities) that doesn't migrate cleanly.");
+</script>
+</body>
+</html>

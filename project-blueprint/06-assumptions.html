@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assumptions — Pitch AI Blueprint</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="assumptions">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">06 · Assumptions</span>
+    <h1>What was assumed, and what changes if it's wrong</h1>
+    <p class="lede">Every assumption below was necessary to turn a one-paragraph idea into a concrete design. Each one names its impact if it turns out to be wrong.</p>
+  </div>
+
+  <div class="card">
+    <h2>Assumptions and their impact</h2>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Assumption</th><th>Impact if wrong</th></tr></thead>
+      <tbody id="assumptions-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card" id="open-question">
+    <span class="eyebrow">The one question that would most change the design</span>
+    <h2 style="margin-top:10px;" id="open-question-text"></h2>
+    <div id="fig-fork"></div>
+    <div class="grid cols-2" style="margin-top:10px;">
+      <div class="card" style="border-color:var(--green);margin:0;">
+        <h3 style="color:var(--green);" id="branchA-label"></h3>
+        <p id="branchA-detail"></p>
+      </div>
+      <div class="card" style="border-color:var(--amber);margin:0;">
+        <h3 style="color:var(--amber);" id="branchB-label"></h3>
+        <p id="branchB-detail"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/blueprint.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("assumptions-tbody").innerHTML = BLUEPRINT.assumptions.map(function (a, i) {
+    return '<tr id="assumption-' + i + '" data-searchable="' + Site.escapeHtml(a.assumption + " " + a.impact) + '">' +
+      "<td>" + a.assumption + "</td>" +
+      '<td style="color:var(--muted);">' + a.impact + "</td>" +
+    "</tr>";
+  }).join("");
+
+  document.getElementById("open-question-text").textContent = BLUEPRINT.openQuestion.question;
+  document.getElementById("branchA-label").textContent = "If: " + BLUEPRINT.openQuestion.branchA.label;
+  document.getElementById("branchA-detail").textContent = BLUEPRINT.openQuestion.branchA.detail;
+  document.getElementById("branchB-label").textContent = "If: " + BLUEPRINT.openQuestion.branchB.label;
+  document.getElementById("branchB-detail").textContent = BLUEPRINT.openQuestion.branchB.detail;
+
+  document.getElementById("fig-fork").innerHTML =
+    Site.figureShell("fig-fork-svg", "Two branches from one open question", false);
+
+  Site.mount("assumptions");
+
+  Site.registerFigure("fig-fork-svg", "svg", { svg: Site.fullIllustration("assumptions") });
+  Site.renderFigure("fig-fork-svg");
+  Site.renderInterp("fig-fork-svg", "This is the one design fork worth resolving before Phase 1 starts — every other assumption on this page can be corrected later without touching the database schema.");
+</script>
+</body>
+</html>

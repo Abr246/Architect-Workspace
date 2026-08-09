@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Flow — Pitch AI Blueprint</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="dataflow">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">04 · Data Flow</span>
+    <h1>From search to confirmed booking, 12 steps</h1>
+    <p class="lede">Amber steps are where the AI Optimization Engine is involved. The green step is the one that guarantees zero double-bookings.</p>
+  </div>
+
+  <div id="fig-ribbon"></div>
+
+  <div class="card">
+    <h2>Step by step</h2>
+    <div id="steps-list"></div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/blueprint.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("fig-ribbon").innerHTML =
+    Site.figureShell("fig-ribbon-svg", "The 12-step ribbon", false);
+
+  document.getElementById("steps-list").innerHTML = BLUEPRINT.dataFlow.map(function (d) {
+    var badge = d.dayOneCritical ? '<span class="badge full">day-one critical</span>' : d.aiTouch ? '<span class="badge ai">AI</span>' : "";
+    return '<div class="card" id="step-' + d.step + '" data-searchable="' + Site.escapeHtml("step " + d.step + " " + d.actor + " " + d.action) + '" style="margin:10px 0;padding:14px 16px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">' +
+        '<div><strong>' + d.step + ". " + d.actor + "</strong><div style=\"color:var(--muted);font-size:.92rem;margin-top:2px;\">" + d.action + "</div></div>" +
+        badge +
+      "</div>" +
+    "</div>";
+  }).join("");
+
+  Site.mount("dataflow");
+
+  Site.registerFigure("fig-ribbon-svg", "svg", { svg: Site.fullIllustration("dataflow") });
+  Site.renderFigure("fig-ribbon-svg");
+  Site.renderInterp("fig-ribbon-svg", "Three of the twelve steps involve the AI; the rest is deterministic booking, locking, and payment plumbing — the AI advises, it never decides who gets a slot.");
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fit Analysis — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="fit-analysis">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">03 · Fit Analysis</span>
+    <h1>Every rating explained — reds called out, not softened</h1>
+    <p class="lede">A rating only counts if it traces to something specific about Pitch AI's actual scale, not a generic opinion about the technology. If everything came back 🟢, that would mean no real evaluation happened — it didn't.</p>
+  </div>
+
+  <div id="fig-grid"></div>
+
+  <div class="card">
+    <h2>🔴 Consider carefully — read these first</h2>
+    <div id="red-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>🟡 Good fit, with a caveat</h2>
+    <div id="amber-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>🟢 Great fit</h2>
+    <div id="green-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Least confident calls</h2>
+    <p style="color:var(--muted);">These aren't necessarily the reds — they're the recommendations where a reasonable person could land somewhere else, and it's worth knowing that going in.</p>
+    <div id="least-confident-list"></div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  var fitLabel = { green: "Great fit", amber: "Good fit", red: "Consider carefully" };
+  var fitIcon = { green: "🟢", amber: "🟡", red: "🔴" };
+
+  function fitCard(it) {
+    var caveat = it.caveat ? '<div class="caveat-box ' + (it.fit === "red" ? "red" : "") + '"><strong>Caveat:</strong> ' + it.caveat + "</div>" : "";
+    return (
+      '<div class="prompt-card" id="fit-' + it.id + '" data-searchable="' + Site.escapeHtml(it.component + " " + it.tech + " " + it.why + " " + (it.caveat || "")) + '">' +
+        '<div class="pc-head"><strong>' + it.component + " → " + it.tech + '</strong>' +
+        '<span class="fit-chip ' + it.fit + '">' + fitIcon[it.fit] + " " + fitLabel[it.fit] + "</span></div>" +
+        "<p style='margin:0;'>" + it.why + "</p>" +
+        caveat +
+      "</div>"
+    );
+  }
+
+  var items = Site.allItems().map(function (p) { return p.item; });
+  document.getElementById("red-list").innerHTML = items.filter(function (i) { return i.fit === "red"; }).map(fitCard).join("") || "<p style='color:var(--muted);'>None.</p>";
+  document.getElementById("amber-list").innerHTML = items.filter(function (i) { return i.fit === "amber"; }).map(fitCard).join("");
+  document.getElementById("green-list").innerHTML = items.filter(function (i) { return i.fit === "green"; }).map(fitCard).join("");
+
+  document.getElementById("least-confident-list").innerHTML = STACK.leastConfident.map(function (l) {
+    return '<div class="prompt-card" data-searchable="' + Site.escapeHtml(l.component + " " + l.reason) + '"><strong>' + l.component + "</strong><p style='margin:6px 0 0;'>" + l.reason + "</p></div>";
+  }).join("");
+
+  document.getElementById("fig-grid").innerHTML =
+    Site.figureShell("fig-grid-svg", "Every recommendation, one cell each", true);
+
+  Site.mount("fit-analysis");
+
+  Site.registerFigure("fig-grid-svg", "svg", { svg: Site.fullIllustration("fit-analysis") });
+  Site.renderFigure("fig-grid-svg");
+  Site.renderInterp("fig-grid-svg", "Same cells as the Recommendations groups, laid flat so the ratio of green to amber to red is easy to scan in one glance.");
+</script>
+</body>
+</html>

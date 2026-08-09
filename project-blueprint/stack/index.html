@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pitch AI — Tech Stack Command Center</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="index">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">Command Center</span>
+    <h1>Tech Stack: Pitch AI</h1>
+    <p class="lede">One real, specific technology for every component in <a href="../architecture.md">the architecture</a>, rated for fit against this project's actual size — not against what's popular.</p>
+  </div>
+
+  <div class="card">
+    <span class="badge full">Headline</span>
+    <p style="margin:10px 0 0;font-size:1.02rem;" id="headline-text"></p>
+  </div>
+
+  <h2 style="margin-top:30px;">Browse the stack</h2>
+  <div class="tiles" id="tiles-grid"><!-- rendered by site.js --></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("headline-text").textContent = STACK.meta.headline;
+  Site.mount("index");
+</script>
+</body>
+</html>

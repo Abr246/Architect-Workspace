@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture — Pitch AI Blueprint</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="architecture">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">03 · Architecture</span>
+    <h1>How it fits together</h1>
+    <p class="lede">Every arrow below is labelled with the data or action crossing it — nothing is left as an unlabeled line.</p>
+  </div>
+
+  <div id="fig-graph"></div>
+  <div id="fig-flowchart"></div>
+  <div id="fig-sequence"></div>
+
+  <div class="card">
+    <h2>Shape rules</h2>
+    <div class="grid cols-2" style="font-size:.9rem;">
+      <div><span class="badge frontend">Rectangle</span> services and apps this design builds (Booking App, Console, Booking Service, AI Engine, Rebalancing Worker).</div>
+      <div><span class="badge datastore">Cylinder</span> data stores (Facility &amp; Booking Database).</div>
+      <div><span class="badge thirdparty">Hexagon</span> third parties (Payment Gateway).</div>
+      <div><span class="badge entry">Stadium</span> entry points (Customer, Operator).</div>
+    </div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/blueprint.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("fig-graph").innerHTML =
+    Site.figureShell("fig-graph-svg", "Component graph at a glance", false);
+  document.getElementById("fig-flowchart").innerHTML =
+    Site.figureShell("fig-flowchart-mermaid", "Architecture flowchart", true);
+  document.getElementById("fig-sequence").innerHTML =
+    Site.figureShell("fig-sequence-mermaid", "Booking sequence", true);
+
+  Site.mount("architecture");
+
+  Site.registerFigure("fig-graph-svg", "svg", { svg: Site.fullIllustration("architecture") });
+  Site.renderFigure("fig-graph-svg");
+  Site.renderInterp("fig-graph-svg", "Nine nodes, one job each — the Booking Service sits at the center because it's the only component that ever writes a reservation.");
+
+  Site.registerFigure("fig-flowchart-mermaid", "mermaid", { source: BLUEPRINT.diagrams.architecture });
+  Site.renderFigure("fig-flowchart-mermaid");
+  Site.renderInterp("fig-flowchart-mermaid", "A customer never touches the database or the AI directly — the Booking Service is the single choke point, which is what makes the zero-double-booking guarantee possible.");
+
+  Site.registerFigure("fig-sequence-mermaid", "mermaid", { source: BLUEPRINT.diagrams.sequence });
+  Site.renderFigure("fig-sequence-mermaid");
+  Site.renderInterp("fig-sequence-mermaid", "Top to bottom is time: the AI scores slots before the customer ever sees a price, and the database lock happens before money moves — so a failed payment never leaves a phantom reservation behind.");
+</script>
+</body>
+</html>

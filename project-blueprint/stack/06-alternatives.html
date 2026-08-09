@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alternatives — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="alternatives">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">06 · Alternatives</span>
+    <h1>What else was considered, and why it lost</h1>
+    <p class="lede">Every recommendation had at least one real competitor. Here's what it was and the specific reason Pitch AI's situation tips toward the chosen technology instead.</p>
+  </div>
+
+  <div id="fig-compare"></div>
+
+  <div class="card">
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Component</th><th>Chosen</th><th>Alternative</th><th>Why not</th></tr></thead>
+      <tbody id="alt-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("alt-tbody").innerHTML = STACK.alternatives.map(function (a, i) {
+    return '<tr id="alt-' + i + '" data-searchable="' + Site.escapeHtml(a.component + " " + a.chosen + " " + a.alternative + " " + a.whyNot) + '">' +
+      "<td><strong>" + a.component + "</strong></td>" +
+      '<td style="color:var(--green);font-weight:600;">' + a.chosen + "</td>" +
+      '<td style="color:var(--slate);">' + a.alternative + "</td>" +
+      "<td>" + a.whyNot + "</td></tr>";
+  }).join("");
+
+  document.getElementById("fig-compare").innerHTML =
+    Site.figureShell("fig-compare-svg", "Chosen (green) vs. the runner-up (grey)", false);
+
+  Site.mount("alternatives");
+
+  Site.registerFigure("fig-compare-svg", "svg", { svg: Site.fullIllustration("alternatives") });
+  Site.renderFigure("fig-compare-svg");
+  Site.renderInterp("fig-compare-svg", "Every row pairs the pick with the technology it beat. None of the alternatives are wrong in general — they just fit a different project.");
+</script>
+</body>
+</html>

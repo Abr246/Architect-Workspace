@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coverage — Pitch AI Blueprint</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="coverage">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">07 · Coverage</span>
+    <h1>What this design covers, and what it honestly doesn't</h1>
+    <p class="lede">Green means the idea implied it and this design builds it. Red means it's a plausible real-world feature that the idea never actually asked for, so it was deliberately left out.</p>
+  </div>
+
+  <div id="fig-grid"></div>
+
+  <div class="card">
+    <h2>Coverage detail</h2>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Area</th><th>Status</th><th>Note</th></tr></thead>
+      <tbody id="coverage-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card" id="not-covered" data-searchable="not covered out of scope">
+    <h2>What this design does not cover</h2>
+    <ul id="not-covered-list" style="padding-left:20px;"></ul>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/blueprint.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("coverage-tbody").innerHTML = BLUEPRINT.coverage.map(function (c) {
+    return '<tr data-searchable="' + Site.escapeHtml(c.area + " " + c.note) + '">' +
+      "<td>" + c.area + "</td>" +
+      '<td><span class="badge ' + c.covered + '">' + c.covered.toUpperCase() + "</span></td>" +
+      '<td style="color:var(--muted);">' + c.note + "</td>" +
+    "</tr>";
+  }).join("");
+
+  document.getElementById("not-covered-list").innerHTML = BLUEPRINT.notCovered.map(function (n) {
+    return "<li style=\"margin:6px 0;\">" + n + "</li>";
+  }).join("");
+
+  document.getElementById("fig-grid").innerHTML =
+    Site.figureShell("fig-grid-svg", "Coverage grid", false);
+
+  Site.mount("coverage");
+
+  Site.registerFigure("fig-grid-svg", "svg", { svg: Site.fullIllustration("coverage") });
+  Site.renderFigure("fig-grid-svg");
+  var noneCount = BLUEPRINT.coverage.filter(function (c) { return c.covered === "none"; }).length;
+  var partialCount = BLUEPRINT.coverage.filter(function (c) { return c.covered === "partial"; }).length;
+  Site.renderInterp("fig-grid-svg", noneCount + " areas are deliberately out of scope and " + partialCount + " is only partially designed — none of them block the day-one booking guarantee.");
+</script>
+</body>
+</html>

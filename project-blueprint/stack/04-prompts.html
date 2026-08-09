@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompts — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="prompts">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">04 · Prompts</span>
+    <h1>Every copy-ready prompt, in one place</h1>
+    <p class="lede">Paste any of these into a new conversation to learn that one technology properly, using Pitch AI as the worked example instead of a generic textbook.</p>
+  </div>
+
+  <div id="fig-stack"></div>
+
+  <div id="prompts-root"></div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  var fitIcon = { green: "🟢", amber: "🟡", red: "🔴" };
+
+  document.getElementById("prompts-root").innerHTML = STACK.groups.map(function (g) {
+    return (
+      '<div class="card"><h2>' + g.name + '</h2>' +
+      g.items.map(function (it) {
+        var taId = "prompt-src-" + it.id;
+        return (
+          '<div class="prompt-card" id="prompt-' + it.id + '" data-searchable="' + Site.escapeHtml(it.component + " " + it.tech + " " + it.prompt) + '">' +
+            '<div class="pc-head"><strong>' + fitIcon[it.fit] + " " + it.component + " — " + it.tech + '</strong>' +
+            '<button class="copy-btn" data-copy="' + taId + '">Copy prompt</button></div>' +
+            '<pre id="' + taId + '">' + Site.escapeHtml(it.prompt) + "</pre>" +
+          "</div>"
+        );
+      }).join("") +
+      "</div>"
+    );
+  }).join("");
+
+  document.getElementById("fig-stack").innerHTML =
+    Site.figureShell("fig-stack-svg", "One card per prompt", false);
+
+  Site.mount("prompts");
+
+  Site.registerFigure("fig-stack-svg", "svg", { svg: Site.fullIllustration("prompts") });
+  Site.renderFigure("fig-stack-svg");
+  Site.renderInterp("fig-stack-svg", Site.allItems().length + " prompts, one per recommendation, dot-coloured by that recommendation's fit rating.");
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Path — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="learning-path">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">05 · Learning Path</span>
+    <h1>What to learn first, in order</h1>
+    <p class="lede">Ordered to track the Build Order in the architecture — learn each technology right before the phase that needs it, not all at once up front.</p>
+  </div>
+
+  <div id="fig-ladder"></div>
+
+  <div class="card">
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>#</th><th>Technology</th><th>Why now</th></tr></thead>
+      <tbody id="learn-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("learn-tbody").innerHTML = STACK.learningOrder.map(function (l) {
+    return '<tr id="learn-' + l.order + '" data-searchable="' + Site.escapeHtml(l.tech + " " + l.reason) + '">' +
+      "<td><strong>" + l.order + "</strong></td><td>" + l.tech + "</td><td>" + l.reason + "</td></tr>";
+  }).join("");
+
+  document.getElementById("fig-ladder").innerHTML =
+    Site.figureShell("fig-ladder-svg", "The learning ladder", true);
+
+  Site.mount("learning-path");
+
+  Site.registerFigure("fig-ladder-svg", "svg", { svg: Site.fullIllustration("learning-path") });
+  Site.renderFigure("fig-ladder-svg");
+  Site.renderInterp("fig-ladder-svg", "Bottom rung first: PostgreSQL underpins everything else, so it's step one even though it's the least visible piece of the product.");
+</script>
+</body>
+</html>

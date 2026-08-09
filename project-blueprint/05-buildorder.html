@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build Order — Pitch AI Blueprint</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="buildorder">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">05 · Build Order</span>
+    <h1>Five phases, one make-or-break</h1>
+    <p class="lede">Phase 1 alone delivers the day-one requirement. Every later phase makes the same reservation smarter or more automatic — none of them are required for booking to work correctly.</p>
+  </div>
+
+  <div id="fig-timeline"></div>
+
+  <div class="grid cols-2" id="phase-cards"></div>
+
+  <div id="fig-gantt"></div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/blueprint.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("fig-timeline").innerHTML =
+    Site.figureShell("fig-timeline-svg", "Build phases, proportional to duration", false);
+  document.getElementById("fig-gantt").innerHTML =
+    Site.figureShell("fig-gantt-mermaid", "Build order gantt", true);
+
+  document.getElementById("phase-cards").innerHTML = BLUEPRINT.buildPhases.map(function (p) {
+    return '<div class="card" id="phase-' + p.phase + '" data-searchable="' + Site.escapeHtml("phase " + p.phase + " " + p.name + " " + p.builds + " " + p.proves) + '">' +
+      '<span class="eyebrow">Phase ' + p.phase + (p.makeOrBreak ? ' · make or break' : '') + '</span>' +
+      '<h3 style="margin:8px 0 4px;">' + p.name + ' <span style="color:var(--muted);font-weight:400;font-size:.85rem;">(~' + p.weeks + ' wk)</span></h3>' +
+      '<p><strong>Builds:</strong> ' + p.builds + '</p>' +
+      '<p><strong>Proves:</strong> ' + p.proves + '</p>' +
+    '</div>';
+  }).join("");
+
+  Site.mount("buildorder");
+
+  Site.registerFigure("fig-timeline-svg", "svg", { svg: Site.fullIllustration("buildorder") });
+  Site.renderFigure("fig-timeline-svg");
+  Site.renderInterp("fig-timeline-svg", "Bar width is proportional to estimated weeks — Phase 1 (highlighted) is the shortest reasonable path to the day-one requirement, not the biggest phase.");
+
+  Site.registerFigure("fig-gantt-mermaid", "mermaid", { source: BLUEPRINT.diagrams.gantt });
+  Site.renderFigure("fig-gantt-mermaid");
+  Site.renderInterp("fig-gantt-mermaid", "Dates are illustrative start points, not a commitment — what matters is the order: booking before payments, payments before AI, AI before rebalancing.");
+</script>
+</body>
+</html>

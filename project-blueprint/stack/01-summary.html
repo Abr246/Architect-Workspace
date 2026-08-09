@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summary — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="summary">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">01 · Summary</span>
+    <h1>The fit-rating key, and where this stack is likely to break</h1>
+    <p class="lede">Based on <code>project-blueprint/architecture.md</code>. Every recommendation later in this site traces back to one of the rows below.</p>
+  </div>
+
+  <div class="card">
+    <h2>Fit-rating key</h2>
+    <table>
+      <thead><tr><th>Icon</th><th>Label</th><th>What it means</th></tr></thead>
+      <tbody id="fit-key-tbody"></tbody>
+    </table>
+  </div>
+
+  <div id="fig-fitbar"></div>
+
+  <div class="card">
+    <h2>Headline</h2>
+    <p id="headline-text" style="font-size:1.02rem;"></p>
+    <p style="color:var(--muted);font-size:.9rem;">See <a href="03-fit-analysis.html">Fit Analysis</a> for every rating explained, and <a href="02-recommendations.html">Recommendations</a> for the full list.</p>
+  </div>
+
+  <div class="card">
+    <h2>At a glance</h2>
+    <div class="grid cols-3" id="stats-grid"></div>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  document.getElementById("fit-key-tbody").innerHTML = STACK.fitKey.map(function (f) {
+    return "<tr><td style='font-size:1.3rem;'>" + f.icon + "</td><td><strong>" + f.label + "</strong></td><td>" + f.meaning + "</td></tr>";
+  }).join("");
+
+  document.getElementById("headline-text").textContent = STACK.meta.headline;
+
+  document.getElementById("fig-fitbar").innerHTML =
+    Site.figureShell("fig-fitbar-svg", "Every recommendation, by fit rating", true);
+
+  var counts = Site.fitCounts();
+  var groupCount = STACK.groups.length;
+  var flowCount = STACK.groups.filter(function (g) { return g.fromFlow; })[0].items.length;
+  document.getElementById("stats-grid").innerHTML =
+    '<div class="card" style="margin:0;"><h3 style="margin:0;">' + (counts.green + counts.amber + counts.red) + '</h3><p style="color:var(--muted);margin:4px 0 0;">technologies recommended</p></div>' +
+    '<div class="card" style="margin:0;"><h3 style="margin:0;">' + groupCount + '</h3><p style="color:var(--muted);margin:4px 0 0;">groups (touch / write / store / depend / flow)</p></div>' +
+    '<div class="card" style="margin:0;"><h3 style="margin:0;">' + flowCount + '</h3><p style="color:var(--muted);margin:4px 0 0;">added from the data flow, not the component list</p></div>';
+
+  Site.mount("summary");
+
+  Site.registerFigure("fig-fitbar-svg", "svg", { svg: Site.fullIllustration("summary") });
+  Site.renderFigure("fig-fitbar-svg");
+  Site.renderInterp("fig-fitbar-svg", counts.green + " great fits, " + counts.amber + " good fits with a caveat, and " + counts.red + " that needs careful reading before you build it — see the callout on the red segment.");
+</script>
+</body>
+</html>

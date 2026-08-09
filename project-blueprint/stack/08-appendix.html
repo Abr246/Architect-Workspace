@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appendix — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="appendix">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">08 · Appendix</span>
+    <h1>What runs where, what's covered, and what this document doesn't tell you</h1>
+  </div>
+
+  <div id="fig-topology"></div>
+
+  <div class="card">
+    <h2>Architecture coverage check</h2>
+    <p style="color:var(--muted);">Every component named in <code>architecture.md</code>, matched against its row in this stack. Nothing here is a guess about coverage — it's a direct list comparison.</p>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Architecture component</th><th>Has a stack row?</th></tr></thead>
+      <tbody id="coverage-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Least confident calls (recap)</h2>
+    <div id="least-confident-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>What this document does NOT tell me</h2>
+    <ul id="not-covered-list" style="padding-left:20px;"></ul>
+  </div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  var architectureComponents = [
+    "Customer Booking App", "Operator Console", "Booking Service",
+    "Facility & Booking Database", "AI Optimization Engine",
+    "Rebalancing Worker", "Payment Gateway"
+  ];
+  var stackComponentNames = Site.allItems().map(function (p) { return p.item.component; });
+
+  document.getElementById("coverage-tbody").innerHTML = architectureComponents.map(function (name) {
+    var has = stackComponentNames.indexOf(name) !== -1;
+    return '<tr data-searchable="' + Site.escapeHtml(name) + '"><td><strong>' + name + "</strong></td><td>" +
+      (has ? '<span class="fit-chip green"><span class="fit-dot green"></span>Yes</span>' : '<span class="fit-chip red"><span class="fit-dot red"></span>Missing</span>') +
+      "</td></tr>";
+  }).join("");
+
+  document.getElementById("least-confident-list").innerHTML = STACK.leastConfident.map(function (l) {
+    return '<div class="prompt-card" id="least-confident" data-searchable="' + Site.escapeHtml(l.component + " " + l.reason) + '"><strong>' + l.component + "</strong><p style='margin:6px 0 0;'>" + l.reason + "</p></div>";
+  }).join("");
+
+  document.getElementById("not-covered-list").innerHTML = STACK.notCovered.map(function (n) {
+    return '<li id="not-covered" data-searchable="' + Site.escapeHtml(n) + '" style="margin-bottom:6px;">' + n + "</li>";
+  }).join("");
+
+  document.getElementById("fig-topology").innerHTML =
+    Site.figureShell("fig-topology-svg", "What runs on your machine vs. somebody else's", true);
+
+  Site.mount("appendix");
+
+  Site.registerFigure("fig-topology-svg", "svg", { svg: Site.fullIllustration("appendix") });
+  Site.renderFigure("fig-topology-svg");
+  Site.renderInterp("fig-topology-svg", "The dashed box on the left is everything Render hosts for you; the box on the right is handed off entirely to a vendor — Stripe, Clerk, and Render itself for hosting.");
+</script>
+</body>
+</html>

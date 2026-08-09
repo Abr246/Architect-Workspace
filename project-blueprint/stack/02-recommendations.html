@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recommendations — Pitch AI Tech Stack</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-section="recommendations">
+
+<main class="container">
+  <div class="page-header">
+    <span class="eyebrow">02 · Recommendations</span>
+    <h1>One technology per component</h1>
+    <p class="lede">Grouped the way you'll actually think about them: what a person touches, what your team writes, what you store, what you depend on — plus what the data flow needs that the architecture's component list never named.</p>
+  </div>
+
+  <div id="fig-bands"></div>
+
+  <div id="groups-root"></div>
+
+  <div id="foot-root"></div>
+</main>
+
+<script src="assets/stack.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  var fitLabel = { green: "Great fit", amber: "Good fit", red: "Consider carefully" };
+  var fitIcon = { green: "🟢", amber: "🟡", red: "🔴" };
+
+  function itemRow(it) {
+    var caveat = it.caveat ? '<div class="caveat-box ' + (it.fit === "red" ? "red" : "") + '"><strong>Caveat:</strong> ' + it.caveat + "</div>" : "";
+    return (
+      '<tr id="' + it.id + '" data-searchable="' + Site.escapeHtml(it.component + " " + it.tech + " " + it.why + " " + (it.caveat || "")) + '">' +
+        "<td><strong>" + it.component + "</strong></td>" +
+        "<td>" + it.tech + "</td>" +
+        '<td><span class="fit-chip ' + it.fit + '"><span class="fit-dot ' + it.fit + '"></span>' + fitIcon[it.fit] + " " + fitLabel[it.fit] + "</span></td>" +
+        "<td>" + it.why + caveat + "</td>" +
+      "</tr>"
+    );
+  }
+
+  document.getElementById("groups-root").innerHTML = STACK.groups.map(function (g) {
+    return (
+      '<div class="card">' +
+        "<h2>" + g.name + (g.fromFlow ? ' <span class="badge full">from the data flow</span>' : "") + "</h2>" +
+        "<p style='color:var(--muted);margin-top:-6px;'>" + g.desc + "</p>" +
+        '<div style="overflow-x:auto;"><table>' +
+        "<thead><tr><th>Component</th><th>Recommended tech</th><th>Fit</th><th>Why</th></tr></thead>" +
+        "<tbody>" + g.items.map(itemRow).join("") + "</tbody>" +
+        "</table></div>" +
+      "</div>"
+    );
+  }).join("");
+
+  document.getElementById("fig-bands").innerHTML =
+    Site.figureShell("fig-bands-svg", "The whole stack, banded by fit", false);
+
+  Site.mount("recommendations");
+
+  Site.registerFigure("fig-bands-svg", "svg", { svg: Site.fullIllustration("recommendations") });
+  Site.renderFigure("fig-bands-svg");
+  Site.renderInterp("fig-bands-svg", "Each row is a group from the table below; each chip is one recommendation, coloured by its fit rating. Full copy-ready prompts for every one of these live on the Prompts page.");
+</script>
+</body>
+</html>
