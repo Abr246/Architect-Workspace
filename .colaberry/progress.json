@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "totals": {
+    "stories_total": 13,
+    "stories_verified": 0,
+    "criteria_total": 21,
+    "criteria_passed": 5,
+    "points_awarded": 0
+  },
+  "stories": [
+    {
+      "id": "STORY-000",
+      "verification": { "state": "submitted", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given the Command Center, when it is opened, then every tab is reachable and every card drills down one level.", "passed": true },
+        { "text": "Given sample mode, when any tab is shown, then the sample data is visibly labelled as sample.", "passed": true },
+        { "text": "Given the data files, when any tab renders, then its content comes from .colaberry/plan.json and .colaberry/progress.json read at runtime rather than from hard-coded values.", "passed": true },
+        { "text": "Given .colaberry/manifest.json, when any tab is shown, then it displays how old the data is and warns when that age exceeds a week.", "passed": true },
+        { "text": "Trust — no tab shows a number, a connection or a result the project has not actually produced.", "passed": true }
+      ]
+    },
+    {
+      "id": "STORY-001",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given the fields listing page, when a customer opens it, then all soccer fields with their current availability are shown.", "passed": false },
+        { "text": "Given a field with no open slots, when a customer views it, then it is clearly marked unavailable.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-002",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given an available field, when a customer selects a date and time and confirms, then the booking is created and confirmed to the customer.", "passed": false },
+        { "text": "Given a field already booked for the selected slot, when a customer attempts to book it, then the booking is rejected with a clear reason.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-003",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given a customer question about pricing or availability, when it is asked to the AI assistant, then an accurate answer is returned.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-004",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given a refund or complaint request, when it is submitted, then it is routed to a human for approval before any action is taken.", "passed": false },
+        { "text": "Given a pending refund/complaint decision, when a human approves or denies it, then the outcome is recorded and the customer is notified.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-005",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given two booking requests for overlapping times on the same field, when the second is submitted, then the system flags a conflict before it is confirmed.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-006",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given a booking request, when the AI scheduling assistant processes it, then it proposes a slot that avoids known conflicts.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-007",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given booking data over a period, when the analytics agent runs, then it produces a summary of trends including busy and slow periods.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-008",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given a complex customer query beyond pricing/availability, when it is asked, then the AI provides a relevant answer or escalates it appropriately.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-009",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given a customer service issue that cannot be resolved by AI alone, when it is identified, then it is escalated to a human.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-010",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given expected user load, when the system is under typical usage, then interactions remain within an acceptable response time.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-011",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given any booking action, when it occurs, then an audit trail entry is recorded with who, what and when.", "passed": false },
+        { "text": "Given a system auditor reviewing the audit trail, when they trace a booking, then they can follow it back to its origin.", "passed": false }
+      ]
+    },
+    {
+      "id": "STORY-012",
+      "verification": { "state": "not_started", "commit": null },
+      "points": 0,
+      "criteria": [
+        { "text": "Given a scheduling issue such as a conflict or cancellation, when it is detected, then the affected users are notified.", "passed": false }
+      ]
+    }
+  ]
+}
