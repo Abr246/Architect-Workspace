@@ -10,7 +10,7 @@
   "stories": [
     {
       "id": "STORY-000",
-      "verification": { "state": "submitted", "commit": "1702952" },
+      "verification": { "state": "submitted", "commit": "aedfc5a" },
       "points": 0,
       "criteria": [
         { "text": "Given the Command Center, when it is opened, then every tab is reachable and every card drills down one level.", "passed": true },
