@@ -1,210 +1,605 @@
 {
-  "schema_version": 1,
-  "project": {
-    "name": "GoalKick",
-    "descriptor": "AI-powered soccer field booking and management platform"
-  },
-  "schedule": {
-    "build_start": "2026-08-15",
-    "build_end": "2026-10-01",
-    "demo_day": "2026-10-08",
-    "demo_release_key": "r4"
-  },
+  "schema_version": 2,
+  "project_name": "GoalKick",
+  "descriptor": "AI-powered soccer field booking and management platform",
   "requirements": [
-    { "id": "REQ-001", "statement": "The system must allow customers to view available soccer fields.", "kind": "FUNC", "priority": "must", "cluster": "booking", "fulfilled_by": ["STORY-001"] },
-    { "id": "REQ-002", "statement": "The system must allow customers to choose a date and time for booking a field.", "kind": "FUNC", "priority": "must", "cluster": "booking", "fulfilled_by": ["STORY-002"] },
-    { "id": "REQ-003", "statement": "The system must allow customers to book a soccer field.", "kind": "FUNC", "priority": "must", "cluster": "booking", "fulfilled_by": ["STORY-002"] },
-    { "id": "REQ-004", "statement": "The system must provide an AI assistant to answer customer questions about pricing and availability.", "kind": "FUNC", "priority": "must", "cluster": "ai-assistance", "fulfilled_by": ["STORY-003"] },
-    { "id": "REQ-005", "statement": "The system must use AI agents to assist with customer service.", "kind": "FUNC", "priority": "must", "cluster": "ai-assistance", "fulfilled_by": ["STORY-008", "STORY-009"] },
-    { "id": "REQ-006", "statement": "The system must use AI agents for scheduling.", "kind": "FUNC", "priority": "must", "cluster": "scheduling", "fulfilled_by": ["STORY-006"] },
-    { "id": "REQ-007", "statement": "The system must use AI agents for basic business analytics.", "kind": "FUNC", "priority": "must", "cluster": "analytics", "fulfilled_by": ["STORY-007"] },
-    { "id": "REQ-008", "statement": "The system must send important decisions such as refunds and complaints to a human for approval.", "kind": "FUNC", "priority": "must", "cluster": "escalation", "fulfilled_by": ["STORY-004", "STORY-009"] },
-    { "id": "REQ-009", "statement": "The system must detect available and unavailable soccer fields.", "kind": "FUNC", "priority": "must", "cluster": "booking", "fulfilled_by": ["STORY-001"] },
-    { "id": "REQ-010", "statement": "The system must detect booking conflicts.", "kind": "FUNC", "priority": "must", "cluster": "scheduling", "fulfilled_by": ["STORY-005"] },
-    { "id": "REQ-011", "statement": "The system must detect cancellations.", "kind": "FUNC", "priority": "must", "cluster": "scheduling", "fulfilled_by": [] },
-    { "id": "REQ-012", "statement": "The system must detect customer requests.", "kind": "FUNC", "priority": "must", "cluster": "ai-assistance", "fulfilled_by": [] },
-    { "id": "REQ-013", "statement": "The system must detect scheduling issues.", "kind": "FUNC", "priority": "must", "cluster": "scheduling", "fulfilled_by": ["STORY-012"] },
-    { "id": "REQ-014", "statement": "The system must detect busy and slow booking periods.", "kind": "FUNC", "priority": "must", "cluster": "analytics", "fulfilled_by": ["STORY-007"] },
-    { "id": "REQ-015", "statement": "The system must identify when an issue needs to be sent to a human for approval.", "kind": "FUNC", "priority": "must", "cluster": "escalation", "fulfilled_by": ["STORY-004", "STORY-009"] },
-    { "id": "REQ-016", "statement": "The system must connect to the booking database.", "kind": "CONSTRAINT", "priority": "must", "cluster": "infrastructure", "fulfilled_by": ["STORY-001", "STORY-002"] },
-    { "id": "REQ-017", "statement": "The system must connect to the customer information database.", "kind": "CONSTRAINT", "priority": "must", "cluster": "infrastructure", "fulfilled_by": ["STORY-009", "STORY-011"] }
+    {
+      "id": "REQ-001",
+      "kind": "FUNC",
+      "cluster": "Field Availability",
+      "priority": "must",
+      "statement": "The system must allow customers to view available soccer fields.",
+      "fulfilled_by": [
+        "STORY-001"
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "kind": "FUNC",
+      "cluster": "Booking Management",
+      "priority": "must",
+      "statement": "The system must allow customers to choose a date and time for booking a field.",
+      "fulfilled_by": [
+        "STORY-002",
+        "STORY-011"
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "kind": "FUNC",
+      "cluster": "Booking Management",
+      "priority": "must",
+      "statement": "The system must allow customers to book a soccer field.",
+      "fulfilled_by": [
+        "STORY-002",
+        "STORY-011"
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "kind": "FUNC",
+      "cluster": "AI Assistance",
+      "priority": "must",
+      "statement": "The system must provide an AI assistant to answer customer questions about pricing and availability.",
+      "fulfilled_by": [
+        "STORY-003"
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "kind": "FUNC",
+      "cluster": "AI Assistance",
+      "priority": "must",
+      "statement": "The system must use AI agents to assist with customer service.",
+      "fulfilled_by": [
+        "STORY-008"
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "kind": "FUNC",
+      "cluster": "AI Assistance",
+      "priority": "must",
+      "statement": "The system must use AI agents for scheduling.",
+      "fulfilled_by": [
+        "STORY-006"
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "kind": "FUNC",
+      "cluster": "AI Assistance",
+      "priority": "must",
+      "statement": "The system must use AI agents for basic business analytics.",
+      "fulfilled_by": [
+        "STORY-007"
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "kind": "FUNC",
+      "cluster": "Human Oversight",
+      "priority": "must",
+      "statement": "The system must send important decisions such as refunds and complaints to a human for approval.",
+      "fulfilled_by": [
+        "STORY-004"
+      ]
+    },
+    {
+      "id": "REQ-009",
+      "kind": "FUNC",
+      "cluster": "Field Availability",
+      "priority": "must",
+      "statement": "The system must detect available and unavailable soccer fields.",
+      "fulfilled_by": [
+        "STORY-001"
+      ]
+    },
+    {
+      "id": "REQ-010",
+      "kind": "FUNC",
+      "cluster": "Conflict Detection",
+      "priority": "must",
+      "statement": "The system must detect booking conflicts.",
+      "fulfilled_by": [
+        "STORY-005"
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "kind": "FUNC",
+      "cluster": "Booking Management",
+      "priority": "must",
+      "statement": "The system must detect cancellations.",
+      "fulfilled_by": [
+        "STORY-010"
+      ]
+    },
+    {
+      "id": "REQ-012",
+      "kind": "FUNC",
+      "cluster": "Customer Interaction",
+      "priority": "must",
+      "statement": "The system must detect customer requests.",
+      "fulfilled_by": [
+        "STORY-009"
+      ]
+    },
+    {
+      "id": "REQ-013",
+      "kind": "FUNC",
+      "cluster": "Conflict Detection",
+      "priority": "must",
+      "statement": "The system must detect scheduling issues.",
+      "fulfilled_by": [
+        "STORY-012"
+      ]
+    },
+    {
+      "id": "REQ-014",
+      "kind": "FUNC",
+      "cluster": "Analytics",
+      "priority": "must",
+      "statement": "The system must detect busy and slow booking periods.",
+      "fulfilled_by": [
+        "STORY-007"
+      ]
+    },
+    {
+      "id": "REQ-015",
+      "kind": "FUNC",
+      "cluster": "Human Oversight",
+      "priority": "must",
+      "statement": "The system must identify when an issue needs to be sent to a human for approval.",
+      "fulfilled_by": [
+        "STORY-004",
+        "STORY-009"
+      ]
+    },
+    {
+      "id": "REQ-016",
+      "kind": "CONSTRAINT",
+      "cluster": "Data Integration",
+      "priority": "must",
+      "statement": "The system must connect to the booking database.",
+      "fulfilled_by": [
+        "STORY-010"
+      ]
+    },
+    {
+      "id": "REQ-017",
+      "kind": "CONSTRAINT",
+      "cluster": "Data Integration",
+      "priority": "must",
+      "statement": "The system must connect to the customer information database.",
+      "fulfilled_by": [
+        "STORY-010"
+      ]
+    }
+  ],
+  "releases": [
+    {
+      "key": "r0",
+      "demo": "Show a customer booking a field with AI assistance and human approval for refunds.",
+      "goal": "Establish basic booking functionality with AI assistance and human oversight.",
+      "name": "Initial Setup and Basic Booking",
+      "week_end": 2,
+      "week_start": 1,
+      "story_ids": [
+        "STORY-001",
+        "STORY-002",
+        "STORY-004",
+        "STORY-011"
+      ],
+      "starts_on": null,
+      "ends_on": null,
+      "is_demo_target": false
+    },
+    {
+      "key": "r1",
+      "demo": "Demonstrate conflict detection and AI scheduling adjustments.",
+      "goal": "Implement conflict detection and scheduling AI.",
+      "name": "Conflict Detection and Scheduling",
+      "week_end": 4,
+      "week_start": 3,
+      "story_ids": [
+        "STORY-005",
+        "STORY-006",
+        "STORY-012"
+      ],
+      "starts_on": null,
+      "ends_on": null,
+      "is_demo_target": false
+    },
+    {
+      "key": "r2",
+      "demo": "Show AI answering complex queries and analytics dashboard.",
+      "goal": "Enhance AI assistance and introduce analytics for booking trends.",
+      "name": "Advanced AI Assistance and Analytics",
+      "week_end": 6,
+      "week_start": 5,
+      "story_ids": [
+        "STORY-003",
+        "STORY-007",
+        "STORY-008"
+      ],
+      "starts_on": null,
+      "ends_on": null,
+      "is_demo_target": false
+    },
+    {
+      "key": "r3",
+      "demo": "Demonstrate comprehensive customer service with AI and human escalation.",
+      "goal": "Expand customer interaction capabilities and refine human oversight.",
+      "name": "Comprehensive Customer Interaction",
+      "week_end": 8,
+      "week_start": 7,
+      "story_ids": [
+        "STORY-009"
+      ],
+      "starts_on": null,
+      "ends_on": null,
+      "is_demo_target": false
+    },
+    {
+      "key": "r4",
+      "demo": "Showcase optimized system with all features functioning smoothly.",
+      "goal": "Optimize system performance and finalize all features.",
+      "name": "Optimization and Final Adjustments",
+      "week_end": 10,
+      "week_start": 9,
+      "story_ids": [
+        "STORY-010"
+      ],
+      "starts_on": null,
+      "ends_on": null,
+      "is_demo_target": false
+    }
   ],
   "stories": [
     {
       "id": "STORY-001",
       "title": "Customer views available soccer fields",
-      "narrative": "As a customer, I want to view available soccer fields, so that I can decide which one to book.",
-      "role": "customer",
       "release": "r0",
-      "owner": "Frontend Team",
-      "due_on": "2026-08-15",
-      "due_baseline_on": "2026-08-15",
-      "acceptance_criteria": [
-        "Given the fields listing page, when a customer opens it, then all soccer fields with their current availability are shown.",
-        "Given a field with no open slots, when a customer views it, then it is clearly marked unavailable."
-      ]
+      "fulfills": [
+        "REQ-001",
+        "REQ-009"
+      ],
+      "narrative": "As a customer, I want to view available soccer fields, so that I can choose a suitable time for booking.",
+      "acceptance": [
+        "Given a customer, when they access the field availability page, then they see a list of available fields.",
+        "Given a field is booked, when a customer views availability, then the field is not shown.",
+        "Trust: All field availability views are logged with timestamps."
+      ],
+      "blocked_by": [],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "Database connection failure",
+        "Incorrect field status",
+        "Frontend display error"
+      ],
+      "task_guidance": "Implement field availability endpoint and integrate with frontend display.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-002",
       "title": "Customer books a soccer field",
-      "narrative": "As a customer, I want to book a soccer field for a chosen date and time, so that I can secure it for my game.",
-      "role": "customer",
       "release": "r0",
-      "owner": "Booking Team",
-      "due_on": "2026-08-18",
-      "due_baseline_on": "2026-08-18",
-      "acceptance_criteria": [
-        "Given an available field, when a customer selects a date and time and confirms, then the booking is created and confirmed to the customer.",
-        "Given a field already booked for the selected slot, when a customer attempts to book it, then the booking is rejected with a clear reason."
-      ]
+      "fulfills": [
+        "REQ-002",
+        "REQ-003"
+      ],
+      "narrative": "As a customer, I want to book a soccer field, so that I can reserve it for my use.",
+      "acceptance": [
+        "Given a customer selects a field and time, when they confirm booking, then the booking is recorded.",
+        "Given a field is already booked, when a customer tries to book it, then they receive a conflict message.",
+        "Trust: All bookings are logged with customer details and timestamps."
+      ],
+      "blocked_by": [],
+      "owner_agent": "Booking Team",
+      "failure_paths": [
+        "Double booking",
+        "Database write failure",
+        "Invalid time selection"
+      ],
+      "task_guidance": "Develop booking API and ensure transaction integrity with database.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-003",
       "title": "AI assistant answers customer questions",
-      "narrative": "As a customer, I want an AI assistant to answer my questions about pricing and availability, so that I get quick answers without waiting for staff.",
-      "role": "customer",
       "release": "r2",
-      "owner": "AI System",
-      "due_on": "2026-09-05",
-      "due_baseline_on": "2026-09-05",
-      "acceptance_criteria": [
-        "Given a customer question about pricing or availability, when it is asked to the AI assistant, then an accurate answer is returned."
-      ]
+      "fulfills": [
+        "REQ-004"
+      ],
+      "narrative": "As a customer, I want an AI assistant to answer my questions, so that I can get quick responses.",
+      "acceptance": [
+        "Given a customer asks a question, when the AI assistant processes it, then the customer receives a relevant answer.",
+        "Given a customer asks a question outside the AI's knowledge, when the AI assistant processes it, then the customer is informed that the question cannot be answered.",
+        "Trust: Given a customer interaction, when the AI assistant responds, then the interaction is logged in the audit trail."
+      ],
+      "blocked_by": [
+        "STORY-008"
+      ],
+      "owner_agent": "AI System",
+      "failure_paths": [
+        "AI fails to understand the question",
+        "AI provides an incorrect answer",
+        "AI fails to log the interaction"
+      ],
+      "task_guidance": "Implement AI assistant using the existing AI framework to handle customer queries. Ensure logging of all interactions for audit purposes.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-004",
       "title": "Human approval for refunds and complaints",
-      "narrative": "As a business owner, I want refund and complaint decisions routed to a human for approval, so that sensitive customer situations are handled with judgment.",
-      "role": "business owner",
       "release": "r0",
-      "owner": "Operations Team",
-      "due_on": "2026-08-20",
-      "due_baseline_on": "2026-08-20",
-      "acceptance_criteria": [
-        "Given a refund or complaint request, when it is submitted, then it is routed to a human for approval before any action is taken.",
-        "Given a pending refund/complaint decision, when a human approves or denies it, then the outcome is recorded and the customer is notified."
-      ]
+      "fulfills": [
+        "REQ-008",
+        "REQ-015"
+      ],
+      "narrative": "As a system, I want to send important decisions to a human for approval, so that sensitive issues are handled appropriately.",
+      "acceptance": [
+        "Given a refund request, when it is flagged as important, then it is sent to a human for approval.",
+        "Given a complaint is received, when it is flagged as important, then it is sent to a human for approval.",
+        "Trust: All escalations to humans are logged with timestamps and decision outcomes."
+      ],
+      "blocked_by": [],
+      "owner_agent": "Operations Team",
+      "failure_paths": [
+        "Escalation failure",
+        "Approval interface error",
+        "Incorrect flagging"
+      ],
+      "task_guidance": "Set up escalation workflow and human approval interface.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-005",
       "title": "Detect booking conflicts",
-      "narrative": "As a scheduler, I want the system to detect booking conflicts, so that no field is double-booked.",
-      "role": "scheduler",
       "release": "r1",
-      "owner": "Conflict Detection Team",
-      "due_on": "2026-08-26",
-      "due_baseline_on": "2026-08-26",
-      "acceptance_criteria": [
-        "Given two booking requests for overlapping times on the same field, when the second is submitted, then the system flags a conflict before it is confirmed."
-      ]
+      "fulfills": [
+        "REQ-010"
+      ],
+      "narrative": "As a system, I want to detect booking conflicts, so that double bookings are prevented.",
+      "acceptance": [
+        "Given a new booking overlaps an existing one, when the system checks, then it identifies a conflict.",
+        "Given no overlap exists, when the system checks, then it confirms no conflict.",
+        "Trust: All conflict checks are logged with booking details."
+      ],
+      "blocked_by": [
+        "STORY-002"
+      ],
+      "owner_agent": "Conflict Detection Team",
+      "failure_paths": [
+        "Missed conflict",
+        "False positive conflict",
+        "Logging failure"
+      ],
+      "task_guidance": "Implement conflict detection logic in booking service.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-006",
       "title": "AI-assisted scheduling",
-      "narrative": "As a scheduler, I want AI-assisted scheduling, so that bookings are arranged efficiently around existing commitments.",
-      "role": "scheduler",
       "release": "r1",
-      "owner": "AI Team",
-      "due_on": "2026-08-29",
-      "due_baseline_on": "2026-08-29",
-      "acceptance_criteria": [
-        "Given a booking request, when the AI scheduling assistant processes it, then it proposes a slot that avoids known conflicts."
-      ]
+      "fulfills": [
+        "REQ-006"
+      ],
+      "narrative": "As a system, I want to use AI for scheduling, so that optimal booking times are suggested.",
+      "acceptance": [
+        "Given a customer requests a booking, when AI suggests times, then optimal times are presented.",
+        "Given a busy period, when AI analyzes, then it suggests alternative times.",
+        "Trust: All AI scheduling suggestions are logged with rationale."
+      ],
+      "blocked_by": [
+        "STORY-002"
+      ],
+      "owner_agent": "AI Team",
+      "failure_paths": [
+        "Incorrect time suggestion",
+        "AI model failure",
+        "Integration error"
+      ],
+      "task_guidance": "Develop AI scheduling model and integrate with booking interface.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-007",
       "title": "AI provides business analytics",
-      "narrative": "As a business owner, I want AI-generated business analytics, so that I can understand booking trends and performance.",
-      "role": "business owner",
       "release": "r2",
-      "owner": "Analytics Team",
-      "due_on": "2026-09-08",
-      "due_baseline_on": "2026-09-08",
-      "acceptance_criteria": [
-        "Given booking data over a period, when the analytics agent runs, then it produces a summary of trends including busy and slow periods."
-      ]
+      "fulfills": [
+        "REQ-007",
+        "REQ-014"
+      ],
+      "narrative": "As a business owner, I want AI to provide analytics, so that I can understand booking trends.",
+      "acceptance": [
+        "Given booking data, when AI analyzes, then trends are displayed on the dashboard.",
+        "Given a slow period, when AI analyzes, then it identifies the period.",
+        "Trust: All analytics reports are logged with data sources and timestamps."
+      ],
+      "blocked_by": [
+        "STORY-006"
+      ],
+      "owner_agent": "Analytics Team",
+      "failure_paths": [
+        "Data analysis error",
+        "Dashboard display error",
+        "Incorrect trend identification"
+      ],
+      "task_guidance": "Implement analytics dashboard and integrate AI analysis results.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-008",
       "title": "AI answers complex customer queries",
-      "narrative": "As a customer, I want the AI to answer complex questions I have, so that I get useful help beyond simple FAQs.",
-      "role": "customer",
       "release": "r2",
-      "owner": "AI Team",
-      "due_on": "2026-09-11",
-      "due_baseline_on": "2026-09-11",
-      "acceptance_criteria": [
-        "Given a complex customer query beyond pricing/availability, when it is asked, then the AI provides a relevant answer or escalates it appropriately."
-      ]
+      "fulfills": [
+        "REQ-005"
+      ],
+      "narrative": "As a customer, I want AI to answer complex queries, so that I receive detailed information.",
+      "acceptance": [
+        "Given a complex query, when AI processes it, then a detailed response is provided.",
+        "Given an unsupported query, when AI processes it, then a fallback response is given.",
+        "Trust: All complex query interactions are logged with details."
+      ],
+      "blocked_by": [
+        "STORY-003"
+      ],
+      "owner_agent": "AI Team",
+      "failure_paths": [
+        "Unsupported query",
+        "Incorrect response",
+        "NLP processing error"
+      ],
+      "task_guidance": "Enhance AI NLP capabilities for complex query handling.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-009",
       "title": "Comprehensive customer service with AI and human escalation",
-      "narrative": "As a customer, I want comprehensive customer service that combines AI and human escalation, so that my issues get resolved appropriately.",
-      "role": "customer",
       "release": "r3",
-      "owner": "Customer Service Team",
-      "due_on": "2026-09-21",
-      "due_baseline_on": "2026-09-21",
-      "acceptance_criteria": [
-        "Given a customer service issue that cannot be resolved by AI alone, when it is identified, then it is escalated to a human."
-      ]
+      "fulfills": [
+        "REQ-012",
+        "REQ-015"
+      ],
+      "narrative": "As a customer, I want comprehensive service with AI and human escalation, so that my issues are resolved effectively.",
+      "acceptance": [
+        "Given a customer issue, when AI handles it, then the issue is resolved or escalated.",
+        "Given an escalated issue, when a human handles it, then the customer is informed of the outcome.",
+        "Trust: All customer service interactions are logged with resolution details."
+      ],
+      "blocked_by": [
+        "STORY-008"
+      ],
+      "owner_agent": "Customer Service Team",
+      "failure_paths": [
+        "AI handling error",
+        "Escalation failure",
+        "Customer notification failure"
+      ],
+      "task_guidance": "Integrate AI and human workflows for seamless customer service.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-010",
       "title": "Optimize system performance for user interactions",
-      "narrative": "As a system administrator, I want the system's performance optimized for user interactions, so that the platform stays responsive as usage grows.",
-      "role": "system administrator",
       "release": "r4",
-      "owner": "System Administrator",
-      "due_on": "2026-10-01",
-      "due_baseline_on": "2026-10-01",
-      "acceptance_criteria": [
-        "Given expected user load, when the system is under typical usage, then interactions remain within an acceptable response time."
-      ]
+      "fulfills": [
+        "REQ-016",
+        "REQ-017",
+        "REQ-011"
+      ],
+      "narrative": "As a system administrator, I want to optimize system performance, so that user interactions are fast and efficient.",
+      "acceptance": [
+        "Given the system is under normal load, when a user interacts with the system, then the response time is under 2 seconds.",
+        "Given the system is under peak load, when a user interacts with the system, then the response time is under 5 seconds.",
+        "Trust: Given a performance optimization is applied, when a user interaction occurs, then the interaction is logged in the audit trail."
+      ],
+      "blocked_by": [
+        "STORY-009"
+      ],
+      "owner_agent": "System Administrator",
+      "failure_paths": [
+        "System fails to respond within acceptable time under normal load.",
+        "System fails to respond within acceptable time under peak load.",
+        "Optimization logs are missing from the audit trail."
+      ],
+      "task_guidance": "Implement caching strategies and optimize database queries to improve response times for user interactions. Monitor system performance metrics and log all optimizations applied.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-011",
       "title": "Establish trust spine with audit trail for bookings",
-      "narrative": "As a system auditor, I want an audit trail for bookings, so that I can verify booking activity is trustworthy and traceable.",
-      "role": "system auditor",
       "release": "r0",
-      "owner": "System Auditor",
-      "due_on": "2026-08-23",
-      "due_baseline_on": "2026-08-23",
-      "acceptance_criteria": [
-        "Given any booking action, when it occurs, then an audit trail entry is recorded with who, what and when.",
-        "Given a system auditor reviewing the audit trail, when they trace a booking, then they can follow it back to its origin."
-      ]
+      "fulfills": [
+        "REQ-002",
+        "REQ-003"
+      ],
+      "narrative": "As a system auditor, I want an audit trail for bookings, so that all booking actions are traceable and verifiable.",
+      "acceptance": [
+        "Given a booking is made, when the booking is confirmed, then the booking details are recorded in the audit trail.",
+        "Given a booking is cancelled, when the cancellation is processed, then the cancellation details are recorded in the audit trail.",
+        "Trust: Given any booking action occurs, when the action is completed, then the action is logged with a timestamp in the audit trail."
+      ],
+      "blocked_by": [],
+      "owner_agent": "System Auditor",
+      "failure_paths": [
+        "Booking actions are not logged in the audit trail.",
+        "Audit trail entries are missing timestamps.",
+        "Audit trail is not accessible for verification."
+      ],
+      "task_guidance": "Create an audit logging mechanism that records all booking actions with timestamps and user details. Ensure the audit trail is accessible for verification.",
+      "due_on": null,
+      "due_baseline_on": null
     },
     {
       "id": "STORY-012",
       "title": "Detect scheduling issues and notify users",
-      "narrative": "As a scheduler, I want the system to detect scheduling issues and notify users, so that problems are caught and resolved early.",
-      "role": "scheduler",
       "release": "r1",
-      "owner": "Scheduler",
-      "due_on": "2026-09-02",
-      "due_baseline_on": "2026-09-02",
-      "acceptance_criteria": [
-        "Given a scheduling issue such as a conflict or cancellation, when it is detected, then the affected users are notified."
-      ]
+      "fulfills": [
+        "REQ-013"
+      ],
+      "narrative": "As a scheduler, I want the system to detect scheduling issues, so that I can resolve them before they affect users.",
+      "acceptance": [
+        "Given a scheduling conflict exists, when the system detects it, then the scheduler is notified immediately.",
+        "Given a scheduling issue is resolved, when the resolution is confirmed, then the system updates the schedule accordingly.",
+        "Trust: Given a scheduling issue is detected, when the issue is logged, then it is recorded in the audit trail with details."
+      ],
+      "blocked_by": [
+        "STORY-005"
+      ],
+      "owner_agent": "Scheduler",
+      "failure_paths": [
+        "Scheduling conflicts are not detected.",
+        "Notifications are not sent to the scheduler.",
+        "Detected issues are not logged in the audit trail."
+      ],
+      "task_guidance": "Implement a scheduling conflict detection algorithm that checks for overlapping bookings and alerts the scheduler. Ensure all detected issues are logged.",
+      "due_on": null,
+      "due_baseline_on": null
     }
   ],
-  "releases": [
-    { "key": "r0", "name": "Initial Setup and Basic Booking", "starts_on": "2026-08-15", "ends_on": "2026-08-23", "story_ids": ["STORY-001", "STORY-002", "STORY-004", "STORY-011"], "is_demo_target": false },
-    { "key": "r1", "name": "Conflict Detection and Scheduling", "starts_on": "2026-08-26", "ends_on": "2026-09-02", "story_ids": ["STORY-005", "STORY-006", "STORY-012"], "is_demo_target": false },
-    { "key": "r2", "name": "Advanced AI Assistance and Analytics", "starts_on": "2026-09-05", "ends_on": "2026-09-11", "story_ids": ["STORY-003", "STORY-007", "STORY-008"], "is_demo_target": false },
-    { "key": "r3", "name": "Comprehensive Customer Interaction", "starts_on": "2026-09-21", "ends_on": "2026-09-21", "story_ids": ["STORY-009"], "is_demo_target": false },
-    { "key": "r4", "name": "Optimization and Final Adjustments", "starts_on": "2026-10-01", "ends_on": "2026-10-01", "story_ids": ["STORY-010"], "is_demo_target": true }
-  ],
   "agents": [],
+  "project": {
+    "name": "GoalKick",
+    "descriptor": "AI-powered soccer field booking and management platform",
+    "repo_url": null,
+    "plan_version": 1,
+    "plan_sha256": "77eb20c78f7036890473ca30bfe797f3f653b59a947b13d0ddbf290771fe4f36"
+  },
+  "schedule": null,
   "derived": {
     "measures": [],
-    "roles": ["customer", "business owner", "system administrator", "system auditor", "scheduler"],
     "guardrails": [],
     "systems": [],
+    "roles": [
+      "customer",
+      "business owner",
+      "system administrator",
+      "system auditor",
+      "scheduler"
+    ],
     "counts": {
+      "requirements_total": 17,
+      "requirements_by_kind": {
+        "CONSTRAINT": 2,
+        "FUNC": 15
+      },
+      "stories_total": 12,
+      "releases_total": 5,
+      "agents_total": 0,
+      "failure_paths_total": 35,
       "agents_by_autonomy": {}
     }
   }

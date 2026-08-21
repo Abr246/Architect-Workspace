@@ -36,6 +36,9 @@ function build(plan, progress, manifest, profile, isSample) {
     const p = progressById.get(s.id);
     return {
       ...s,
+      // plan.json schema_version 2 renamed this field; normalize once here
+      // rather than in every tab that reads it.
+      owner: s.owner ?? s.owner_agent ?? null,
       verification: p?.verification || { state: 'not_started', commit: null },
       points: p?.points ?? 0,
       progressCriteria: p?.criteria || [],

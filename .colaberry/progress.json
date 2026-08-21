@@ -3,7 +3,7 @@
   "totals": {
     "stories_total": 13,
     "stories_verified": 0,
-    "criteria_total": 21,
+    "criteria_total": 41,
     "criteria_passed": 5,
     "points_awarded": 0
   },
@@ -25,8 +25,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given the fields listing page, when a customer opens it, then all soccer fields with their current availability are shown.", "passed": false },
-        { "text": "Given a field with no open slots, when a customer views it, then it is clearly marked unavailable.", "passed": false }
+        { "text": "Given a customer, when they access the field availability page, then they see a list of available fields.", "passed": false },
+        { "text": "Given a field is booked, when a customer views availability, then the field is not shown.", "passed": false },
+        { "text": "Trust: All field availability views are logged with timestamps.", "passed": false }
       ]
     },
     {
@@ -34,8 +35,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given an available field, when a customer selects a date and time and confirms, then the booking is created and confirmed to the customer.", "passed": false },
-        { "text": "Given a field already booked for the selected slot, when a customer attempts to book it, then the booking is rejected with a clear reason.", "passed": false }
+        { "text": "Given a customer selects a field and time, when they confirm booking, then the booking is recorded.", "passed": false },
+        { "text": "Given a field is already booked, when a customer tries to book it, then they receive a conflict message.", "passed": false },
+        { "text": "Trust: All bookings are logged with customer details and timestamps.", "passed": false }
       ]
     },
     {
@@ -43,7 +45,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given a customer question about pricing or availability, when it is asked to the AI assistant, then an accurate answer is returned.", "passed": false }
+        { "text": "Given a customer asks a question, when the AI assistant processes it, then the customer receives a relevant answer.", "passed": false },
+        { "text": "Given a customer asks a question outside the AI's knowledge, when the AI assistant processes it, then the customer is informed that the question cannot be answered.", "passed": false },
+        { "text": "Trust: Given a customer interaction, when the AI assistant responds, then the interaction is logged in the audit trail.", "passed": false }
       ]
     },
     {
@@ -51,8 +55,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given a refund or complaint request, when it is submitted, then it is routed to a human for approval before any action is taken.", "passed": false },
-        { "text": "Given a pending refund/complaint decision, when a human approves or denies it, then the outcome is recorded and the customer is notified.", "passed": false }
+        { "text": "Given a refund request, when it is flagged as important, then it is sent to a human for approval.", "passed": false },
+        { "text": "Given a complaint is received, when it is flagged as important, then it is sent to a human for approval.", "passed": false },
+        { "text": "Trust: All escalations to humans are logged with timestamps and decision outcomes.", "passed": false }
       ]
     },
     {
@@ -60,7 +65,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given two booking requests for overlapping times on the same field, when the second is submitted, then the system flags a conflict before it is confirmed.", "passed": false }
+        { "text": "Given a new booking overlaps an existing one, when the system checks, then it identifies a conflict.", "passed": false },
+        { "text": "Given no overlap exists, when the system checks, then it confirms no conflict.", "passed": false },
+        { "text": "Trust: All conflict checks are logged with booking details.", "passed": false }
       ]
     },
     {
@@ -68,7 +75,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given a booking request, when the AI scheduling assistant processes it, then it proposes a slot that avoids known conflicts.", "passed": false }
+        { "text": "Given a customer requests a booking, when AI suggests times, then optimal times are presented.", "passed": false },
+        { "text": "Given a busy period, when AI analyzes, then it suggests alternative times.", "passed": false },
+        { "text": "Trust: All AI scheduling suggestions are logged with rationale.", "passed": false }
       ]
     },
     {
@@ -76,7 +85,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given booking data over a period, when the analytics agent runs, then it produces a summary of trends including busy and slow periods.", "passed": false }
+        { "text": "Given booking data, when AI analyzes, then trends are displayed on the dashboard.", "passed": false },
+        { "text": "Given a slow period, when AI analyzes, then it identifies the period.", "passed": false },
+        { "text": "Trust: All analytics reports are logged with data sources and timestamps.", "passed": false }
       ]
     },
     {
@@ -84,7 +95,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given a complex customer query beyond pricing/availability, when it is asked, then the AI provides a relevant answer or escalates it appropriately.", "passed": false }
+        { "text": "Given a complex query, when AI processes it, then a detailed response is provided.", "passed": false },
+        { "text": "Given an unsupported query, when AI processes it, then a fallback response is given.", "passed": false },
+        { "text": "Trust: All complex query interactions are logged with details.", "passed": false }
       ]
     },
     {
@@ -92,7 +105,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given a customer service issue that cannot be resolved by AI alone, when it is identified, then it is escalated to a human.", "passed": false }
+        { "text": "Given a customer issue, when AI handles it, then the issue is resolved or escalated.", "passed": false },
+        { "text": "Given an escalated issue, when a human handles it, then the customer is informed of the outcome.", "passed": false },
+        { "text": "Trust: All customer service interactions are logged with resolution details.", "passed": false }
       ]
     },
     {
@@ -100,7 +115,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given expected user load, when the system is under typical usage, then interactions remain within an acceptable response time.", "passed": false }
+        { "text": "Given the system is under normal load, when a user interacts with the system, then the response time is under 2 seconds.", "passed": false },
+        { "text": "Given the system is under peak load, when a user interacts with the system, then the response time is under 5 seconds.", "passed": false },
+        { "text": "Trust: Given a performance optimization is applied, when a user interaction occurs, then the interaction is logged in the audit trail.", "passed": false }
       ]
     },
     {
@@ -108,8 +125,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given any booking action, when it occurs, then an audit trail entry is recorded with who, what and when.", "passed": false },
-        { "text": "Given a system auditor reviewing the audit trail, when they trace a booking, then they can follow it back to its origin.", "passed": false }
+        { "text": "Given a booking is made, when the booking is confirmed, then the booking details are recorded in the audit trail.", "passed": false },
+        { "text": "Given a booking is cancelled, when the cancellation is processed, then the cancellation details are recorded in the audit trail.", "passed": false },
+        { "text": "Trust: Given any booking action occurs, when the action is completed, then the action is logged with a timestamp in the audit trail.", "passed": false }
       ]
     },
     {
@@ -117,7 +135,9 @@
       "verification": { "state": "not_started", "commit": null },
       "points": 0,
       "criteria": [
-        { "text": "Given a scheduling issue such as a conflict or cancellation, when it is detected, then the affected users are notified.", "passed": false }
+        { "text": "Given a scheduling conflict exists, when the system detects it, then the scheduler is notified immediately.", "passed": false },
+        { "text": "Given a scheduling issue is resolved, when the resolution is confirmed, then the system updates the schedule accordingly.", "passed": false },
+        { "text": "Trust: Given a scheduling issue is detected, when the issue is logged, then it is recorded in the audit trail with details.", "passed": false }
       ]
     }
   ]
