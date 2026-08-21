@@ -1,144 +1,527 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "project": "GoalKick",
   "totals": {
     "stories_total": 13,
-    "stories_verified": 0,
+    "stories_verified": 1,
+    "stories_submitted": 0,
+    "stories_in_progress": 12,
+    "stories_not_started": 0,
     "criteria_total": 41,
     "criteria_passed": 5,
-    "points_awarded": 0
+    "points_awarded": 62
   },
   "stories": [
     {
       "id": "STORY-000",
-      "verification": { "state": "submitted", "commit": "aedfc5a" },
-      "points": 0,
+      "release": null,
+      "acceptance_total": 5,
       "criteria": [
-        { "text": "Given the Command Center, when it is opened, then every tab is reachable and every card drills down one level.", "passed": true },
-        { "text": "Given sample mode, when any tab is shown, then the sample data is visibly labelled as sample.", "passed": true },
-        { "text": "Given the data files, when any tab renders, then its content comes from .colaberry/plan.json and .colaberry/progress.json read at runtime rather than from hard-coded values.", "passed": true },
-        { "text": "Given .colaberry/manifest.json, when any tab is shown, then it displays how old the data is and warns when that age exceeds a week.", "passed": true },
-        { "text": "Trust — no tab shows a number, a connection or a result the project has not actually produced.", "passed": true }
-      ]
+        {
+          "text": "Given the Command Center, when it is opened, then every tab is reachable and every card drills down one level.",
+          "passed": true
+        },
+        {
+          "text": "Given sample mode, when any tab is shown, then the sample data is visibly labelled as sample.",
+          "passed": true
+        },
+        {
+          "text": "Given the Command Center, when any tab renders, then .colaberry/plan.json and .colaberry/progress.json are both committed in this repo and every tab reads its content from them at runtime rather than from hard-coded values.",
+          "passed": true
+        },
+        {
+          "text": "Given the Command Center, when any tab is shown, then .colaberry/manifest.json is committed in this repo and every tab shows how old that data is and warns when the age exceeds a week.",
+          "passed": true
+        },
+        {
+          "text": "Trust — no tab shows a number, a connection or a result the project has not actually produced.",
+          "passed": true
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "verified",
+        "criteria_passed": 5,
+        "criteria_total": 5,
+        "verified_at": "2026-08-18T22:30:10.459Z",
+        "commit_sha": "1702952aa435ad6a9d7b0349558e339fb36c83f1",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/1702952aa435ad6a9d7b0349558e339fb36c83f1",
+        "commit_at": "2026-08-17T07:15:48Z",
+        "points_awarded": 62,
+        "outstanding": []
+      },
+      "points": 0
     },
     {
       "id": "STORY-001",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r0",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a customer, when they access the field availability page, then they see a list of available fields.", "passed": false },
-        { "text": "Given a field is booked, when a customer views availability, then the field is not shown.", "passed": false },
-        { "text": "Trust: All field availability views are logged with timestamps.", "passed": false }
-      ]
+        {
+          "text": "Given a customer, when they access the field availability page, then they see a list of available fields.",
+          "passed": false
+        },
+        {
+          "text": "Given a field is booked, when a customer views availability, then the field is not shown.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All field availability views are logged with timestamps.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a customer, when they access the field availability page, then they see a list of available fields.",
+          "Given a field is booked, when a customer views availability, then the field is not shown.",
+          "Trust: All field availability views are logged with timestamps."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-002",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r0",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a customer selects a field and time, when they confirm booking, then the booking is recorded.", "passed": false },
-        { "text": "Given a field is already booked, when a customer tries to book it, then they receive a conflict message.", "passed": false },
-        { "text": "Trust: All bookings are logged with customer details and timestamps.", "passed": false }
-      ]
+        {
+          "text": "Given a customer selects a field and time, when they confirm booking, then the booking is recorded.",
+          "passed": false
+        },
+        {
+          "text": "Given a field is already booked, when a customer tries to book it, then they receive a conflict message.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All bookings are logged with customer details and timestamps.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a customer selects a field and time, when they confirm booking, then the booking is recorded.",
+          "Given a field is already booked, when a customer tries to book it, then they receive a conflict message.",
+          "Trust: All bookings are logged with customer details and timestamps."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-003",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r2",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a customer asks a question, when the AI assistant processes it, then the customer receives a relevant answer.", "passed": false },
-        { "text": "Given a customer asks a question outside the AI's knowledge, when the AI assistant processes it, then the customer is informed that the question cannot be answered.", "passed": false },
-        { "text": "Trust: Given a customer interaction, when the AI assistant responds, then the interaction is logged in the audit trail.", "passed": false }
-      ]
+        {
+          "text": "Given a customer asks a question, when the AI assistant processes it, then the customer receives a relevant answer.",
+          "passed": false
+        },
+        {
+          "text": "Given a customer asks a question outside the AI's knowledge, when the AI assistant processes it, then the customer is informed that the question cannot be answered.",
+          "passed": false
+        },
+        {
+          "text": "Trust: Given a customer interaction, when the AI assistant responds, then the interaction is logged in the audit trail.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a customer asks a question, when the AI assistant processes it, then the customer receives a relevant answer.",
+          "Given a customer asks a question outside the AI's knowledge, when the AI assistant processes it, then the customer is informed that the question cannot be answered.",
+          "Trust: Given a customer interaction, when the AI assistant responds, then the interaction is logged in the audit trail."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-004",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r0",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a refund request, when it is flagged as important, then it is sent to a human for approval.", "passed": false },
-        { "text": "Given a complaint is received, when it is flagged as important, then it is sent to a human for approval.", "passed": false },
-        { "text": "Trust: All escalations to humans are logged with timestamps and decision outcomes.", "passed": false }
-      ]
+        {
+          "text": "Given a refund request, when it is flagged as important, then it is sent to a human for approval.",
+          "passed": false
+        },
+        {
+          "text": "Given a complaint is received, when it is flagged as important, then it is sent to a human for approval.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All escalations to humans are logged with timestamps and decision outcomes.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a refund request, when it is flagged as important, then it is sent to a human for approval.",
+          "Given a complaint is received, when it is flagged as important, then it is sent to a human for approval.",
+          "Trust: All escalations to humans are logged with timestamps and decision outcomes."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-005",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r1",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a new booking overlaps an existing one, when the system checks, then it identifies a conflict.", "passed": false },
-        { "text": "Given no overlap exists, when the system checks, then it confirms no conflict.", "passed": false },
-        { "text": "Trust: All conflict checks are logged with booking details.", "passed": false }
-      ]
+        {
+          "text": "Given a new booking overlaps an existing one, when the system checks, then it identifies a conflict.",
+          "passed": false
+        },
+        {
+          "text": "Given no overlap exists, when the system checks, then it confirms no conflict.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All conflict checks are logged with booking details.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a new booking overlaps an existing one, when the system checks, then it identifies a conflict.",
+          "Given no overlap exists, when the system checks, then it confirms no conflict.",
+          "Trust: All conflict checks are logged with booking details."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-006",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r1",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a customer requests a booking, when AI suggests times, then optimal times are presented.", "passed": false },
-        { "text": "Given a busy period, when AI analyzes, then it suggests alternative times.", "passed": false },
-        { "text": "Trust: All AI scheduling suggestions are logged with rationale.", "passed": false }
-      ]
+        {
+          "text": "Given a customer requests a booking, when AI suggests times, then optimal times are presented.",
+          "passed": false
+        },
+        {
+          "text": "Given a busy period, when AI analyzes, then it suggests alternative times.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All AI scheduling suggestions are logged with rationale.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a customer requests a booking, when AI suggests times, then optimal times are presented.",
+          "Given a busy period, when AI analyzes, then it suggests alternative times.",
+          "Trust: All AI scheduling suggestions are logged with rationale."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-007",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r2",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given booking data, when AI analyzes, then trends are displayed on the dashboard.", "passed": false },
-        { "text": "Given a slow period, when AI analyzes, then it identifies the period.", "passed": false },
-        { "text": "Trust: All analytics reports are logged with data sources and timestamps.", "passed": false }
-      ]
+        {
+          "text": "Given booking data, when AI analyzes, then trends are displayed on the dashboard.",
+          "passed": false
+        },
+        {
+          "text": "Given a slow period, when AI analyzes, then it identifies the period.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All analytics reports are logged with data sources and timestamps.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given booking data, when AI analyzes, then trends are displayed on the dashboard.",
+          "Given a slow period, when AI analyzes, then it identifies the period.",
+          "Trust: All analytics reports are logged with data sources and timestamps."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-008",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r2",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a complex query, when AI processes it, then a detailed response is provided.", "passed": false },
-        { "text": "Given an unsupported query, when AI processes it, then a fallback response is given.", "passed": false },
-        { "text": "Trust: All complex query interactions are logged with details.", "passed": false }
-      ]
+        {
+          "text": "Given a complex query, when AI processes it, then a detailed response is provided.",
+          "passed": false
+        },
+        {
+          "text": "Given an unsupported query, when AI processes it, then a fallback response is given.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All complex query interactions are logged with details.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a complex query, when AI processes it, then a detailed response is provided.",
+          "Given an unsupported query, when AI processes it, then a fallback response is given.",
+          "Trust: All complex query interactions are logged with details."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-009",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r3",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a customer issue, when AI handles it, then the issue is resolved or escalated.", "passed": false },
-        { "text": "Given an escalated issue, when a human handles it, then the customer is informed of the outcome.", "passed": false },
-        { "text": "Trust: All customer service interactions are logged with resolution details.", "passed": false }
-      ]
+        {
+          "text": "Given a customer issue, when AI handles it, then the issue is resolved or escalated.",
+          "passed": false
+        },
+        {
+          "text": "Given an escalated issue, when a human handles it, then the customer is informed of the outcome.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All customer service interactions are logged with resolution details.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a customer issue, when AI handles it, then the issue is resolved or escalated.",
+          "Given an escalated issue, when a human handles it, then the customer is informed of the outcome.",
+          "Trust: All customer service interactions are logged with resolution details."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-010",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r4",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given the system is under normal load, when a user interacts with the system, then the response time is under 2 seconds.", "passed": false },
-        { "text": "Given the system is under peak load, when a user interacts with the system, then the response time is under 5 seconds.", "passed": false },
-        { "text": "Trust: Given a performance optimization is applied, when a user interaction occurs, then the interaction is logged in the audit trail.", "passed": false }
-      ]
+        {
+          "text": "Given the system is under normal load, when a user interacts with the system, then the response time is under 2 seconds.",
+          "passed": false
+        },
+        {
+          "text": "Given the system is under peak load, when a user interacts with the system, then the response time is under 5 seconds.",
+          "passed": false
+        },
+        {
+          "text": "Trust: Given a performance optimization is applied, when a user interaction occurs, then the interaction is logged in the audit trail.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given the system is under normal load, when a user interacts with the system, then the response time is under 2 seconds.",
+          "Given the system is under peak load, when a user interacts with the system, then the response time is under 5 seconds.",
+          "Trust: Given a performance optimization is applied, when a user interaction occurs, then the interaction is logged in the audit trail."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-011",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r0",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a booking is made, when the booking is confirmed, then the booking details are recorded in the audit trail.", "passed": false },
-        { "text": "Given a booking is cancelled, when the cancellation is processed, then the cancellation details are recorded in the audit trail.", "passed": false },
-        { "text": "Trust: Given any booking action occurs, when the action is completed, then the action is logged with a timestamp in the audit trail.", "passed": false }
-      ]
+        {
+          "text": "Given a booking is made, when the booking is confirmed, then the booking details are recorded in the audit trail.",
+          "passed": false
+        },
+        {
+          "text": "Given a booking is cancelled, when the cancellation is processed, then the cancellation details are recorded in the audit trail.",
+          "passed": false
+        },
+        {
+          "text": "Trust: Given any booking action occurs, when the action is completed, then the action is logged with a timestamp in the audit trail.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a booking is made, when the booking is confirmed, then the booking details are recorded in the audit trail.",
+          "Given a booking is cancelled, when the cancellation is processed, then the cancellation details are recorded in the audit trail.",
+          "Trust: Given any booking action occurs, when the action is completed, then the action is logged with a timestamp in the audit trail."
+        ]
+      },
+      "points": 0
     },
     {
       "id": "STORY-012",
-      "verification": { "state": "not_started", "commit": null },
-      "points": 0,
+      "release": "r1",
+      "acceptance_total": 3,
       "criteria": [
-        { "text": "Given a scheduling conflict exists, when the system detects it, then the scheduler is notified immediately.", "passed": false },
-        { "text": "Given a scheduling issue is resolved, when the resolution is confirmed, then the system updates the schedule accordingly.", "passed": false },
-        { "text": "Trust: Given a scheduling issue is detected, when the issue is logged, then it is recorded in the audit trail with details.", "passed": false }
-      ]
+        {
+          "text": "Given a scheduling conflict exists, when the system detects it, then the scheduler is notified immediately.",
+          "passed": false
+        },
+        {
+          "text": "Given a scheduling issue is resolved, when the resolution is confirmed, then the system updates the schedule accordingly.",
+          "passed": false
+        },
+        {
+          "text": "Trust: Given a scheduling issue is detected, when the issue is logged, then it is recorded in the audit trail with details.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "in_progress",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": null,
+        "outstanding": [
+          "Given a scheduling conflict exists, when the system detects it, then the scheduler is notified immediately.",
+          "Given a scheduling issue is resolved, when the resolution is confirmed, then the system updates the schedule accordingly.",
+          "Trust: Given a scheduling issue is detected, when the issue is logged, then it is recorded in the audit trail with details."
+        ]
+      },
+      "points": 0
     }
   ]
 }

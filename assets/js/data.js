@@ -34,13 +34,20 @@ function build(plan, progress, manifest, profile, isSample) {
 
   const stories = (plan?.stories || []).map((s) => {
     const p = progressById.get(s.id);
+    // progress.json schema_version 2 renamed verification.commit to
+    // commit_sha and moved real per-story points under
+    // verification.points_awarded (the top-level points field is a
+    // legacy placeholder, always 0). Normalize both once here, with a
+    // fallback to the old field names so this keeps working if an
+    // older-shaped file is ever loaded.
+    const verification = p?.verification
+      ? { ...p.verification, commit: p.verification.commit ?? p.verification.commit_sha ?? null }
+      : { state: 'not_started', commit: null };
     return {
       ...s,
-      // plan.json schema_version 2 renamed this field; normalize once here
-      // rather than in every tab that reads it.
       owner: s.owner ?? s.owner_agent ?? null,
-      verification: p?.verification || { state: 'not_started', commit: null },
-      points: p?.points ?? 0,
+      verification,
+      points: p?.verification?.points_awarded ?? p?.points ?? 0,
       progressCriteria: p?.criteria || [],
     };
   });
