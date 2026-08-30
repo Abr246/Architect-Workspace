@@ -8,7 +8,7 @@
     "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 5,
+    "criteria_passed": 8,
     "points_awarded": 62
   },
   "stories": [
@@ -62,20 +62,37 @@
       "criteria": [
         {
           "text": "Given a customer, when they access the field availability page, then they see a list of available fields.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a field is booked, when a customer views availability, then the field is not shown.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All field availability views are logged with timestamps.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/app.ts",
+        "backend/src/index.ts",
+        "backend/src/routes/fields.ts",
+        "backend/src/services/fieldsService.ts",
+        "backend/src/middleware/requestLogger.ts",
+        "frontend/src/App.tsx",
+        "frontend/src/pages/FieldsAvailabilityPage.tsx",
+        "frontend/src/services/fieldsApi.ts",
+        "frontend/src/components/ErrorBoundary.tsx"
+      ],
+      "tests_added": [
+        "backend/src/services/fieldsService.test.ts",
+        "backend/src/routes/fields.test.ts",
+        "backend/src/middleware/requestLogger.test.ts",
+        "frontend/src/App.test.tsx",
+        "frontend/src/pages/FieldsAvailabilityPage.test.tsx",
+        "frontend/src/components/ErrorBoundary.test.tsx"
+      ],
+      "notes": "In-memory field data only (no DB yet, per this story's scope). All 3 criteria verified via automated tests (backend unit/route/logging tests, frontend component tests) and a live browser check via headless Chrome against both dev servers.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",
