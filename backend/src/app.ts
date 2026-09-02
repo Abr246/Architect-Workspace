@@ -1,6 +1,7 @@
 import express from 'express';
 import fieldsRouter from './routes/fields';
 import bookingsRouter from './routes/bookings';
+import escalationsRouter from './routes/escalations';
 import { requestLogger } from './middleware/requestLogger';
 
 export function createApp() {
@@ -9,5 +10,6 @@ export function createApp() {
   app.use(requestLogger);
   app.use('/api/fields', fieldsRouter);
   app.use('/api/bookings', bookingsRouter);
+  app.use('/api/escalations', escalationsRouter);
   return app;
 }

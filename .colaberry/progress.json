@@ -8,7 +8,7 @@
     "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 11,
+    "criteria_passed": 14,
     "points_awarded": 62
   },
   "stories": [
@@ -207,20 +207,32 @@
       "criteria": [
         {
           "text": "Given a refund request, when it is flagged as important, then it is sent to a human for approval.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a complaint is received, when it is flagged as important, then it is sent to a human for approval.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All escalations to humans are logged with timestamps and decision outcomes.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/routes/escalations.ts",
+        "backend/src/services/escalationsService.ts",
+        "backend/src/app.ts",
+        "frontend/src/pages/ApprovalsPage.tsx",
+        "frontend/src/components/EscalationCard.tsx",
+        "frontend/src/services/escalationsApi.ts",
+        "frontend/src/App.tsx"
+      ],
+      "tests_added": [
+        "backend/src/routes/escalations.test.ts",
+        "backend/src/services/escalationsService.test.ts",
+        "frontend/src/pages/ApprovalsPage.test.tsx"
+      ],
+      "notes": "Every valid refund/complaint request is escalated to a human (REQ-008 treats refunds/complaints themselves as the important decisions, no separate triage story exists yet to do finer filtering). In-memory store, no DB yet, same deliberate scope choice as STORY-001/002. Both creation and decision are idempotent: an identical repeat request or an identical repeat decision does not double-create or double-process (double-processing an approval is a real double-refund risk, not just a nicety here). A conflicting second decision (different outcome or decider) on an already-decided escalation is rejected (409), not silently overwritten. All 3 criteria verified via automated tests plus manual curl checks and a live check against real dev servers.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",
