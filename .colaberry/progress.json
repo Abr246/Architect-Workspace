@@ -8,7 +8,7 @@
     "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 8,
+    "criteria_passed": 11,
     "points_awarded": 62
   },
   "stories": [
@@ -118,20 +118,31 @@
       "criteria": [
         {
           "text": "Given a customer selects a field and time, when they confirm booking, then the booking is recorded.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a field is already booked, when a customer tries to book it, then they receive a conflict message.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All bookings are logged with customer details and timestamps.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/routes/bookings.ts",
+        "backend/src/services/bookingsService.ts",
+        "backend/src/app.ts",
+        "frontend/src/components/BookingForm.tsx",
+        "frontend/src/services/bookingsApi.ts",
+        "frontend/src/pages/FieldsAvailabilityPage.tsx"
+      ],
+      "tests_added": [
+        "backend/src/routes/bookings.test.ts",
+        "backend/src/services/bookingsService.test.ts",
+        "frontend/src/components/BookingForm.test.tsx"
+      ],
+      "notes": "In-memory booking store (no DB yet, per this story's scope). Idempotent create: an identical repeat request from the same customer returns the existing booking instead of erroring or duplicating; a genuine conflict (different customer or non-matching overlapping time) returns 409. All 3 criteria verified via automated tests (backend unit/route tests, frontend interaction tests using userEvent) plus manual curl checks and a live browser check against real dev servers.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

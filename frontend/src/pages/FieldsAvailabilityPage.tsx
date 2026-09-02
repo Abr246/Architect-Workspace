@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { fetchAvailableFields, Field } from '../services/fieldsApi';
+import { BookingForm } from '../components/BookingForm';
 
 type LoadState = 'loading' | 'error' | 'ready';
 
 export function FieldsAvailabilityPage() {
   const [fields, setFields] = useState<Field[]>([]);
   const [state, setState] = useState<LoadState>('loading');
+  const [bookingFieldId, setBookingFieldId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,6 +47,13 @@ export function FieldsAvailabilityPage() {
         {fields.map((field) => (
           <li key={field.id}>
             <strong>{field.name}</strong> — {field.location} ({field.surfaceType}) — ${field.pricePerHour}/hr
+            {bookingFieldId === field.id ? (
+              <BookingForm fieldId={field.id} fieldName={field.name} />
+            ) : (
+              <button type="button" onClick={() => setBookingFieldId(field.id)}>
+                Book this field
+              </button>
+            )}
           </li>
         ))}
       </ul>
