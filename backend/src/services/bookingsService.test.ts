@@ -7,6 +7,8 @@ import {
   BookingNotFoundError,
 } from './bookingsService';
 import { listAuditEntries, resetAuditTrail } from './auditTrailService';
+import { listSchedulingIssues, resetSchedulingIssues } from './schedulingIssuesService';
+import * as schedulingIssuesService from './schedulingIssuesService';
 
 const base = {
   fieldId: 'field-1',
@@ -19,6 +21,7 @@ describe('createBooking', () => {
   beforeEach(() => {
     resetBookings();
     resetAuditTrail();
+    resetSchedulingIssues();
   });
 
   it('creates a new booking', () => {
@@ -261,5 +264,60 @@ describe('audit trail integration', () => {
     cancelBooking(booking.id, 'Alice');
 
     expect(listAuditEntries(booking.id)).toHaveLength(2);
+  });
+});
+
+describe('createBooking — scheduling issue reporting (STORY-012)', () => {
+  beforeEach(() => {
+    resetBookings();
+    resetAuditTrail();
+    resetSchedulingIssues();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('reports a scheduling issue when a genuine conflict occurs between two different customers', () => {
+    createBooking(base);
+
+    expect(() =>
+      createBooking({
+        ...base,
+        customerName: 'Bob',
+        startTime: '2026-09-05T10:30:00.000Z',
+        endTime: '2026-09-05T11:30:00.000Z',
+      }),
+    ).toThrow(BookingConflictError);
+
+    const openIssues = listSchedulingIssues('open');
+    expect(openIssues).toHaveLength(1);
+    expect(openIssues[0].fieldId).toBe('field-1');
+    expect(openIssues[0].details.requestedBy).toBe('Bob');
+  });
+
+  it('does not report a scheduling issue for an idempotent retry (not a real conflict)', () => {
+    createBooking(base);
+    createBooking(base); // identical retry — same request as above, not a conflict
+
+    expect(listSchedulingIssues('open')).toHaveLength(0);
+  });
+
+  it('still rejects the customer correctly even if scheduling-issue reporting itself fails ("Notifications are not sent to the scheduler")', () => {
+    createBooking(base);
+    jest.spyOn(schedulingIssuesService, 'reportSchedulingConflict').mockImplementation(() => {
+      throw new Error('simulated notification failure');
+    });
+
+    // The customer-facing rejection must still happen correctly — a
+    // broken notification side channel can never mask or replace it.
+    expect(() =>
+      createBooking({
+        ...base,
+        customerName: 'Bob',
+        startTime: '2026-09-05T10:30:00.000Z',
+        endTime: '2026-09-05T11:30:00.000Z',
+      }),
+    ).toThrow(BookingConflictError);
   });
 });

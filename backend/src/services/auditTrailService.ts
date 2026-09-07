@@ -1,8 +1,13 @@
-export type AuditAction = 'created' | 'cancelled';
+// STORY-012 widens both unions to admit scheduling issues alongside
+// bookings — the audit trail itself (STORY-011) was always meant to be
+// general-purpose, not booking-specific; this is its first real second
+// user, not a special case bolted on.
+export type AuditEntityType = 'booking' | 'scheduling_issue';
+export type AuditAction = 'created' | 'cancelled' | 'detected' | 'resolved';
 
 export interface AuditEntry {
   id: string;
-  entityType: 'booking';
+  entityType: AuditEntityType;
   entityId: string;
   action: AuditAction;
   actor: string;
@@ -11,7 +16,7 @@ export interface AuditEntry {
 }
 
 export interface RecordAuditEntryInput {
-  entityType: 'booking';
+  entityType: AuditEntityType;
   entityId: string;
   action: AuditAction;
   actor: string;

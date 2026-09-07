@@ -1,4 +1,5 @@
 import { recordAuditEntry } from './auditTrailService';
+import { reportSchedulingConflict } from './schedulingIssuesService';
 
 export type BookingStatus = 'confirmed' | 'cancelled';
 
@@ -109,6 +110,23 @@ export function createBooking(input: CreateBookingInput): { booking: Booking; cr
       // retry after a dropped response) — return the existing booking
       // rather than creating a duplicate.
       return { booking: overlapping, created: false };
+    }
+
+    // STORY-012: a genuine conflict between two different customers is a
+    // scheduling issue the scheduler needs to know about, not just a
+    // rejection the requesting customer sees. Isolated in its own
+    // try/catch — a failure anywhere in issue-reporting/notification must
+    // never prevent the correct customer-facing rejection below.
+    try {
+      reportSchedulingConflict(input.fieldId, {
+        requestedStartTime: input.startTime,
+        requestedEndTime: input.endTime,
+        requestedBy: input.customerName,
+        conflictingBookingId: overlapping.id,
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[bookings] SchedulingIssueReportError:', err instanceof Error ? err.message : err);
     }
 
     throw new BookingConflictError(`Field ${input.fieldId} is already booked for an overlapping time.`);
