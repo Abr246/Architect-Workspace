@@ -3,6 +3,7 @@ import fieldsRouter from './routes/fields';
 import bookingsRouter from './routes/bookings';
 import escalationsRouter from './routes/escalations';
 import auditTrailRouter from './routes/auditTrail';
+import schedulingRouter from './routes/scheduling';
 import { requestLogger } from './middleware/requestLogger';
 
 export function createApp() {
@@ -13,5 +14,6 @@ export function createApp() {
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/escalations', escalationsRouter);
   app.use('/api/audit-trail', auditTrailRouter);
+  app.use('/api/scheduling', schedulingRouter);
   return app;
 }

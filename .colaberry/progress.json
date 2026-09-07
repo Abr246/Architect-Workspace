@@ -8,7 +8,7 @@
     "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 20,
+    "criteria_passed": 23,
     "points_awarded": 62
   },
   "stories": [
@@ -301,20 +301,30 @@
       "criteria": [
         {
           "text": "Given a customer requests a booking, when AI suggests times, then optimal times are presented.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a busy period, when AI analyzes, then it suggests alternative times.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All AI scheduling suggestions are logged with rationale.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/services/schedulingService.ts",
+        "backend/src/routes/scheduling.ts",
+        "backend/src/app.ts",
+        "frontend/src/services/schedulingApi.ts",
+        "frontend/src/components/BookingForm.tsx"
+      ],
+      "tests_added": [
+        "backend/src/services/schedulingService.test.ts",
+        "backend/src/routes/scheduling.test.ts",
+        "frontend/src/services/schedulingApi.test.ts"
+      ],
+      "notes": "Built as a deterministic, rules-based scheduling engine, not a real LLM/AI API integration - no credentials exist in this environment for one, and adding an external AI dependency is a decision flagged to the user rather than made unilaterally (per CLAUDE.md's Autonomy Model). Reasons over real booking data via checkForConflict (STORY-005): presents the preferred time when free; when busy, checks candidate alternatives (+/-1h, +/-2h, next day) against real bookings and returns only genuinely free ones, each suggestion logged with a rationale. Every candidate is re-verified before being offered, so 'never suggests an actually-busy time' holds by construction, not by luck. Frontend: BookingForm fetches suggestions on conflict and offers them as clickable pre-fills, per this story's task guidance to integrate with the booking interface. Found and fixed a real gap while testing: the frontend's fetchSuggestions only handled non-2xx HTTP responses, not the fetch() call itself failing (a genuine network-level 'Integration error') - this was silently unhandled until a dedicated test surfaced it. All 3 criteria verified via automated tests, manual curl + raw log inspection against a live server, and a live DOM check confirming the integrated page still renders correctly.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

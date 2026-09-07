@@ -52,8 +52,15 @@ describe('BookingForm', () => {
     expect(JSON.parse(body.body)).toMatchObject({ fieldId: 'field-1', customerName: 'Alice' });
   });
 
-  it('shows the conflict message instead of a confirmation when the field is already booked', async () => {
+  it('shows the conflict message, and suggested alternative times, when the field is already booked', async () => {
     mockFetchOnce({ error: 'Field field-1 is already booked for an overlapping time.' }, 409);
+    mockFetchOnce(
+      {
+        slots: [{ startTime: '2026-09-05T11:00:00.000Z', endTime: '2026-09-05T12:00:00.000Z' }],
+        rationale: 'The requested time is already booked, so these are the nearest available windows of the same duration.',
+      },
+      200,
+    );
 
     render(<BookingForm fieldId="field-1" fieldName="Riverside Pitch" />);
     await fillAndSubmit();
@@ -62,5 +69,30 @@ describe('BookingForm', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(/already booked/i);
     });
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+    // STORY-006: a suggested alternative time should also appear, backed
+    // by the second (scheduling) fetch call, not silently dropped.
+    await waitFor(() => {
+      expect(screen.getByText(/nearest available windows/i)).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: /2026/ })).toBeInTheDocument();
+
+    const [, schedulingCallBody] = (global.fetch as jest.Mock).mock.calls[1];
+    expect(JSON.parse(schedulingCallBody.body)).toMatchObject({ fieldId: 'field-1' });
+  });
+
+  it('does not crash and simply omits suggestions if the scheduling call itself fails', async () => {
+    mockFetchOnce({ error: 'Field field-1 is already booked for an overlapping time.' }, 409);
+    jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network down'));
+
+    render(<BookingForm fieldId="field-1" fieldName="Riverside Pitch" />);
+    await fillAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/already booked/i);
+    });
+    // The conflict message is still there; there's just nothing more to
+    // show below it, rather than a crash.
+    expect(screen.queryByText(/nearest available windows/i)).not.toBeInTheDocument();
   });
 });
