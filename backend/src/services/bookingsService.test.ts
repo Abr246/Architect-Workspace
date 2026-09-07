@@ -1,4 +1,11 @@
-import { createBooking, cancelBooking, resetBookings, BookingConflictError, BookingNotFoundError } from './bookingsService';
+import {
+  createBooking,
+  cancelBooking,
+  checkForConflict,
+  resetBookings,
+  BookingConflictError,
+  BookingNotFoundError,
+} from './bookingsService';
 import { listAuditEntries, resetAuditTrail } from './auditTrailService';
 
 const base = {
@@ -65,31 +72,118 @@ describe('createBooking — audit logging', () => {
     resetAuditTrail();
   });
 
+  afterEach(() => {
+    // Using afterEach rather than a manual logSpy.mockRestore() at the end
+    // of each test body — that pattern only runs on success, so a failing
+    // assertion leaves the spy (and its call history) leaking into the
+    // next test. This guarantees cleanup either way.
+    jest.restoreAllMocks();
+  });
+
+  function loggedEventsOf(logSpy: jest.SpyInstance, event: string) {
+    return logSpy.mock.calls.map((call) => JSON.parse(call[0] as string)).filter((entry) => entry.event === event);
+  }
+
   it('logs customer details and a timestamp when a booking is actually created', () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     createBooking(base);
 
-    expect(logSpy).toHaveBeenCalledTimes(1);
-    const logged = JSON.parse(logSpy.mock.calls[0][0] as string);
-    expect(logged.event).toBe('booking_created');
-    expect(logged.context.customerName).toBe('Alice');
-    expect(logged.context.fieldId).toBe('field-1');
-    expect(logged.timestamp).toEqual(expect.any(String));
-    expect(new Date(logged.timestamp).toString()).not.toBe('Invalid Date');
-
-    logSpy.mockRestore();
+    const createdLogs = loggedEventsOf(logSpy, 'booking_created');
+    expect(createdLogs).toHaveLength(1);
+    expect(createdLogs[0].context.customerName).toBe('Alice');
+    expect(createdLogs[0].context.fieldId).toBe('field-1');
+    expect(createdLogs[0].timestamp).toEqual(expect.any(String));
+    expect(new Date(createdLogs[0].timestamp).toString()).not.toBe('Invalid Date');
   });
 
-  it('does not log again on an idempotent retry', () => {
+  it('does not log a second "booking_created" event on an idempotent retry', () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     createBooking(base);
     createBooking(base); // identical retry — same request as above
 
-    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(loggedEventsOf(logSpy, 'booking_created')).toHaveLength(1);
+  });
+});
 
-    logSpy.mockRestore();
+describe('checkForConflict', () => {
+  beforeEach(() => {
+    resetBookings();
+    resetAuditTrail();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('confirms no conflict when no bookings exist yet', () => {
+    const result = checkForConflict(base.fieldId, base.startTime, base.endTime);
+
+    expect(result.hasConflict).toBe(false);
+    expect(result.conflictingBooking).toBeNull();
+  });
+
+  it('identifies a conflict when a new booking overlaps an existing one', () => {
+    const { booking } = createBooking(base);
+
+    const result = checkForConflict(base.fieldId, '2026-09-05T10:30:00.000Z', '2026-09-05T11:30:00.000Z');
+
+    expect(result.hasConflict).toBe(true);
+    expect(result.conflictingBooking?.id).toBe(booking.id);
+  });
+
+  it('confirms no conflict for a non-overlapping (adjacent) time on the same field', () => {
+    createBooking(base);
+
+    const result = checkForConflict(base.fieldId, '2026-09-05T11:00:00.000Z', '2026-09-05T12:00:00.000Z');
+
+    expect(result.hasConflict).toBe(false);
+  });
+
+  it('does not flag a false-positive conflict against a cancelled booking', () => {
+    const { booking } = createBooking(base);
+    cancelBooking(booking.id, base.customerName);
+
+    const result = checkForConflict(base.fieldId, base.startTime, base.endTime);
+
+    expect(result.hasConflict).toBe(false);
+  });
+
+  it('logs every check, including ones with no conflict', () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    checkForConflict(base.fieldId, base.startTime, base.endTime);
+
+    const logged = JSON.parse(logSpy.mock.calls[0][0] as string);
+    expect(logged.event).toBe('conflict_check');
+    expect(logged.context.hasConflict).toBe(false);
+    expect(logged.timestamp).toEqual(expect.any(String));
+  });
+
+  it('logs a conflict check that finds a conflict, including the conflicting booking id', () => {
+    const { booking } = createBooking(base);
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    checkForConflict(base.fieldId, base.startTime, base.endTime);
+
+    const logged = JSON.parse(logSpy.mock.calls[0][0] as string);
+    expect(logged.context.hasConflict).toBe(true);
+    expect(logged.context.conflictingBookingId).toBe(booking.id);
+  });
+
+  it('still returns the correct result even if logging itself fails', () => {
+    // "Logging failure" — a broken logger must never break the actual
+    // conflict check it's supposed to be observing.
+    jest.spyOn(console, 'log').mockImplementation(() => {
+      throw new Error('simulated logger crash');
+    });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const result = checkForConflict(base.fieldId, base.startTime, base.endTime);
+
+    expect(result.hasConflict).toBe(false);
+    expect(errorSpy).toHaveBeenCalled();
   });
 });
 

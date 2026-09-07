@@ -8,7 +8,7 @@
     "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 17,
+    "criteria_passed": 20,
     "points_awarded": 62
   },
   "stories": [
@@ -258,20 +258,24 @@
       "criteria": [
         {
           "text": "Given a new booking overlaps an existing one, when the system checks, then it identifies a conflict.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given no overlap exists, when the system checks, then it confirms no conflict.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All conflict checks are logged with booking details.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/services/bookingsService.ts"
+      ],
+      "tests_added": [
+        "backend/src/services/bookingsService.test.ts (checkForConflict describe block)"
+      ],
+      "notes": "Conflict detection logic already existed inline inside createBooking() since STORY-002; this story extracted it into its own explicit, reusable, independently-tested checkForConflict() function and added dedicated logging covering both outcomes (STORY-002 only ever logged the success/creation case, never the check itself). createBooking() now calls checkForConflict() rather than duplicating the overlap logic. All 3 named failure paths handled with dedicated tests: 'Missed conflict' (a real overlap is caught), 'False positive conflict' (a cancelled booking or a non-overlapping/adjacent time never falsely flags), 'Logging failure' (a broken logger cannot crash the check - wrapped in try/catch, verified via a test that makes console.log throw and confirms the check still returns the correct result). Refactoring this exposed a pre-existing test-hygiene issue in bookingsService.test.ts: two audit-logging tests used a manual logSpy.mockRestore() at the end of each test body, which never ran when an assertion failed partway through, leaking the spy's call history into the next test; fixed by switching to afterEach(() => jest.restoreAllMocks()). No frontend work - task guidance scopes this to 'the booking service', and the existing BookingForm (STORY-002) already surfaces conflict errors from its UI.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

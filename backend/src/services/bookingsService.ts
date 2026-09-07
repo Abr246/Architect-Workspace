@@ -42,17 +42,63 @@ function timesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string
   return new Date(aStart) < new Date(bEnd) && new Date(bStart) < new Date(aEnd);
 }
 
+export interface ConflictCheckResult {
+  hasConflict: boolean;
+  conflictingBooking: Booking | null;
+}
+
+// STORY-005: conflict detection as its own explicit, reusable capability
+// (STORY-002 only ever had this logic inline inside createBooking). Every
+// call is logged — both outcomes, not just the failure case — which is
+// this story's own "Trust" criterion. A cancelled booking no longer holds
+// its slot, so only an active ("confirmed") booking counts as a conflict —
+// this is the "False positive conflict" failure path made impossible by
+// construction, not just handled.
+export function checkForConflict(fieldId: string, startTime: string, endTime: string): ConflictCheckResult {
+  const conflictingBooking =
+    bookings.find(
+      (b) => b.status === 'confirmed' && b.fieldId === fieldId && timesOverlap(b.startTime, b.endTime, startTime, endTime),
+    ) ?? null;
+
+  const result: ConflictCheckResult = { hasConflict: conflictingBooking !== null, conflictingBooking };
+
+  try {
+    // eslint-disable-next-line no-console
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        service: 'backend',
+        event: 'conflict_check',
+        outcome: 'success',
+        context: {
+          fieldId,
+          startTime,
+          endTime,
+          hasConflict: result.hasConflict,
+          conflictingBookingId: conflictingBooking?.id ?? null,
+        },
+      }),
+    );
+  } catch (err) {
+    // "Logging failure" — a broken logger must never take the conflict
+    // check (or the booking flow depending on it) down with it. Note the
+    // failure and keep going; the check result itself is still correct.
+    // eslint-disable-next-line no-console
+    console.error('[bookings] ConflictCheckLoggingError:', err instanceof Error ? err.message : err);
+  }
+
+  return result;
+}
+
 export function createBooking(input: CreateBookingInput): { booking: Booking; created: boolean } {
-  // A cancelled booking no longer holds the slot, so only an active
-  // ("confirmed") booking counts as an overlap.
-  const overlapping = bookings.find(
-    (b) =>
-      b.status === 'confirmed' &&
-      b.fieldId === input.fieldId &&
-      timesOverlap(b.startTime, b.endTime, input.startTime, input.endTime),
+  const { hasConflict, conflictingBooking: overlapping } = checkForConflict(
+    input.fieldId,
+    input.startTime,
+    input.endTime,
   );
 
-  if (overlapping) {
+  if (hasConflict && overlapping) {
     const isSameRequest =
       overlapping.customerName === input.customerName &&
       overlapping.startTime === input.startTime &&
