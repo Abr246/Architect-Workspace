@@ -5,6 +5,7 @@ import escalationsRouter from './routes/escalations';
 import auditTrailRouter from './routes/auditTrail';
 import schedulingRouter from './routes/scheduling';
 import schedulingIssuesRouter from './routes/schedulingIssues';
+import assistantRouter from './routes/assistant';
 import { requestLogger } from './middleware/requestLogger';
 
 export function createApp() {
@@ -17,5 +18,6 @@ export function createApp() {
   app.use('/api/audit-trail', auditTrailRouter);
   app.use('/api/scheduling', schedulingRouter);
   app.use('/api/scheduling-issues', schedulingIssuesRouter);
+  app.use('/api/assistant', assistantRouter);
   return app;
 }

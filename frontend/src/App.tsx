@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { FieldsAvailabilityPage } from './pages/FieldsAvailabilityPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
 import { SchedulingIssuesPage } from './pages/SchedulingIssuesPage';
+import { AssistantPage } from './pages/AssistantPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-type View = 'booking' | 'approvals' | 'scheduling-issues';
+type View = 'booking' | 'approvals' | 'scheduling-issues' | 'assistant';
 
 function App() {
   const [view, setView] = useState<View>('booking');
@@ -25,10 +26,14 @@ function App() {
         >
           Scheduling issues
         </button>
+        <button type="button" onClick={() => setView('assistant')} aria-current={view === 'assistant'}>
+          Ask a question
+        </button>
       </nav>
       {view === 'booking' && <FieldsAvailabilityPage />}
       {view === 'approvals' && <ApprovalsPage />}
       {view === 'scheduling-issues' && <SchedulingIssuesPage />}
+      {view === 'assistant' && <AssistantPage />}
     </ErrorBoundary>
   );
 }
