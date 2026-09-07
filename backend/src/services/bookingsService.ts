@@ -1,3 +1,7 @@
+import { recordAuditEntry } from './auditTrailService';
+
+export type BookingStatus = 'confirmed' | 'cancelled';
+
 export interface Booking {
   id: string;
   fieldId: string;
@@ -5,6 +9,7 @@ export interface Booking {
   startTime: string;
   endTime: string;
   createdAt: string;
+  status: BookingStatus;
 }
 
 export interface CreateBookingInput {
@@ -21,6 +26,13 @@ export class BookingConflictError extends Error {
   }
 }
 
+export class BookingNotFoundError extends Error {
+  constructor(id: string) {
+    super(`No booking found with id ${id}.`);
+    this.name = 'BookingNotFoundError';
+  }
+}
+
 // Walking skeleton: in-memory store, same pattern as fieldsService, until
 // REQ-016/REQ-017 (database connections) land in a later story.
 let bookings: Booking[] = [];
@@ -31,8 +43,13 @@ function timesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string
 }
 
 export function createBooking(input: CreateBookingInput): { booking: Booking; created: boolean } {
+  // A cancelled booking no longer holds the slot, so only an active
+  // ("confirmed") booking counts as an overlap.
   const overlapping = bookings.find(
-    (b) => b.fieldId === input.fieldId && timesOverlap(b.startTime, b.endTime, input.startTime, input.endTime),
+    (b) =>
+      b.status === 'confirmed' &&
+      b.fieldId === input.fieldId &&
+      timesOverlap(b.startTime, b.endTime, input.startTime, input.endTime),
   );
 
   if (overlapping) {
@@ -55,6 +72,7 @@ export function createBooking(input: CreateBookingInput): { booking: Booking; cr
     id: `booking-${nextId++}`,
     ...input,
     createdAt: new Date().toISOString(),
+    status: 'confirmed',
   };
   bookings.push(booking);
 
@@ -82,7 +100,43 @@ export function createBooking(input: CreateBookingInput): { booking: Booking; cr
     }),
   );
 
+  // STORY-011: every booking action goes into the audit trail, not just a
+  // console log line — this is what makes it queryable/verifiable later,
+  // rather than something you'd have to grep stdout for.
+  recordAuditEntry({
+    entityType: 'booking',
+    entityId: booking.id,
+    action: 'created',
+    actor: booking.customerName,
+    details: { fieldId: booking.fieldId, startTime: booking.startTime, endTime: booking.endTime },
+  });
+
   return { booking, created: true };
+}
+
+export function cancelBooking(id: string, customerName: string): { booking: Booking; cancelled: boolean } {
+  const booking = bookings.find((b) => b.id === id);
+  if (!booking) {
+    throw new BookingNotFoundError(id);
+  }
+
+  if (booking.status === 'cancelled') {
+    // Idempotent retry: cancelling something already cancelled is not an
+    // error — it's the same end state the caller was asking for.
+    return { booking, cancelled: false };
+  }
+
+  booking.status = 'cancelled';
+
+  recordAuditEntry({
+    entityType: 'booking',
+    entityId: booking.id,
+    action: 'cancelled',
+    actor: customerName,
+    details: { fieldId: booking.fieldId, startTime: booking.startTime, endTime: booking.endTime },
+  });
+
+  return { booking, cancelled: true };
 }
 
 // Test-only: the in-memory store persists across test cases within a

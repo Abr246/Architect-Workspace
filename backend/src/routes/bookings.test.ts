@@ -62,3 +62,51 @@ describe('POST /api/bookings', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('POST /api/bookings/:id/cancel', () => {
+  beforeEach(() => {
+    resetBookings();
+  });
+
+  async function createOne(app: ReturnType<typeof createApp>) {
+    const res = await request(app).post('/api/bookings').send(validBody);
+    return res.body.booking.id as string;
+  }
+
+  it('cancels a booking and returns 200', async () => {
+    const app = createApp();
+    const id = await createOne(app);
+
+    const res = await request(app).post(`/api/bookings/${id}/cancel`).send({ customerName: 'Alice' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.booking.status).toBe('cancelled');
+  });
+
+  it('is idempotent — cancelling twice still returns 200 without error', async () => {
+    const app = createApp();
+    const id = await createOne(app);
+    await request(app).post(`/api/bookings/${id}/cancel`).send({ customerName: 'Alice' });
+
+    const res = await request(app).post(`/api/bookings/${id}/cancel`).send({ customerName: 'Alice' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.booking.status).toBe('cancelled');
+  });
+
+  it('returns 404 for a booking that does not exist', async () => {
+    const app = createApp();
+    const res = await request(app).post('/api/bookings/booking-999/cancel').send({ customerName: 'Alice' });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 400 for a missing customerName', async () => {
+    const app = createApp();
+    const id = await createOne(app);
+
+    const res = await request(app).post(`/api/bookings/${id}/cancel`).send({});
+
+    expect(res.status).toBe(400);
+  });
+});

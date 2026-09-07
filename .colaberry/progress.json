@@ -8,7 +8,7 @@
     "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 14,
+    "criteria_passed": 17,
     "points_awarded": 62
   },
   "stories": [
@@ -492,20 +492,29 @@
       "criteria": [
         {
           "text": "Given a booking is made, when the booking is confirmed, then the booking details are recorded in the audit trail.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a booking is cancelled, when the cancellation is processed, then the cancellation details are recorded in the audit trail.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: Given any booking action occurs, when the action is completed, then the action is logged with a timestamp in the audit trail.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/services/auditTrailService.ts",
+        "backend/src/services/bookingsService.ts",
+        "backend/src/routes/bookings.ts",
+        "backend/src/routes/auditTrail.ts",
+        "backend/src/app.ts"
+      ],
+      "tests_added": [
+        "backend/src/services/auditTrailService.test.ts",
+        "backend/src/routes/auditTrail.test.ts"
+      ],
+      "notes": "No cancellation capability existed before this story (STORY-002 only ever built creation); added a minimal cancelBooking() as a necessary walking-skeleton prerequisite for auditing a cancellation action, since the acceptance criteria explicitly require one. Audit trail is a real structured, queryable store (recordAuditEntry/listAuditEntries), distinct from the console logging STORY-001/002/004 already do - that logging isn't 'accessible for verification' in any structured sense, this is, via GET /api/audit-trail. Both creation and cancellation are idempotent, and cancellation is idempotent-verified at the audit-trail level too: cancelling twice does not add a duplicate entry. No frontend UI built for this story - the acceptance criteria and task guidance are satisfied at the API level ('accessible for verification' = the GET endpoint), and unlike STORY-001/004 nothing here names a customer- or staff-facing page; the owning role is System Auditor, not a UI persona. All 3 criteria verified via automated tests plus manual curl checks (including confirming the audit trail entry count stayed at 2, not 3, after a repeat cancellation) against a live dev server.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",
