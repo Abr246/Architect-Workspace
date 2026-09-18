@@ -3,13 +3,13 @@
   "project": "GoalKick",
   "totals": {
     "stories_total": 13,
-    "stories_verified": 1,
+    "stories_verified": 9,
     "stories_submitted": 0,
-    "stories_in_progress": 12,
+    "stories_in_progress": 4,
     "stories_not_started": 0,
     "criteria_total": 41,
     "criteria_passed": 29,
-    "points_awarded": 62
+    "points_awarded": 558
   },
   "stories": [
     {
@@ -52,8 +52,7 @@
         "commit_at": "2026-08-17T07:15:48Z",
         "points_awarded": 62,
         "outstanding": []
-      },
-      "points": 0
+      }
     },
     {
       "id": "STORY-001",
@@ -95,21 +94,16 @@
       "notes": "In-memory field data only (no DB yet, per this story's scope). All 3 criteria verified via automated tests (backend unit/route/logging tests, frontend component tests) and a live browser check via headless Chrome against both dev servers.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a customer, when they access the field availability page, then they see a list of available fields.",
-          "Given a field is booked, when a customer views availability, then the field is not shown.",
-          "Trust: All field availability views are logged with timestamps."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-08-30T07:52:02.461Z",
+        "commit_sha": "26fb532ff2f4a7756a61220fd1596c17205fbd69",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/26fb532ff2f4a7756a61220fd1596c17205fbd69",
+        "commit_at": "2026-08-30T07:51:11Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     },
     {
       "id": "STORY-002",
@@ -145,21 +139,16 @@
       "notes": "In-memory booking store (no DB yet, per this story's scope). Idempotent create: an identical repeat request from the same customer returns the existing booking instead of erroring or duplicating; a genuine conflict (different customer or non-matching overlapping time) returns 409. All 3 criteria verified via automated tests (backend unit/route tests, frontend interaction tests using userEvent) plus manual curl checks and a live browser check against real dev servers.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a customer selects a field and time, when they confirm booking, then the booking is recorded.",
-          "Given a field is already booked, when a customer tries to book it, then they receive a conflict message.",
-          "Trust: All bookings are logged with customer details and timestamps."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-09-02T00:05:57.590Z",
+        "commit_sha": "427d36a4bbf6b96aa3acb6d4b99f7561b09fe878",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/427d36a4bbf6b96aa3acb6d4b99f7561b09fe878",
+        "commit_at": "2026-09-02T00:05:05Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     },
     {
       "id": "STORY-003",
@@ -196,21 +185,16 @@
       "notes": "Built as a deterministic, rules-based Q&A engine (same honest-substitution reasoning as STORY-006, and directly parallel to the Command Center's own kbChat.js from earlier in this build) - no LLM/AI API credentials exist in this environment, and adding an external AI dependency is a decision reserved for the user. REQ-004 explicitly scopes this to 'pricing and availability', so anything outside that is honestly declined via the same keyword-matching engine - that decline IS acceptance criterion 2, not a shortcoming. Every answer is grounded in real fieldsService data, never fabricated. Widened auditTrailService's entityType/action unions a third time ('ai_interaction'/'answered') - same general-purpose extension pattern as STORY-012. Caught and fixed a real precision bug during manual testing, before formalizing tests: 'book' in the availability keyword pattern caused pricing-only questions containing the word 'book' (e.g. 'how much to book a field?') to get an unnecessarily combined pricing+availability answer; removed it since there's already a dedicated booking flow elsewhere in the app and 'book' is too generic a signal for availability intent specifically. All 3 criteria and all 3 named failure paths verified via automated tests, manual curl (which is what surfaced the keyword bug), and a live DOM check confirming all four nav tabs render together.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a customer asks a question, when the AI assistant processes it, then the customer receives a relevant answer.",
-          "Given a customer asks a question outside the AI's knowledge, when the AI assistant processes it, then the customer is informed that the question cannot be answered.",
-          "Trust: Given a customer interaction, when the AI assistant responds, then the interaction is logged in the audit trail."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-09-07T22:17:46.188Z",
+        "commit_sha": "98e335cf4dfba0e1ab5329f5df4444157f836bcf",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/98e335cf4dfba0e1ab5329f5df4444157f836bcf",
+        "commit_at": "2026-09-07T22:16:53Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     },
     {
       "id": "STORY-004",
@@ -247,21 +231,16 @@
       "notes": "Every valid refund/complaint request is escalated to a human (REQ-008 treats refunds/complaints themselves as the important decisions, no separate triage story exists yet to do finer filtering). In-memory store, no DB yet, same deliberate scope choice as STORY-001/002. Both creation and decision are idempotent: an identical repeat request or an identical repeat decision does not double-create or double-process (double-processing an approval is a real double-refund risk, not just a nicety here). A conflicting second decision (different outcome or decider) on an already-decided escalation is rejected (409), not silently overwritten. All 3 criteria verified via automated tests plus manual curl checks and a live check against real dev servers.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a refund request, when it is flagged as important, then it is sent to a human for approval.",
-          "Given a complaint is received, when it is flagged as important, then it is sent to a human for approval.",
-          "Trust: All escalations to humans are logged with timestamps and decision outcomes."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-09-02T01:07:58.756Z",
+        "commit_sha": "4f3d1e6e99e04a7a5b87e58c6abeb5c988807590",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/4f3d1e6e99e04a7a5b87e58c6abeb5c988807590",
+        "commit_at": "2026-09-02T01:07:07Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     },
     {
       "id": "STORY-005",
@@ -290,21 +269,16 @@
       "notes": "Conflict detection logic already existed inline inside createBooking() since STORY-002; this story extracted it into its own explicit, reusable, independently-tested checkForConflict() function and added dedicated logging covering both outcomes (STORY-002 only ever logged the success/creation case, never the check itself). createBooking() now calls checkForConflict() rather than duplicating the overlap logic. All 3 named failure paths handled with dedicated tests: 'Missed conflict' (a real overlap is caught), 'False positive conflict' (a cancelled booking or a non-overlapping/adjacent time never falsely flags), 'Logging failure' (a broken logger cannot crash the check - wrapped in try/catch, verified via a test that makes console.log throw and confirms the check still returns the correct result). Refactoring this exposed a pre-existing test-hygiene issue in bookingsService.test.ts: two audit-logging tests used a manual logSpy.mockRestore() at the end of each test body, which never ran when an assertion failed partway through, leaking the spy's call history into the next test; fixed by switching to afterEach(() => jest.restoreAllMocks()). No frontend work - task guidance scopes this to 'the booking service', and the existing BookingForm (STORY-002) already surfaces conflict errors from its UI.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a new booking overlaps an existing one, when the system checks, then it identifies a conflict.",
-          "Given no overlap exists, when the system checks, then it confirms no conflict.",
-          "Trust: All conflict checks are logged with booking details."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-09-07T21:36:34.705Z",
+        "commit_sha": "87be10ddcecbfdc7ada42d502b7bc5d7fbbb5371",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/87be10ddcecbfdc7ada42d502b7bc5d7fbbb5371",
+        "commit_at": "2026-09-07T21:35:42Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     },
     {
       "id": "STORY-006",
@@ -339,21 +313,16 @@
       "notes": "Built as a deterministic, rules-based scheduling engine, not a real LLM/AI API integration - no credentials exist in this environment for one, and adding an external AI dependency is a decision flagged to the user rather than made unilaterally (per CLAUDE.md's Autonomy Model). Reasons over real booking data via checkForConflict (STORY-005): presents the preferred time when free; when busy, checks candidate alternatives (+/-1h, +/-2h, next day) against real bookings and returns only genuinely free ones, each suggestion logged with a rationale. Every candidate is re-verified before being offered, so 'never suggests an actually-busy time' holds by construction, not by luck. Frontend: BookingForm fetches suggestions on conflict and offers them as clickable pre-fills, per this story's task guidance to integrate with the booking interface. Found and fixed a real gap while testing: the frontend's fetchSuggestions only handled non-2xx HTTP responses, not the fetch() call itself failing (a genuine network-level 'Integration error') - this was silently unhandled until a dedicated test surfaced it. All 3 criteria verified via automated tests, manual curl + raw log inspection against a live server, and a live DOM check confirming the integrated page still renders correctly.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a customer requests a booking, when AI suggests times, then optimal times are presented.",
-          "Given a busy period, when AI analyzes, then it suggests alternative times.",
-          "Trust: All AI scheduling suggestions are logged with rationale."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-09-07T21:50:15.502Z",
+        "commit_sha": "ab0d82378ac077ad92745d76a4dc952c9bee3cad",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/ab0d82378ac077ad92745d76a4dc952c9bee3cad",
+        "commit_at": "2026-09-07T21:49:22Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     },
     {
       "id": "STORY-007",
@@ -391,8 +360,7 @@
           "Given a slow period, when AI analyzes, then it identifies the period.",
           "Trust: All analytics reports are logged with data sources and timestamps."
         ]
-      },
-      "points": 0
+      }
     },
     {
       "id": "STORY-008",
@@ -430,8 +398,7 @@
           "Given an unsupported query, when AI processes it, then a fallback response is given.",
           "Trust: All complex query interactions are logged with details."
         ]
-      },
-      "points": 0
+      }
     },
     {
       "id": "STORY-009",
@@ -469,8 +436,7 @@
           "Given an escalated issue, when a human handles it, then the customer is informed of the outcome.",
           "Trust: All customer service interactions are logged with resolution details."
         ]
-      },
-      "points": 0
+      }
     },
     {
       "id": "STORY-010",
@@ -508,8 +474,7 @@
           "Given the system is under peak load, when a user interacts with the system, then the response time is under 5 seconds.",
           "Trust: Given a performance optimization is applied, when a user interaction occurs, then the interaction is logged in the audit trail."
         ]
-      },
-      "points": 0
+      }
     },
     {
       "id": "STORY-011",
@@ -543,21 +508,16 @@
       "notes": "No cancellation capability existed before this story (STORY-002 only ever built creation); added a minimal cancelBooking() as a necessary walking-skeleton prerequisite for auditing a cancellation action, since the acceptance criteria explicitly require one. Audit trail is a real structured, queryable store (recordAuditEntry/listAuditEntries), distinct from the console logging STORY-001/002/004 already do - that logging isn't 'accessible for verification' in any structured sense, this is, via GET /api/audit-trail. Both creation and cancellation are idempotent, and cancellation is idempotent-verified at the audit-trail level too: cancelling twice does not add a duplicate entry. No frontend UI built for this story - the acceptance criteria and task guidance are satisfied at the API level ('accessible for verification' = the GET endpoint), and unlike STORY-001/004 nothing here names a customer- or staff-facing page; the owning role is System Auditor, not a UI persona. All 3 criteria verified via automated tests plus manual curl checks (including confirming the audit trail entry count stayed at 2, not 3, after a repeat cancellation) against a live dev server.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a booking is made, when the booking is confirmed, then the booking details are recorded in the audit trail.",
-          "Given a booking is cancelled, when the cancellation is processed, then the cancellation details are recorded in the audit trail.",
-          "Trust: Given any booking action occurs, when the action is completed, then the action is logged with a timestamp in the audit trail."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-09-07T21:29:00.180Z",
+        "commit_sha": "88de2ba05542bf9ef3f7e4ecc5ec3daa3aff2875",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/88de2ba05542bf9ef3f7e4ecc5ec3daa3aff2875",
+        "commit_at": "2026-09-07T21:28:08Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     },
     {
       "id": "STORY-012",
@@ -597,21 +557,16 @@
       "notes": "Last story in the plan. 'Notify the scheduler' built as an in-app, immediately-queryable notification list - no real email/SMS channel exists or has credentials, same honest-substitution pattern as STORY-006. Widened STORY-011's auditTrailService entityType/action unions ('booking' -> 'booking'|'scheduling_issue') to admit this story's entries - a natural extension of shared infrastructure, not a hack. Wired reportSchedulingConflict into bookingsService.createBooking()'s existing conflict branch (only on a genuine different-customer conflict, never on an idempotent retry), isolated in its own try/catch so a notification failure can never mask or break the customer-facing 409 rejection. Resolution is idempotent (resolving twice does not re-process) and removes the issue from the open list, which is this story's own reading of 'updates the schedule accordingly'. All 3 criteria and all 3 named failure paths verified via automated tests, manual curl through the full detect->notify->audit->resolve->idempotent-resolve lifecycle against a live server, and a live DOM check confirming all three nav tabs render.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a scheduling conflict exists, when the system detects it, then the scheduler is notified immediately.",
-          "Given a scheduling issue is resolved, when the resolution is confirmed, then the system updates the schedule accordingly.",
-          "Trust: Given a scheduling issue is detected, when the issue is logged, then it is recorded in the audit trail with details."
-        ]
-      },
-      "points": 0
+        "verified_at": "2026-09-07T22:04:34.728Z",
+        "commit_sha": "8ef63397a8ad58dd8b7dd3de3b745cf921236dab",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/8ef63397a8ad58dd8b7dd3de3b745cf921236dab",
+        "commit_at": "2026-09-07T22:03:42Z",
+        "points_awarded": 62,
+        "outstanding": []
+      }
     }
   ]
 }
