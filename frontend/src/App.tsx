@@ -3,9 +3,10 @@ import { FieldsAvailabilityPage } from './pages/FieldsAvailabilityPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
 import { SchedulingIssuesPage } from './pages/SchedulingIssuesPage';
 import { AssistantPage } from './pages/AssistantPage';
+import { AnalyticsDashboardPage } from './pages/AnalyticsDashboardPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-type View = 'booking' | 'approvals' | 'scheduling-issues' | 'assistant';
+type View = 'booking' | 'approvals' | 'scheduling-issues' | 'assistant' | 'analytics';
 
 function App() {
   const [view, setView] = useState<View>('booking');
@@ -29,11 +30,15 @@ function App() {
         <button type="button" onClick={() => setView('assistant')} aria-current={view === 'assistant'}>
           Ask a question
         </button>
+        <button type="button" onClick={() => setView('analytics')} aria-current={view === 'analytics'}>
+          Analytics
+        </button>
       </nav>
       {view === 'booking' && <FieldsAvailabilityPage />}
       {view === 'approvals' && <ApprovalsPage />}
       {view === 'scheduling-issues' && <SchedulingIssuesPage />}
       {view === 'assistant' && <AssistantPage />}
+      {view === 'analytics' && <AnalyticsDashboardPage />}
     </ErrorBoundary>
   );
 }

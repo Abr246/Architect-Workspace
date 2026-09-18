@@ -8,7 +8,7 @@
     "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 29,
+    "criteria_passed": 32,
     "points_awarded": 62
   },
   "stories": [
@@ -362,20 +362,32 @@
       "criteria": [
         {
           "text": "Given booking data, when AI analyzes, then trends are displayed on the dashboard.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a slow period, when AI analyzes, then it identifies the period.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All analytics reports are logged with data sources and timestamps.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/services/analyticsService.ts",
+        "backend/src/routes/analytics.ts",
+        "backend/src/services/bookingsService.ts",
+        "backend/src/app.ts",
+        "frontend/src/pages/AnalyticsDashboardPage.tsx",
+        "frontend/src/services/analyticsApi.ts",
+        "frontend/src/App.tsx"
+      ],
+      "tests_added": [
+        "backend/src/services/analyticsService.test.ts",
+        "backend/src/routes/analytics.test.ts",
+        "frontend/src/pages/AnalyticsDashboardPage.test.tsx"
+      ],
+      "notes": "Same 'AI' scope reasoning as STORY-003/006: deterministic engine, not a real LLM call. Groups confirmed bookings by day of week (UTC, deliberately - bookings are stored as UTC ISO strings, so classifying by local time would make results depend on which machine runs it) and classifies each day busy/slow/normal relative to the average across all 7 days. Correctness by construction: cancelled bookings never count toward a day's trend, and an all-empty or perfectly-even dataset is honestly 'normal' everywhere rather than a fabricated busy/slow label. Added listBookings() to bookingsService.ts as the read accessor this needed (same pattern as listEscalations/listSchedulingIssues). Manually seeded real bookings and verified the busy/slow math by hand before writing any tests (average = 4/7 - every count above it correctly flagged busy, every count below it correctly flagged slow). All 3 criteria and all 3 named failure paths verified via automated tests, live curl against real seeded data, and a live DOM check confirming the dashboard tab renders alongside the other four.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

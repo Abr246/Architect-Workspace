@@ -203,6 +203,13 @@ export function cancelBooking(id: string, customerName: string): { booking: Book
   return { booking, cancelled: true };
 }
 
+// STORY-007: a read accessor for analytics to build reports from, same
+// pattern as listEscalations/listSchedulingIssues.
+export function listBookings(status?: BookingStatus): Booking[] {
+  if (!status) return [...bookings];
+  return bookings.filter((b) => b.status === status);
+}
+
 // Test-only: the in-memory store persists across test cases within a
 // module, so tests need a way to reset it between runs.
 export function resetBookings(): void {
