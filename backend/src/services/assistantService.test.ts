@@ -1,5 +1,7 @@
 import { answerQuestion } from './assistantService';
 import { listAuditEntries, resetAuditTrail } from './auditTrailService';
+import { createBooking, resetBookings } from './bookingsService';
+import * as analyticsService from './analyticsService';
 
 describe('answerQuestion', () => {
   beforeEach(() => {
@@ -53,6 +55,77 @@ describe('answerQuestion', () => {
     const { understood } = answerQuestion('   ', 'Mia');
 
     expect(understood).toBe(false);
+  });
+});
+
+describe('answerQuestion — trends and complex queries (STORY-008)', () => {
+  beforeEach(() => {
+    resetAuditTrail();
+    resetBookings();
+  });
+
+  it('honestly says there is no history yet when no bookings exist', () => {
+    const { answer, understood } = answerQuestion('Which days are busy?', 'Mia');
+
+    expect(understood).toBe(true);
+    expect(answer).toMatch(/no.*trends|don't have enough booking history/i);
+  });
+
+  it('answers a trends question using real booking data', () => {
+    createBooking({ fieldId: 'field-1', customerName: 'Alice', startTime: '2026-09-19T10:00:00.000Z', endTime: '2026-09-19T11:00:00.000Z' }); // Saturday
+
+    const { answer, understood } = answerQuestion('Which days are usually busy?', 'Mia');
+
+    expect(understood).toBe(true);
+    expect(answer).toMatch(/Saturday/);
+  });
+
+  it('gives a detailed response combining pricing, availability, and trends for a genuinely complex query (acceptance criterion 1)', () => {
+    createBooking({ fieldId: 'field-1', customerName: 'Alice', startTime: '2026-09-19T10:00:00.000Z', endTime: '2026-09-19T11:00:00.000Z' });
+
+    const { answer, understood } = answerQuestion(
+      'What is available, how much does it cost, and which days are popular?',
+      'Mia',
+    );
+
+    expect(understood).toBe(true);
+    expect(answer).toMatch(/currently available/i);
+    expect(answer).toMatch(/pricing/i);
+    expect(answer).toMatch(/Saturday/);
+  });
+
+  it('still gives a fallback response for a genuinely unsupported query (acceptance criterion 2, regression)', () => {
+    const { answer, understood } = answerQuestion('What is your refund policy?', 'Mia');
+
+    expect(understood).toBe(false);
+    expect(answer).toMatch(/not able to answer/i);
+  });
+
+  it('degrades gracefully rather than losing the whole answer when trend analysis fails ("NLP processing error")', () => {
+    jest.spyOn(analyticsService, 'generateAnalyticsReport').mockImplementation(() => {
+      throw new Error('simulated analytics failure');
+    });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const { answer, understood } = answerQuestion('How much does it cost and which days are busy?', 'Mia');
+
+    expect(understood).toBe(true);
+    expect(answer).toMatch(/pricing/i); // the part that didn't fail is still there
+    expect(answer).toMatch(/problem analyzing booking trends/i);
+    expect(errorSpy).toHaveBeenCalled();
+
+    jest.restoreAllMocks();
+  });
+
+  it('logs a complex-query interaction the same way as any other ("Trust" acceptance criterion)', () => {
+    createBooking({ fieldId: 'field-1', customerName: 'Alice', startTime: '2026-09-19T10:00:00.000Z', endTime: '2026-09-19T11:00:00.000Z' });
+
+    answerQuestion('What is available, how much does it cost, and which days are popular?', 'Mia');
+
+    const entries = listAuditEntries().filter((e) => e.entityType === 'ai_interaction');
+    expect(entries).toHaveLength(1);
+    expect(entries[0].details).toMatchObject({ understood: true });
+    expect((entries[0].details as { answer: string }).answer).toMatch(/Saturday/);
   });
 });
 

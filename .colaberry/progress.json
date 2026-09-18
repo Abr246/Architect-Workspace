@@ -381,20 +381,25 @@
       "criteria": [
         {
           "text": "Given a complex query, when AI processes it, then a detailed response is provided.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given an unsupported query, when AI processes it, then a fallback response is given.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All complex query interactions are logged with details.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/services/assistantService.ts",
+        "backend/src/services/assistantService.test.ts"
+      ],
+      "tests_added": [
+        "backend/src/services/assistantService.test.ts (answerQuestion — trends and complex queries (STORY-008) describe block)"
+      ],
+      "notes": "Enhances STORY-003's assistant rather than building a parallel one — one Q&A entry point for customers, and REQ-005's own task line says 'enhance', not 'add'. Same honest-substitution AI-scope reasoning as STORY-003/006/007: no LLM/NLP credentials exist here, so this stays a deterministic keyword-matching engine, flagged explicitly. Adds a third topic (busy/slow trends), reusing STORY-007's generateAnalyticsReport() rather than rebuilding trend logic. Deliberately did NOT reuse STORY-006's scheduling suggestions - suggestBookingTimes() needs a specific field/time the assistant doesn't have from free text, and fabricating one to force a fit would itself risk the 'incorrect response' failure path. A 'complex query' is defined as one matching 2+ of {pricing, availability, trends}; matched parts are synthesized into one detailed answer (acceptance criterion 1), a fully unrecognized question keeps STORY-003's existing honest fallback (criterion 2, regression-tested), and every interaction still logs to console plus the audit trail exactly as before (criterion 3). New failure path this story introduces - 'NLP processing error' - is handled by graceful degradation, not a blanket 500: if the trends lookup throws (mocked and tested), any already-computed pricing/availability parts are still returned along with an honest note, rather than losing the whole answer, per CLAUDE.md's Failure-First Design fallback guidance. No frontend changes needed - AssistantPage.tsx already renders whatever answer comes back. Verified live via manual curl (seeded real Saturday-heavy bookings, confirmed the assistant's trends answer matches the raw analytics report byte-for-byte) before writing the 6 new automated tests. Backend: 130/130 tests across 17 suites (6 new), tsc clean.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",
