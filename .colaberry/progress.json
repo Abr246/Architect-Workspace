@@ -3,13 +3,13 @@
   "project": "GoalKick",
   "totals": {
     "stories_total": 13,
-    "stories_verified": 9,
+    "stories_verified": 10,
     "stories_submitted": 0,
-    "stories_in_progress": 4,
+    "stories_in_progress": 3,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 29,
-    "points_awarded": 558
+    "criteria_passed": 32,
+    "points_awarded": 620
   },
   "stories": [
     {
@@ -359,19 +359,15 @@
       "notes": "Same 'AI' scope reasoning as STORY-003/006: deterministic engine, not a real LLM call. Groups confirmed bookings by day of week (UTC, deliberately - bookings are stored as UTC ISO strings, so classifying by local time would make results depend on which machine runs it) and classifies each day busy/slow/normal relative to the average across all 7 days. Correctness by construction: cancelled bookings never count toward a day's trend, and an all-empty or perfectly-even dataset is honestly 'normal' everywhere rather than a fabricated busy/slow label. Added listBookings() to bookingsService.ts as the read accessor this needed (same pattern as listEscalations/listSchedulingIssues). Manually seeded real bookings and verified the busy/slow math by hand before writing any tests (average = 4/7 - every count above it correctly flagged busy, every count below it correctly flagged slow). All 3 criteria and all 3 named failure paths verified via automated tests, live curl against real seeded data, and a live DOM check confirming the dashboard tab renders alongside the other four.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given booking data, when AI analyzes, then trends are displayed on the dashboard.",
-          "Given a slow period, when AI analyzes, then it identifies the period.",
-          "Trust: All analytics reports are logged with data sources and timestamps."
-        ]
+        "verified_at": "2026-09-18T23:05:59.083Z",
+        "commit_sha": "f5e25e5596776c472a4f36d0502f9eb42f886915",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/f5e25e5596776c472a4f36d0502f9eb42f886915",
+        "commit_at": "2026-09-18T23:03:29Z",
+        "points_awarded": 62,
+        "outstanding": []
       }
     },
     {
