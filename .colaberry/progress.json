@@ -3,13 +3,13 @@
   "project": "GoalKick",
   "totals": {
     "stories_total": 13,
-    "stories_verified": 10,
+    "stories_verified": 11,
     "stories_submitted": 0,
-    "stories_in_progress": 3,
+    "stories_in_progress": 2,
     "stories_not_started": 0,
     "criteria_total": 41,
-    "criteria_passed": 32,
-    "points_awarded": 620
+    "criteria_passed": 35,
+    "points_awarded": 682
   },
   "stories": [
     {
@@ -398,19 +398,15 @@
       "notes": "Enhances STORY-003's assistant rather than building a parallel one — one Q&A entry point for customers, and REQ-005's own task line says 'enhance', not 'add'. Same honest-substitution AI-scope reasoning as STORY-003/006/007: no LLM/NLP credentials exist here, so this stays a deterministic keyword-matching engine, flagged explicitly. Adds a third topic (busy/slow trends), reusing STORY-007's generateAnalyticsReport() rather than rebuilding trend logic. Deliberately did NOT reuse STORY-006's scheduling suggestions - suggestBookingTimes() needs a specific field/time the assistant doesn't have from free text, and fabricating one to force a fit would itself risk the 'incorrect response' failure path. A 'complex query' is defined as one matching 2+ of {pricing, availability, trends}; matched parts are synthesized into one detailed answer (acceptance criterion 1), a fully unrecognized question keeps STORY-003's existing honest fallback (criterion 2, regression-tested), and every interaction still logs to console plus the audit trail exactly as before (criterion 3). New failure path this story introduces - 'NLP processing error' - is handled by graceful degradation, not a blanket 500: if the trends lookup throws (mocked and tested), any already-computed pricing/availability parts are still returned along with an honest note, rather than losing the whole answer, per CLAUDE.md's Failure-First Design fallback guidance. No frontend changes needed - AssistantPage.tsx already renders whatever answer comes back. Verified live via manual curl (seeded real Saturday-heavy bookings, confirmed the assistant's trends answer matches the raw analytics report byte-for-byte) before writing the 6 new automated tests. Backend: 130/130 tests across 17 suites (6 new), tsc clean.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": null,
-        "outstanding": [
-          "Given a complex query, when AI processes it, then a detailed response is provided.",
-          "Given an unsupported query, when AI processes it, then a fallback response is given.",
-          "Trust: All complex query interactions are logged with details."
-        ]
+        "verified_at": "2026-09-18T23:52:55.083Z",
+        "commit_sha": "c768ef7a703e831a274397a6392f59f04d13d38d",
+        "commit_url": "https://github.com/Abr246/Architect-Workspace/commit/c768ef7a703e831a274397a6392f59f04d13d38d",
+        "commit_at": "2026-09-18T23:51:38Z",
+        "points_awarded": 62,
+        "outstanding": []
       }
     },
     {
