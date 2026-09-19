@@ -1,4 +1,10 @@
-export type EscalationType = 'refund' | 'complaint';
+import { recordAuditEntry } from './auditTrailService';
+
+// STORY-009 widens this to 'general' — a customer issue that isn't
+// specifically a refund or complaint but that the AI still couldn't
+// resolve on its own (see customerServiceService.ts). Same widen-not-
+// rebuild pattern as auditTrailService's unions.
+export type EscalationType = 'refund' | 'complaint' | 'general';
 export type EscalationStatus = 'pending' | 'approved' | 'denied';
 
 export interface Escalation {
@@ -11,6 +17,11 @@ export interface Escalation {
   decidedAt: string | null;
   decidedBy: string | null;
   decisionNotes: string | null;
+  // STORY-009 acceptance criterion 2: when the outcome was communicated
+  // back to the customer. In-app record, same honest-substitution pattern
+  // as STORY-012's scheduler notification — no real email/SMS channel
+  // exists in this environment.
+  customerNotifiedAt: string | null;
 }
 
 export interface CreateEscalationInput {
@@ -73,6 +84,7 @@ export function createEscalation(input: CreateEscalationInput): { escalation: Es
     decidedAt: null,
     decidedBy: null,
     decisionNotes: null,
+    customerNotifiedAt: null,
   };
   escalations.push(escalation);
 
@@ -131,28 +143,95 @@ export function decideEscalation(id: string, input: DecideEscalationInput): { es
 
   // The decision outcome, logged with a timestamp — this is the other half
   // of this story's Trust criterion (creation is already logged above).
-  // eslint-disable-next-line no-console
-  console.log(
-    JSON.stringify({
-      timestamp: escalation.decidedAt,
-      level: 'info',
-      service: 'backend',
-      event: 'escalation_decided',
-      outcome: 'success',
-      context: {
-        escalationId: escalation.id,
-        decision: escalation.status,
-        decidedBy: escalation.decidedBy,
-      },
-    }),
-  );
+  // STORY-009: wrapped in try/catch (it previously wasn't) — the decision
+  // has already been recorded in memory by this point, so a logging
+  // failure here must not crash the whole operation, same as every other
+  // logging call in this codebase.
+  try {
+    // eslint-disable-next-line no-console
+    console.log(
+      JSON.stringify({
+        timestamp: escalation.decidedAt,
+        level: 'info',
+        service: 'backend',
+        event: 'escalation_decided',
+        outcome: 'success',
+        context: {
+          escalationId: escalation.id,
+          decision: escalation.status,
+          decidedBy: escalation.decidedBy,
+        },
+      }),
+    );
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[escalations] DecisionLoggingError:', err instanceof Error ? err.message : err);
+  }
+
+  notifyCustomerOfOutcome(escalation);
 
   return { escalation, decided: true };
+}
+
+// STORY-009 acceptance criterion 2: the customer must be informed once a
+// human decides. A notification failure here must never undo or block the
+// decision itself — it has already been recorded by the time this runs.
+function notifyCustomerOfOutcome(escalation: Escalation): void {
+  try {
+    // eslint-disable-next-line no-console
+    console.log(
+      JSON.stringify({
+        timestamp: escalation.decidedAt,
+        level: 'info',
+        service: 'backend',
+        event: 'customer_notified_of_outcome',
+        outcome: 'success',
+        context: {
+          escalationId: escalation.id,
+          customerName: escalation.customerName,
+          decision: escalation.status,
+        },
+      }),
+    );
+    escalation.customerNotifiedAt = escalation.decidedAt;
+  } catch (err) {
+    // "Customer notification failure" — the decision stands either way;
+    // customerNotifiedAt simply stays null, which is honest, not silent.
+    // eslint-disable-next-line no-console
+    console.error('[escalations] CustomerNotificationError:', err instanceof Error ? err.message : err);
+  }
+
+  try {
+    recordAuditEntry({
+      entityType: 'customer_issue',
+      entityId: escalation.id,
+      action: 'resolved',
+      actor: escalation.decidedBy ?? 'unknown',
+      details: {
+        decision: escalation.status,
+        notes: escalation.decisionNotes,
+        customerNotified: escalation.customerNotifiedAt !== null,
+      },
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[escalations] AuditTrailError:', err instanceof Error ? err.message : err);
+  }
 }
 
 export function listEscalations(status?: EscalationStatus): Escalation[] {
   if (!status) return [...escalations];
   return escalations.filter((e) => e.status === status);
+}
+
+// STORY-009: the customer-facing "check the outcome" lookup — a single
+// record, not the staff-facing list above.
+export function getEscalationById(id: string): Escalation {
+  const escalation = escalations.find((e) => e.id === id);
+  if (!escalation) {
+    throw new EscalationNotFoundError(id);
+  }
+  return escalation;
 }
 
 // Test-only: reset the in-memory store between test cases.

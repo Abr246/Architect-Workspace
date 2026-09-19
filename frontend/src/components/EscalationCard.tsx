@@ -6,6 +6,23 @@ interface Props {
   onDecided: (id: string) => void;
 }
 
+// STORY-009: an explicit mapping, not a fallback ternary — a type this
+// doesn't recognize now shows honestly rather than being silently
+// mislabeled as something else (the bug a two-way ternary had when
+// 'general' was added: anything non-'refund' fell through to "Complaint").
+function escalationTypeLabel(type: Escalation['type']): string {
+  switch (type) {
+    case 'refund':
+      return 'Refund request';
+    case 'complaint':
+      return 'Complaint';
+    case 'general':
+      return 'Customer issue';
+    default:
+      return 'Escalation';
+  }
+}
+
 export function EscalationCard({ escalation, onDecided }: Props) {
   const [decidedBy, setDecidedBy] = useState('');
   const [notes, setNotes] = useState('');
@@ -37,8 +54,7 @@ export function EscalationCard({ escalation, onDecided }: Props) {
     <li>
       <form onSubmit={handleSubmit}>
         <p>
-          <strong>{escalation.type === 'refund' ? 'Refund request' : 'Complaint'}</strong> from{' '}
-          {escalation.customerName}
+          <strong>{escalationTypeLabel(escalation.type)}</strong> from {escalation.customerName}
         </p>
         <p>{escalation.description}</p>
         <label>

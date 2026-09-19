@@ -38,6 +38,19 @@ describe('ApprovalsPage', () => {
     expect(screen.getByText(/alice/i)).toBeInTheDocument();
   });
 
+  it('labels a "general" escalation honestly rather than falling back to "Complaint" (STORY-009 regression)', async () => {
+    mockFetchJsonOnce({
+      escalations: [{ ...pendingEscalation, id: 'escalation-2', type: 'general', description: 'Something unclear' }],
+    });
+
+    render(<ApprovalsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/customer issue/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/^complaint$/i)).not.toBeInTheDocument();
+  });
+
   it('shows an empty state when nothing is pending', async () => {
     mockFetchJsonOnce({ escalations: [] });
 

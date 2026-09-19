@@ -1,6 +1,8 @@
 export interface Escalation {
   id: string;
-  type: 'refund' | 'complaint';
+  // 'general' added by STORY-009: an issue the AI couldn't resolve that
+  // isn't specifically a refund or complaint.
+  type: 'refund' | 'complaint' | 'general';
   customerName: string;
   description: string;
   status: 'pending' | 'approved' | 'denied';
@@ -8,6 +10,7 @@ export interface Escalation {
   decidedAt: string | null;
   decidedBy: string | null;
   decisionNotes: string | null;
+  customerNotifiedAt: string | null;
 }
 
 export async function fetchPendingEscalations(): Promise<Escalation[]> {

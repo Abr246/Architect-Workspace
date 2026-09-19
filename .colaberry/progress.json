@@ -420,20 +420,37 @@
       "criteria": [
         {
           "text": "Given a customer issue, when AI handles it, then the issue is resolved or escalated.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given an escalated issue, when a human handles it, then the customer is informed of the outcome.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All customer service interactions are logged with resolution details.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "backend/src/services/customerServiceService.ts",
+        "backend/src/routes/customerService.ts",
+        "backend/src/services/escalationsService.ts",
+        "backend/src/services/auditTrailService.ts",
+        "backend/src/app.ts",
+        "frontend/src/pages/GetHelpPage.tsx",
+        "frontend/src/services/customerServiceApi.ts",
+        "frontend/src/App.tsx",
+        "frontend/src/components/EscalationCard.tsx",
+        "frontend/src/services/escalationsApi.ts"
+      ],
+      "tests_added": [
+        "backend/src/services/customerServiceService.test.ts",
+        "backend/src/routes/customerService.test.ts",
+        "backend/src/services/escalationsService.test.ts (customer-notification describe block)",
+        "frontend/src/pages/GetHelpPage.test.tsx",
+        "frontend/src/pages/ApprovalsPage.test.tsx (general-type regression test)"
+      ],
+      "notes": "Worked as a paced co-pilot again at the user's request - one confirmed step at a time. New backend/src/services/customerServiceService.ts orchestrates (not rebuilds) STORY-003/008's assistant and STORY-004's escalations: a refund/complaint is always escalated straight to a human (REQ-012 detection, never even asks the AI); anything else is tried against the assistant first, and anything it can't answer is escalated as a new 'general' EscalationType (REQ-015) instead of left as a dead-end decline. Deliberately kept this as a thin orchestration layer, not a new 'AI engine' - it calls the two already-built services rather than reimplementing either. Criterion 2 (customer informed of the outcome) required extending escalationsService.decideEscalation() itself, since that's where a human's decision actually lands: added customerNotifiedAt (in-app record, same honest-substitution pattern as STORY-012 - no real email/SMS exists here) plus a new GET /api/customer-service/issues/:id lookup so the customer can check it. While hardening the new notification step's failure path, found and fixed a real pre-existing gap from STORY-004: the original escalation_decided console.log was never wrapped in try/catch (every other log call in this codebase is) - a logging hiccup would have crashed the whole decision; fixed, and fixed two existing STORY-004 tests whose exact-call-count assumptions broke now that a decision logs twice (same 'filter by event name' fix as STORY-005). Also caught a second real regression from widening EscalationType: EscalationCard.tsx's label was a two-way ternary that silently mislabeled any non-refund escalation as 'Complaint' - replaced with an explicit mapping and added a regression test before it could ship broken. New 'Get Help' page (user's explicit choice over folding into the existing Assistant page) - separate from Ask-a-question because this is a genuinely different customer journey (submit-and-track vs. quick-answer). Three failure paths: 'AI handling error' falls back to escalating (a real, deterministic fallback exists, so it's used, per Failure-First Design) rather than losing the issue; 'Escalation failure' has no further fallback, so it fails honestly with a clear message and log, never a fabricated resolution; 'Customer notification failure' leaves customerNotifiedAt honestly null rather than silently pretending the customer was told, and never blocks the decision itself from being recorded.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

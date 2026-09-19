@@ -163,20 +163,29 @@ describe('decideEscalation — audit logging', () => {
     resetEscalations();
   });
 
+  afterEach(() => {
+    // A manual logSpy.mockRestore() at the end of a test body never runs
+    // when an assertion fails partway through, leaking the spy's call
+    // history into the next test (the STORY-005 lesson) — this is the
+    // fix, applied here too.
+    jest.restoreAllMocks();
+  });
+
   it('logs the decision outcome and decider, with a timestamp, on a real decision', () => {
     const { escalation } = createEscalation(refundInput);
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
     decideEscalation(escalation.id, { decidedBy: 'Manager Mo', outcome: 'approved' });
 
-    expect(logSpy).toHaveBeenCalledTimes(1);
-    const logged = JSON.parse(logSpy.mock.calls[0][0] as string);
-    expect(logged.event).toBe('escalation_decided');
+    // STORY-009 adds a second log line (the customer notification) —
+    // filter by event name rather than assume exact call counts/order.
+    const logged = logSpy.mock.calls
+      .map((call) => JSON.parse(call[0] as string))
+      .find((entry) => entry.event === 'escalation_decided');
+    expect(logged).toBeDefined();
     expect(logged.context.decision).toBe('approved');
     expect(logged.context.decidedBy).toBe('Manager Mo');
     expect(logged.timestamp).toEqual(expect.any(String));
-
-    logSpy.mockRestore();
   });
 
   it('does not log again on an idempotent decision retry', () => {
@@ -187,7 +196,28 @@ describe('decideEscalation — audit logging', () => {
     decideEscalation(escalation.id, { decidedBy: 'Manager Mo', outcome: 'approved' });
 
     expect(logSpy).not.toHaveBeenCalled();
+  });
 
-    logSpy.mockRestore();
+  it('informs the customer of the outcome when a human decides (STORY-009 acceptance criterion 2)', () => {
+    const { escalation: created } = createEscalation(refundInput);
+
+    const { escalation } = decideEscalation(created.id, { decidedBy: 'Manager Mo', outcome: 'approved' });
+
+    expect(escalation.customerNotifiedAt).toEqual(expect.any(String));
+  });
+
+  it('still records the decision even if notifying the customer fails ("Customer notification failure")', () => {
+    const { escalation: created } = createEscalation(refundInput);
+    jest.spyOn(console, 'log').mockImplementation(() => {
+      throw new Error('simulated notification failure');
+    });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const { escalation, decided } = decideEscalation(created.id, { decidedBy: 'Manager Mo', outcome: 'approved' });
+
+    expect(decided).toBe(true);
+    expect(escalation.status).toBe('approved');
+    expect(escalation.customerNotifiedAt).toBeNull(); // honest, not silently faked
+    expect(errorSpy).toHaveBeenCalled();
   });
 });

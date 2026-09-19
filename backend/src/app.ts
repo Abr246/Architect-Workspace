@@ -7,6 +7,7 @@ import schedulingRouter from './routes/scheduling';
 import schedulingIssuesRouter from './routes/schedulingIssues';
 import assistantRouter from './routes/assistant';
 import analyticsRouter from './routes/analytics';
+import customerServiceRouter from './routes/customerService';
 import { requestLogger } from './middleware/requestLogger';
 
 export function createApp() {
@@ -21,5 +22,6 @@ export function createApp() {
   app.use('/api/scheduling-issues', schedulingIssuesRouter);
   app.use('/api/assistant', assistantRouter);
   app.use('/api/analytics', analyticsRouter);
+  app.use('/api/customer-service', customerServiceRouter);
   return app;
 }
