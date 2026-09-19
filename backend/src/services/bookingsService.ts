@@ -39,6 +39,15 @@ export class BookingNotFoundError extends Error {
 let bookings: Booking[] = [];
 let nextId = 1;
 
+// STORY-010: a cheap version counter, bumped on every real mutation, so a
+// cache elsewhere (analyticsService) can tell "nothing changed, reuse what
+// you have" from "something changed, recompute" without bookingsService
+// needing to know analyticsService exists — avoids a circular import.
+let bookingsVersion = 0;
+export function getBookingsVersion(): number {
+  return bookingsVersion;
+}
+
 function timesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
   return new Date(aStart) < new Date(bEnd) && new Date(bStart) < new Date(aEnd);
 }
@@ -139,6 +148,7 @@ export function createBooking(input: CreateBookingInput): { booking: Booking; cr
     status: 'confirmed',
   };
   bookings.push(booking);
+  bookingsVersion += 1;
 
   // The generic requestLogger (STORY-001) logs every HTTP request with a
   // timestamp, but has no idea what a "booking" is or who the customer
@@ -191,6 +201,7 @@ export function cancelBooking(id: string, customerName: string): { booking: Book
   }
 
   booking.status = 'cancelled';
+  bookingsVersion += 1;
 
   recordAuditEntry({
     entityType: 'booking',
@@ -215,4 +226,5 @@ export function listBookings(status?: BookingStatus): Booking[] {
 export function resetBookings(): void {
   bookings = [];
   nextId = 1;
+  bookingsVersion = 0;
 }

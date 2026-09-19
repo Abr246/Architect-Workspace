@@ -62,6 +62,12 @@ describe('answerQuestion — trends and complex queries (STORY-008)', () => {
   beforeEach(() => {
     resetAuditTrail();
     resetBookings();
+    // STORY-010 added a bookingsVersion-keyed cache to
+    // generateAnalyticsReport() — without this, a report cached by an
+    // earlier test here could be silently reused by this one, since a
+    // fresh resetBookings() also resets the version counter back to the
+    // same value the earlier test cached against.
+    analyticsService.resetAnalyticsCache();
   });
 
   it('honestly says there is no history yet when no bookings exist', () => {

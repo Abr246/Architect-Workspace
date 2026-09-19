@@ -1,6 +1,8 @@
-import { generateAnalyticsReport } from './analyticsService';
+import { generateAnalyticsReport, resetAnalyticsCache } from './analyticsService';
 import { createBooking, cancelBooking, resetBookings } from './bookingsService';
 import * as bookingsService from './bookingsService';
+import { listAuditEntries, resetAuditTrail } from './auditTrailService';
+import * as auditTrailService from './auditTrailService';
 
 // 2026-09-19 is a Saturday, 2026-09-20 a Sunday, 2026-09-22 a Tuesday —
 // verified against the system clock before writing this, not assumed.
@@ -12,6 +14,7 @@ const tuesday1 = { fieldId: 'field-2', customerName: 'C', startTime: '2026-09-22
 describe('generateAnalyticsReport', () => {
   beforeEach(() => {
     resetBookings();
+    resetAnalyticsCache();
   });
 
   afterEach(() => {
@@ -95,9 +98,89 @@ describe('generateAnalyticsReport', () => {
   });
 });
 
+describe('generateAnalyticsReport — caching (STORY-010)', () => {
+  beforeEach(() => {
+    resetBookings();
+    resetAnalyticsCache();
+    resetAuditTrail();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('reuses the cached report when nothing has changed, rather than recomputing', () => {
+    const listSpy = jest.spyOn(bookingsService, 'listBookings');
+
+    const first = generateAnalyticsReport();
+    const second = generateAnalyticsReport();
+
+    // Same object, not just equal values — proves the second call never
+    // touched the booking data at all.
+    expect(second).toBe(first);
+    expect(listSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('recomputes after a new booking invalidates the cache', () => {
+    generateAnalyticsReport();
+
+    createBooking(saturday1);
+    const report = generateAnalyticsReport();
+
+    expect(report.totalBookings).toBe(1);
+    const saturday = report.periods.find((p) => p.dayOfWeek === 'Saturday')!;
+    expect(saturday.bookingCount).toBe(1);
+  });
+
+  it('recomputes after a cancellation invalidates the cache', () => {
+    const { booking } = createBooking(saturday1);
+    generateAnalyticsReport();
+
+    cancelBooking(booking.id, 'A');
+    const report = generateAnalyticsReport();
+
+    const saturday = report.periods.find((p) => p.dayOfWeek === 'Saturday')!;
+    expect(saturday.bookingCount).toBe(0); // the cancellation is reflected, not the stale cached count of 1
+  });
+
+  it('logs a cache hit distinctly from a fresh computation', () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    generateAnalyticsReport();
+    generateAnalyticsReport();
+
+    const events = logSpy.mock.calls.map((call) => JSON.parse(call[0] as string).event);
+    expect(events.filter((e) => e === 'analytics_report_generated')).toHaveLength(1);
+    expect(events.filter((e) => e === 'analytics_report_cache_hit')).toHaveLength(1);
+  });
+
+  it('records the applied optimization in the audit trail ("Trust" acceptance criterion)', () => {
+    generateAnalyticsReport();
+    generateAnalyticsReport();
+
+    const entries = listAuditEntries().filter((e) => e.entityType === 'performance_optimization');
+    expect(entries).toHaveLength(1);
+    expect(entries[0].action).toBe('cache_hit');
+  });
+
+  it('still returns the cached report even if audit logging fails ("Optimization logs are missing from the audit trail")', () => {
+    generateAnalyticsReport();
+    jest.spyOn(auditTrailService, 'recordAuditEntry').mockImplementation(() => {
+      throw new Error('simulated audit trail failure');
+    });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const report = generateAnalyticsReport();
+
+    expect(report.periods).toHaveLength(7);
+    expect(errorSpy).toHaveBeenCalled();
+  });
+});
+
 describe('generateAnalyticsReport — audit logging', () => {
   beforeEach(() => {
     resetBookings();
+    resetAnalyticsCache();
   });
 
   afterEach(() => {

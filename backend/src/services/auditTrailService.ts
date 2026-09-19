@@ -1,11 +1,12 @@
 // STORY-012 widened both unions to admit scheduling issues alongside
 // bookings, STORY-003 widened them again for AI assistant interactions,
-// and STORY-009 widens them once more for the AI-or-human customer
-// service flow — the audit trail itself (STORY-011) was always meant to
-// be general-purpose, not booking-specific; each of these is a real new
+// STORY-009 widens them once more for the AI-or-human customer service
+// flow, and STORY-010 widens them again for performance optimizations —
+// the audit trail itself (STORY-011) was always meant to be
+// general-purpose, not booking-specific; each of these is a real new
 // user, not a special case bolted on.
-export type AuditEntityType = 'booking' | 'scheduling_issue' | 'ai_interaction' | 'customer_issue';
-export type AuditAction = 'created' | 'cancelled' | 'detected' | 'resolved' | 'answered' | 'escalated';
+export type AuditEntityType = 'booking' | 'scheduling_issue' | 'ai_interaction' | 'customer_issue' | 'performance_optimization';
+export type AuditAction = 'created' | 'cancelled' | 'detected' | 'resolved' | 'answered' | 'escalated' | 'cache_hit';
 
 export interface AuditEntry {
   id: string;

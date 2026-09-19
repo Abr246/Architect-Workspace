@@ -6,6 +6,7 @@ import * as analyticsService from '../services/analyticsService';
 describe('GET /api/analytics/report', () => {
   beforeEach(() => {
     resetBookings();
+    analyticsService.resetAnalyticsCache();
   });
 
   afterEach(() => {
