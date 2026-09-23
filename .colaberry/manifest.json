@@ -7,6 +7,62 @@
   "truth_revision": null,
   "files": [
     {
+      "path": ".colaberry/plan.json",
+      "sha256": "a630ff156fad80eedcbde643fef29da23467d43e2822416556cc5b782ea9c6aa"
+    },
+    {
+      "path": ".colaberry/profile.json",
+      "sha256": "60fcf2381210b09352af60ec88a00836e969e85346844736c46ca2ad76574276"
+    },
+    {
+      "path": ".colaberry/progress.json",
+      "sha256": "aa7796136aca9aa10dd9ec883caee586ba7d9a1bf9d0872503bd97b10d3aef4f"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "a2e54775abddccaa568f5ca2b26cc5f826f10c382940a5d4f2b9085788533282"
+    },
+    {
+      "path": "artifacts/INDEX.md",
+      "sha256": "0248088497a0c2ace6a88ced6fcb261f2a881540d795b42c211680dfb9e5aa62"
+    },
+    {
+      "path": "artifacts/week-01/project-overview.md",
+      "sha256": "ad65f0ec8c8f21a7c9a7fab5579c31b17d00fe5a3b4ff9de2f4bdad0c0a604d0"
+    },
+    {
+      "path": "artifacts/week-02/skill-template.md",
+      "sha256": "8c9784166bcfe4a11da1ba8ff94a3375a83024b2260289b93689c66d1208adf5"
+    },
+    {
+      "path": "artifacts/week-03/checksetup-submission.pdf",
+      "sha256": "0eff522ef2df549aa7014b30ebe0e4d22ed766dacf5bffe3dd6feb369b4e2a81"
+    },
+    {
+      "path": "artifacts/week-04/enterprise-prompt-library.md",
+      "sha256": "208f920bb6ddcb1a99ef1f3f171c4b7ce75315b349d70cb35952cf081b9535ec"
+    },
+    {
+      "path": "artifacts/week-05/readme.md",
+      "sha256": "95d438d201ca5bd2c5a11244a0c7a62e61fd29b43b17faf29f5221adcabcac14"
+    },
+    {
+      "path": "artifacts/week-06/adr-001-transport-selection.md",
+      "sha256": "a11e1061eb91a7ae498f0d2cb29aa4f5e22a7e731abea0b712a69bd2ac836c88"
+    },
+    {
+      "path": "artifacts/week-07/directive-writer.md",
+      "sha256": "674f6c37c442552053cb9d33b31ac420cbedd14fbf50b08c7a8f2973fbee854a"
+    },
+    {
+      "path": "artifacts/week-08/close-out-story.md",
+      "sha256": "7360c24b34d454b33a47cfe7e1a8cf1a5d8f0fe7356359c55d22f66aba2c2370"
+    },
+    {
+      "path": "docs/DATA_CONTRACT.md",
+      "sha256": "d56e89edcfe36725945d961cf3479b646507d1fa855bba0dcdfff3f8f8a658b0"
+    },
+    {
       "path": "docs/REQUIREMENTS.md",
       "sha256": "8bb0ea9bb33969216634603c43e71c2393f9cd5ffda8fcd83db128a48140b7bd"
     },
@@ -19,12 +75,8 @@
       "sha256": "1943f2431a8e910333977bde00a4282e07fa754fa94e1a707629b81a0bc08ade"
     },
     {
-      "path": "docs/DATA_CONTRACT.md",
-      "sha256": "d56e89edcfe36725945d961cf3479b646507d1fa855bba0dcdfff3f8f8a658b0"
-    },
-    {
-      "path": "CLAUDE.md",
-      "sha256": "a2e54775abddccaa568f5ca2b26cc5f826f10c382940a5d4f2b9085788533282"
+      "path": "docs/stories/STORY-000.md",
+      "sha256": "86c4c5656a3f347e61ba61742bda09d34b41b6d3017997836258482c0bb4d06c"
     },
     {
       "path": "docs/stories/STORY-001.md",
@@ -73,22 +125,6 @@
     {
       "path": "docs/stories/STORY-012.md",
       "sha256": "90768767c4b1d88c84edf05ad14138dbe0d67753c696fcb80988df53c61c41cb"
-    },
-    {
-      "path": "docs/stories/STORY-000.md",
-      "sha256": "86c4c5656a3f347e61ba61742bda09d34b41b6d3017997836258482c0bb4d06c"
-    },
-    {
-      "path": ".colaberry/plan.json",
-      "sha256": "a630ff156fad80eedcbde643fef29da23467d43e2822416556cc5b782ea9c6aa"
-    },
-    {
-      "path": ".colaberry/progress.json",
-      "sha256": "aa7796136aca9aa10dd9ec883caee586ba7d9a1bf9d0872503bd97b10d3aef4f"
-    },
-    {
-      "path": ".colaberry/profile.json",
-      "sha256": "60fcf2381210b09352af60ec88a00836e969e85346844736c46ca2ad76574276"
     }
   ]
 }
