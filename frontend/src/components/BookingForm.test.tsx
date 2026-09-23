@@ -95,4 +95,70 @@ describe('BookingForm', () => {
     // show below it, rather than a crash.
     expect(screen.queryByText(/nearest available windows/i)).not.toBeInTheDocument();
   });
+
+  it('shows the same confirmation message for an idempotent (200) response as for a fresh (201) booking', async () => {
+    mockFetchOnce(
+      {
+        booking: {
+          id: 'booking-1',
+          fieldId: 'field-1',
+          customerName: 'Alice',
+          startTime: '2026-09-05T10:00:00.000Z',
+          endTime: '2026-09-05T11:00:00.000Z',
+          createdAt: '2026-09-05T09:00:00.000Z',
+        },
+      },
+      200,
+    );
+
+    render(<BookingForm fieldId="field-1" fieldName="Riverside Pitch" />);
+    await fillAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent(/booked riverside pitch for alice/i);
+    });
+
+    const [, body] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(JSON.parse(body.body)).toMatchObject({ fieldId: 'field-1', customerName: 'Alice' });
+  });
+
+  it('shows only the top-level error message for an invalid (400) response, never the Zod details', async () => {
+    mockFetchOnce(
+      {
+        error: 'Invalid booking request.',
+        details: [
+          { path: ['customerName'], message: 'Required', code: 'invalid_type', received: 'SENTINEL_TOKEN_12345' },
+        ],
+      },
+      400,
+    );
+
+    render(<BookingForm fieldId="field-1" fieldName="Riverside Pitch" />);
+    await fillAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Invalid booking request.');
+    });
+    expect(screen.queryByText(/SENTINEL_TOKEN_12345/i)).not.toBeInTheDocument();
+    expect((global.fetch as jest.Mock).mock.calls.length).toBe(1);
+    expect(screen.queryByText(/nearest available windows/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('shows the frontend hardcoded message for an unmapped (500) error, never the backend error text', async () => {
+    mockFetchOnce({ error: 'BookingCreateError: connection to bookings-db refused' }, 500);
+
+    render(<BookingForm fieldId="field-1" fieldName="Riverside Pitch" />);
+    await fillAndSubmit();
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Unable to create the booking right now. Please try again shortly.',
+      );
+    });
+    expect(screen.queryByText(/bookings-db/i)).not.toBeInTheDocument();
+    expect((global.fetch as jest.Mock).mock.calls.length).toBe(1);
+    expect(screen.queryByText(/nearest available windows/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
 });
