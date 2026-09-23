@@ -1,0 +1,55 @@
+name: Claude PR Review
+
+# WHY this trigger: same reasoning as pr-code-review.yml -- only pull
+# requests, only the events that mean "the proposed code changed." This
+# never runs on a push straight to main.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# WHY: if the same PR gets pushed to again before the first review
+# finishes, cancel the stale run instead of paying for two AI reviews
+# and leaving an outdated comment from the first one.
+concurrency:
+  group: claude-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # WHY no model input: leaving it unset means this workflow keeps
+      # using whatever current Claude model the action defaults to,
+      # instead of a hardcoded model name going stale over time.
+      - name: Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          # The API key lives in this repo's GitHub Actions secrets
+          # (Settings -> Secrets and variables -> Actions), never in this
+          # file or in source code.
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            Please review this pull request with a focus on:
+            - Correctness and potential bugs
+            - Security implications (secrets, input validation, injection risks)
+            - Adherence to this repo's CLAUDE.md rules (idempotency, error
+              handling, contract typing, no silent catch blocks)
+            - Missing tests for new business logic
+            Note: The PR branch is already checked out in the current working directory.
+            Use `gh pr comment` for top-level feedback.
+            Use `mcp__github_inline_comment__create_inline_comment` (with `confirmed: true`)
+            to highlight specific code issues.
+            Only post GitHub comments - don't submit review text as messages.
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"

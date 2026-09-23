@@ -1,0 +1,91 @@
+name: PR Code Review
+
+# WHY this trigger: only pull requests, only the events that mean "the
+# proposed code changed" (opened, new commits pushed, or reopened). This
+# never runs on a push straight to main, so it can never block or alter
+# anything already merged -- only proposed changes, before they merge.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# WHY: if the same PR gets pushed to again before the first run finishes,
+# cancel the stale run instead of letting both finish. Saves minutes and
+# stops an old run's result from confusing a reviewer after newer commits
+# landed.
+concurrency:
+  group: pr-code-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # Look at which files actually changed so a docs-only or frontend-only
+  # PR doesn't wait on a backend check that has nothing to check, and
+  # vice versa. WHY: efficiency -- don't run work that can't find anything.
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  backend-standards:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      # CLAUDE.md contract rule: "tsc --noEmit must pass before merge."
+      # This step is what actually enforces that rule instead of it being
+      # a rule that only exists on paper.
+      - name: Type check
+        run: npm run typecheck
+      # Coding-standards check. Real problems (parse errors, forbidden
+      # patterns) fail the PR; pre-existing style nits are warnings so
+      # this doesn't block on issues that predate the change being
+      # reviewed. See backend/eslint.config.js for what's enforced.
+      - name: Lint
+        run: npm run lint
+
+  frontend-standards:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      # The frontend already ships its own lint rules via the
+      # "eslintConfig" field in frontend/package.json (react-app preset).
+      # CI=true is what makes Create React App treat lint warnings as
+      # build failures instead of just printing them -- reusing the
+      # project's own existing configuration rather than adding a new one.
+      - name: Lint + build
+        run: npm run build
+        env:
+          CI: true
