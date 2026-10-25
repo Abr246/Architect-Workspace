@@ -5,6 +5,9 @@ export interface Field {
   surfaceType: string;
   pricePerHour: number;
   available: boolean;
+  sizeFormat: string;
+  description: string;
+  amenities: string[];
 }
 
 export async function fetchAvailableFields(): Promise<Field[]> {
