@@ -1,3 +1,4 @@
+import { db, nextSequenceNumber } from '../db/connection';
 import { recordAuditEntry } from './auditTrailService';
 import { reportSchedulingConflict } from './schedulingIssuesService';
 
@@ -34,15 +35,48 @@ export class BookingNotFoundError extends Error {
   }
 }
 
-// Walking skeleton: in-memory store, same pattern as fieldsService, until
-// REQ-016/REQ-017 (database connections) land in a later story.
-let bookings: Booking[] = [];
-let nextId = 1;
+interface BookingRow {
+  id: string;
+  field_id: string;
+  customer_name: string;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+  status: BookingStatus;
+}
+
+function rowToBooking(row: BookingRow): Booking {
+  return {
+    id: row.id,
+    fieldId: row.field_id,
+    customerName: row.customer_name,
+    startTime: row.start_time,
+    endTime: row.end_time,
+    createdAt: row.created_at,
+    status: row.status,
+  };
+}
+
+function loadAllBookings(): Booking[] {
+  const rows = db.prepare('SELECT * FROM bookings ORDER BY rowid ASC').all() as BookingRow[];
+  return rows.map(rowToBooking);
+}
+
+const insertBookingStmt = db.prepare(
+  'INSERT INTO bookings (id, field_id, customer_name, start_time, end_time, created_at, status) VALUES (@id, @fieldId, @customerName, @startTime, @endTime, @createdAt, @status)',
+);
+
+const updateBookingStatusStmt = db.prepare('UPDATE bookings SET status = @status WHERE id = @id');
+
+let nextId = nextSequenceNumber('bookings', 'booking');
 
 // STORY-010: a cheap version counter, bumped on every real mutation, so a
 // cache elsewhere (analyticsService) can tell "nothing changed, reuse what
 // you have" from "something changed, recompute" without bookingsService
-// needing to know analyticsService exists — avoids a circular import.
+// needing to know analyticsService exists — avoids a circular import. Kept
+// as an in-process counter rather than persisted: the cache it guards is
+// also in-process and always resets to empty on restart, so the two stay
+// consistent with each other either way.
 let bookingsVersion = 0;
 export function getBookingsVersion(): number {
   return bookingsVersion;
@@ -66,7 +100,7 @@ export interface ConflictCheckResult {
 // construction, not just handled.
 export function checkForConflict(fieldId: string, startTime: string, endTime: string): ConflictCheckResult {
   const conflictingBooking =
-    bookings.find(
+    loadAllBookings().find(
       (b) => b.status === 'confirmed' && b.fieldId === fieldId && timesOverlap(b.startTime, b.endTime, startTime, endTime),
     ) ?? null;
 
@@ -147,7 +181,7 @@ export function createBooking(input: CreateBookingInput): { booking: Booking; cr
     createdAt: new Date().toISOString(),
     status: 'confirmed',
   };
-  bookings.push(booking);
+  insertBookingStmt.run(booking);
   bookingsVersion += 1;
 
   // The generic requestLogger (STORY-001) logs every HTTP request with a
@@ -189,10 +223,11 @@ export function createBooking(input: CreateBookingInput): { booking: Booking; cr
 }
 
 export function cancelBooking(id: string, customerName: string): { booking: Booking; cancelled: boolean } {
-  const booking = bookings.find((b) => b.id === id);
-  if (!booking) {
+  const row = db.prepare('SELECT * FROM bookings WHERE id = ?').get(id) as BookingRow | undefined;
+  if (!row) {
     throw new BookingNotFoundError(id);
   }
+  const booking = rowToBooking(row);
 
   if (booking.status === 'cancelled') {
     // Idempotent retry: cancelling something already cancelled is not an
@@ -201,6 +236,7 @@ export function cancelBooking(id: string, customerName: string): { booking: Book
   }
 
   booking.status = 'cancelled';
+  updateBookingStatusStmt.run({ id: booking.id, status: booking.status });
   bookingsVersion += 1;
 
   recordAuditEntry({
@@ -217,14 +253,13 @@ export function cancelBooking(id: string, customerName: string): { booking: Book
 // STORY-007: a read accessor for analytics to build reports from, same
 // pattern as listEscalations/listSchedulingIssues.
 export function listBookings(status?: BookingStatus): Booking[] {
-  if (!status) return [...bookings];
-  return bookings.filter((b) => b.status === status);
+  if (!status) return loadAllBookings();
+  return loadAllBookings().filter((b) => b.status === status);
 }
 
-// Test-only: the in-memory store persists across test cases within a
-// module, so tests need a way to reset it between runs.
+// Test-only: reset the store between test cases.
 export function resetBookings(): void {
-  bookings = [];
+  db.exec('DELETE FROM bookings');
   nextId = 1;
   bookingsVersion = 0;
 }

@@ -1,8 +1,17 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { createBooking, cancelBooking, BookingConflictError, BookingNotFoundError } from '../services/bookingsService';
+import { createBooking, cancelBooking, listBookings, BookingConflictError, BookingNotFoundError } from '../services/bookingsService';
 
 const router = Router();
+
+// So there's a real place to see "did anyone book, and what" beyond the
+// one-time confirmation message the booking form shows at the moment of
+// booking — same "accessible for verification" reasoning as STORY-011's
+// audit trail, but the booking domain's own shape (field/customer/times)
+// rather than a generic audit entry.
+router.get('/', (req, res) => {
+  res.status(200).json({ bookings: listBookings() });
+});
 
 const createBookingSchema = z
   .object({
