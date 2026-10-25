@@ -43,13 +43,15 @@ export function GetHelpPage() {
   }
 
   return (
-    <div>
+    <div className="gk-page">
       <h1>Get help</h1>
-      <p>Tell us what&apos;s going on. We&apos;ll answer right away if we can, or pass it to our team.</p>
-      <ul>
+      <p className="gk-page__intro">
+        Tell us what&apos;s going on. We&apos;ll answer right away if we can, or pass it to our team.
+      </p>
+      <ul className="gk-list">
         {log.map((entry, i) => (
           // eslint-disable-next-line react/no-array-index-key
-          <li key={i}>
+          <li key={i} className="gk-card gk-exchange">
             <p>
               <strong>You:</strong> {entry.issue}
             </p>
@@ -58,7 +60,11 @@ export function GetHelpPage() {
             </p>
             {entry.result.status === 'escalated' && entry.result.escalationId && (
               <>
-                <button type="button" onClick={() => handleCheckStatus(i, entry.result.escalationId as string)}>
+                <button
+                  type="button"
+                  className="gk-button gk-button--secondary"
+                  onClick={() => handleCheckStatus(i, entry.result.escalationId as string)}
+                >
                   Check status
                 </button>
                 <StatusDisplay statusCheck={entry.statusCheck} />
@@ -67,16 +73,16 @@ export function GetHelpPage() {
           </li>
         ))}
       </ul>
-      <form onSubmit={handleSubmit}>
-        <label>
+      <form className="gk-form" onSubmit={handleSubmit}>
+        <label className="gk-field">
           Your name
           <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
         </label>
-        <label>
+        <label className="gk-field">
           What&apos;s going on?
           <input type="text" value={issue} onChange={(e) => setIssue(e.target.value)} required />
         </label>
-        <button type="submit" disabled={submitting}>
+        <button type="submit" className="gk-button gk-button--primary" disabled={submitting}>
           {submitting ? 'Submitting…' : 'Submit'}
         </button>
         {error && <p role="alert">{error}</p>}
