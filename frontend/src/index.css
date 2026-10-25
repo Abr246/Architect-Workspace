@@ -1,10 +1,102 @@
+:root {
+  --gk-color-bg: #f4f6f9;
+  --gk-color-surface: #ffffff;
+  --gk-color-border: #d8dee6;
+  --gk-color-border-strong: #b9c3cf;
+  --gk-color-text: #1b2733;
+  --gk-color-text-muted: #4b5563;
+  --gk-color-primary: #0b3d91;
+  --gk-color-primary-hover: #082c6b;
+  --gk-color-primary-contrast: #ffffff;
+  --gk-color-primary-text: #0b3d91;
+  --gk-color-focus: #2f6fed;
+  --gk-color-danger: #9a2a1f;
+  --gk-color-danger-bg: #fbeceb;
+  --gk-color-danger-border: #e3ada6;
+  --gk-color-success: #1e6b3e;
+  --gk-color-success-bg: #eaf6ee;
+  --gk-color-success-border: #a9d8bb;
+  --gk-color-warning: #8a5a10;
+  --gk-color-warning-bg: #fdf3e0;
+  --gk-color-warning-border: #e9c583;
+  --gk-header-bg: #0b3d91;
+  --gk-header-tagline: #cfe0ff;
+  --gk-radius-sm: 6px;
+  --gk-radius-md: 10px;
+  --gk-radius-lg: 16px;
+  --gk-shadow-sm: 0 1px 2px rgba(20, 30, 45, 0.06);
+  --gk-shadow-md: 0 4px 14px rgba(20, 30, 45, 0.08);
+  --gk-space-1: 4px;
+  --gk-space-2: 8px;
+  --gk-space-3: 12px;
+  --gk-space-4: 16px;
+  --gk-space-5: 24px;
+  --gk-space-6: 32px;
+}
+
+/* Dark theme: applied via a `data-theme="dark"` attribute the app sets on
+   <html> (see App.tsx's theme toggle), not just prefers-color-scheme, so a
+   user's explicit choice always wins over the OS setting. Every value below
+   was checked against its background with the WCAG relative-luminance
+   formula, same as the light palette. */
+:root[data-theme='dark'] {
+  --gk-color-bg: #0a0a0c;
+  --gk-color-surface: #18181b;
+  --gk-color-border: #28282c;
+  --gk-color-border-strong: #3c3c41;
+  --gk-color-text: #ececed;
+  --gk-color-text-muted: #a7a7ae;
+  --gk-color-primary: #3563b0;
+  --gk-color-primary-hover: #2a5296;
+  --gk-color-primary-contrast: #ffffff;
+  --gk-color-primary-text: #8ab4f8;
+  --gk-color-focus: #8ab4f8;
+  --gk-color-danger: #f2a39a;
+  --gk-color-danger-bg: #301a17;
+  --gk-color-danger-border: #6b332c;
+  --gk-color-success: #8fe0ab;
+  --gk-color-success-bg: #0f2a1c;
+  --gk-color-success-border: #2f6b4c;
+  --gk-color-warning: #e8bd6e;
+  --gk-color-warning-bg: #2e2410;
+  --gk-color-warning-border: #6b5428;
+  --gk-header-bg: #050d1e;
+  --gk-header-tagline: #a9c6ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--gk-color-bg);
+}
+
 body {
   margin: 0;
+  background: var(--gk-color-bg);
+  color: var(--gk-color-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--gk-color-text);
+  font-weight: 600;
+}
+
+a {
+  color: var(--gk-color-primary-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--gk-color-focus);
+  outline-offset: 2px;
 }
 
 code {
