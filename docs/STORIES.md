@@ -1,6 +1,6 @@
 # GoalKick — Stories
 
-12 stories across 5 releases, walking-skeleton first:
+19 stories across 5 releases, walking-skeleton first:
 the earliest release proves the thinnest end-to-end path including the trust
 spine, and later releases stack features on top of something already working.
 
@@ -54,3 +54,13 @@ system rather than a part of it.
 **Done when you can show:** Showcase optimized system with all features functioning smoothly.
 
 - **[STORY-010](stories/STORY-010.md)** — Optimize system performance for user interactions _(waits on STORY-009)_
+- **[STORY-013](stories/STORY-013.md)** — Apply the enterprise design system across the app _(waits on every page-shipping story)_
+- **[STORY-014](stories/STORY-014.md)** — View all bookings _(waits on STORY-002, STORY-011)_
+- **[STORY-015](stories/STORY-015.md)** — View customer interactions (questions and help requests) _(waits on STORY-003, STORY-009, STORY-011)_
+- **[STORY-016](stories/STORY-016.md)** — Persist data in a real database
+- **[STORY-017](stories/STORY-017.md)** — Facility manager dashboard
+- **[STORY-018](stories/STORY-018.md)** — Field details page
+- **[STORY-019](stories/STORY-019.md)** — Notifications and alerts
+- **[STORY-020](stories/STORY-020.md)** — Scheduling issues conflict center _(waits on STORY-012, STORY-014)_
+- **[STORY-021](stories/STORY-021.md)** — Analytics dashboard upgrade _(waits on STORY-007, STORY-014)_
+- **[STORY-022](stories/STORY-022.md)** — GoalKick AI chat assistant upgrade _(waits on STORY-003, STORY-008, STORY-012, STORY-014)_

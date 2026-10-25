@@ -24,3 +24,6 @@ Thumbs.db
 
 # Scratch space (per CLAUDE.md: always safe to delete, never committed)
 tmp/
+
+# Local SQLite database file (runtime data, not source)
+backend/data/

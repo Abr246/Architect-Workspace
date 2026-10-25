@@ -116,6 +116,56 @@
       ]
     },
     {
+      "id": "REQ-019",
+      "kind": "FUNC",
+      "cluster": "Booking Management",
+      "priority": "must",
+      "statement": "The system must let staff view every booking that has been made, including who made it, which field, and its status.",
+      "fulfilled_by": [
+        "STORY-014"
+      ]
+    },
+    {
+      "id": "REQ-020",
+      "kind": "FUNC",
+      "cluster": "Customer Interaction",
+      "priority": "must",
+      "statement": "The system must let staff view every question asked through the assistant and every help request submitted, including its outcome.",
+      "fulfilled_by": [
+        "STORY-015"
+      ]
+    },
+    {
+      "id": "REQ-021",
+      "kind": "FUNC",
+      "cluster": "Reporting",
+      "priority": "must",
+      "statement": "The system must give facility managers an at-a-glance overview of field availability, today's bookings, pending approvals, scheduling issues, and recent activity.",
+      "fulfilled_by": [
+        "STORY-017"
+      ]
+    },
+    {
+      "id": "REQ-022",
+      "kind": "FUNC",
+      "cluster": "Field Availability",
+      "priority": "must",
+      "statement": "The system must let a customer open a dedicated details page for a specific field, showing its full information, amenities, and availability, before booking it.",
+      "fulfilled_by": [
+        "STORY-018"
+      ]
+    },
+    {
+      "id": "REQ-023",
+      "kind": "FUNC",
+      "cluster": "Reporting",
+      "priority": "must",
+      "statement": "The system must notify users of booking and scheduling events - new bookings, cancellations, scheduling conflicts, decided requests, and upcoming bookings - through a notification panel they can read, mark as read, and act on.",
+      "fulfilled_by": [
+        "STORY-019"
+      ]
+    },
+    {
       "id": "REQ-012",
       "kind": "FUNC",
       "cluster": "Customer Interaction",
@@ -163,7 +213,7 @@
       "priority": "must",
       "statement": "The system must connect to the booking database.",
       "fulfilled_by": [
-        "STORY-010"
+        "STORY-016"
       ]
     },
     {
@@ -173,7 +223,47 @@
       "priority": "must",
       "statement": "The system must connect to the customer information database.",
       "fulfilled_by": [
-        "STORY-010"
+        "STORY-016"
+      ]
+    },
+    {
+      "id": "REQ-018",
+      "kind": "NFR",
+      "cluster": "User Experience",
+      "priority": "must",
+      "statement": "The system must present a consistent, professional visual design across all customer- and operator-facing pages.",
+      "fulfilled_by": [
+        "STORY-013"
+      ]
+    },
+    {
+      "id": "REQ-024",
+      "kind": "FUNC",
+      "cluster": "Conflict Detection",
+      "priority": "must",
+      "statement": "The system must let managers see and resolve scheduling conflicts from a dedicated conflict-center page, using only existing booking and field data.",
+      "fulfilled_by": [
+        "STORY-020"
+      ]
+    },
+    {
+      "id": "REQ-025",
+      "kind": "FUNC",
+      "cluster": "Analytics",
+      "priority": "must",
+      "statement": "The system must give facility managers a visual breakdown of booking volume, revenue, field performance, and peak times, over a selectable look-back window, using only real booking and field data.",
+      "fulfilled_by": [
+        "STORY-021"
+      ]
+    },
+    {
+      "id": "REQ-026",
+      "kind": "FUNC",
+      "cluster": "AI Assistance",
+      "priority": "must",
+      "statement": "The system must present the assistant as a chat interface (\"GoalKick AI\") that answers questions about fields, bookings, scheduling issues, and customers using real application data, with suggested questions and a clear fallback for anything outside its known topics.",
+      "fulfilled_by": [
+        "STORY-022"
       ]
     }
   ],
@@ -249,7 +339,17 @@
       "week_end": 10,
       "week_start": 9,
       "story_ids": [
-        "STORY-010"
+        "STORY-010",
+        "STORY-013",
+        "STORY-014",
+        "STORY-015",
+        "STORY-016",
+        "STORY-017",
+        "STORY-018",
+        "STORY-019",
+        "STORY-020",
+        "STORY-021",
+        "STORY-022"
       ],
       "starts_on": null,
       "ends_on": null,
@@ -495,8 +595,6 @@
       "title": "Optimize system performance for user interactions",
       "release": "r4",
       "fulfills": [
-        "REQ-016",
-        "REQ-017",
         "REQ-011"
       ],
       "narrative": "As a system administrator, I want to optimize system performance, so that user interactions are fast and efficient.",
@@ -568,6 +666,347 @@
       "task_guidance": "Implement a scheduling conflict detection algorithm that checks for overlapping bookings and alerts the scheduler. Ensure all detected issues are logged.",
       "due_on": null,
       "due_baseline_on": null
+    },
+    {
+      "id": "STORY-013",
+      "title": "Apply the enterprise design system across the app",
+      "release": "r4",
+      "fulfills": [
+        "REQ-018"
+      ],
+      "narrative": "As a customer and business owner, I want the booking app to look professional and consistent, so that I trust it enough to use it for real bookings and payments.",
+      "acceptance": [
+        "Given any page in the app, when a user loads it, then it renders using the GoalKick design system instead of unstyled browser defaults.",
+        "Given the booking flow, when a customer views fields and books one, then layout, spacing, and typography are visually consistent with the rest of the app.",
+        "Given a keyboard-only or screen-reader user, when they navigate any page, then all interactive elements are reachable, labeled, and meet WCAG 2.1 AA contrast.",
+        "Given the app is viewed at a mobile-width viewport, when a user interacts with any page, then the layout is usable without horizontal scrolling.",
+        "Trust: Given any page is redesigned, when tsc --noEmit and the existing test suites run, then they pass unchanged.",
+        "Given a user on any page, when they click the theme toggle in the header, then the interface switches between light and dark themes and the choice is remembered on the next visit."
+      ],
+      "blocked_by": [
+        "STORY-001",
+        "STORY-002",
+        "STORY-004",
+        "STORY-005",
+        "STORY-006",
+        "STORY-007",
+        "STORY-008",
+        "STORY-009",
+        "STORY-010",
+        "STORY-012"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "Redesign changes booking/approval/scheduling behavior or breaks an existing test.",
+        "Some pages get styled and others are left plain, so the app looks inconsistent.",
+        "Accessibility regressions: broken keyboard navigation, missing labels, insufficient contrast.",
+        "Layout breaks or requires horizontal scrolling at mobile widths.",
+        "Theme preference fails to persist (or fails to read back), leaving the user in the wrong theme after a reload."
+      ],
+      "task_guidance": "Use the /frontend-design skill to style the shared nav and every page component. Presentation-layer-only: no business logic, API contracts, or routes change. Run /fixing-accessibility afterward.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-014",
+      "title": "View all bookings",
+      "release": "r4",
+      "fulfills": [
+        "REQ-019"
+      ],
+      "narrative": "As a business owner or operator, I want to see every booking that has been made, so that I know who has booked what without relying on the one-time confirmation message a customer sees at the moment they book.",
+      "acceptance": [
+        "Given at least one booking has been made, when staff open the \"All bookings\" page, then they see each booking's field, customer name, start/end time, and status.",
+        "Given no bookings have been made yet, when staff open the page, then they see a clear empty state rather than a blank page.",
+        "Given the bookings list fails to load, when staff open the page, then they see an error message rather than a silent blank page.",
+        "Given a new booking is made elsewhere in the app, when staff click Refresh on this page, then the new booking appears in the list.",
+        "Trust: every booking shown on this page comes from the same listBookings() accessor already used by analytics - one source of truth, not a second copy that could drift.",
+        "Given a booking is made elsewhere while staff have this page open, when 5 seconds pass, then the new booking appears in the list without any manual action.",
+        "Given a background refresh fails, when staff are looking at the page, then the last-known-good list stays visible rather than being replaced by an error page."
+      ],
+      "blocked_by": [
+        "STORY-002",
+        "STORY-011"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "The bookings list fails to load (network/server error).",
+        "No bookings exist yet and the page shows a blank screen instead of an empty state.",
+        "The list goes stale between refreshes and nobody notices.",
+        "A background poll fails and wipes out an already-good list with an error page instead of retrying next tick."
+      ],
+      "task_guidance": "Expose the existing listBookings() service accessor over a new GET /api/bookings route. Add an 'All bookings' page that fetches it, joins fieldId against /api/fields for a readable name, sorts by recency, polls every 5 seconds in the background, and includes a manual Refresh button.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-015",
+      "title": "View customer interactions (questions and help requests)",
+      "release": "r4",
+      "fulfills": [
+        "REQ-020"
+      ],
+      "narrative": "As a business owner or operator, I want to see every question customers have asked the assistant and every help request they've submitted, so that I know what customers are asking and how it was handled, instead of that history existing only in server logs nobody looks at.",
+      "acceptance": [
+        "Given at least one question has been asked, when staff open \"Customer interactions\", then they see who asked it, the question, the answer, and whether it was understood.",
+        "Given at least one help request has been submitted and resolved instantly by the AI, when staff open the page, then it appears with an outcome of \"Resolved by AI\".",
+        "Given a help request was escalated to a human, when staff open the page, then it appears exactly once, showing its current status (pending, approved, or denied) rather than being duplicated by the later decision record.",
+        "Given nothing has happened yet, when staff open the page, then they see a clear empty state for each section rather than a blank page.",
+        "Given the page fails to load, when staff open it, then they see an error message rather than a silent blank page.",
+        "Given a new question or help request is submitted elsewhere, when 5 seconds pass, then it appears without any manual action.",
+        "Trust: every row on this page comes from the existing audit trail and escalations accessors - no second, parallel record of customer interactions was created."
+      ],
+      "blocked_by": [
+        "STORY-003",
+        "STORY-009",
+        "STORY-011"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "The audit trail or escalations fail to load.",
+        "Nothing has happened yet and the page shows a blank screen instead of an empty state for each section.",
+        "A background poll fails and wipes out an already-good list with an error page instead of retrying next tick.",
+        "The human-decision audit entry for an already-escalated request is mistaken for a second, separate help request.",
+        "An escalated request's escalation record can't be found."
+      ],
+      "task_guidance": "Widen GET /api/audit-trail to accept an entityType filter. Build a 'Customer interactions' page with a Questions-asked section (ai_interaction entries) and a Help-requests section (customer_issue entries that carry an 'issue' field, joined against GET /api/escalations by escalationId for live status). Poll every 5 seconds plus a manual Refresh button, same pattern as STORY-014.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-016",
+      "title": "Persist data in a real database",
+      "release": "r4",
+      "fulfills": [
+        "REQ-016",
+        "REQ-017"
+      ],
+      "narrative": "As a system administrator, I want the system's data to survive a restart, so that bookings, refund requests, and customer interactions aren't lost every time the server restarts or redeploys.",
+      "acceptance": [
+        "Given a booking, escalation, scheduling issue, or audit trail entry has been created, when the backend server process is fully stopped and restarted, then that data is still present.",
+        "Given the full existing test suite, when it runs against this new persistence layer, then every previously-passing test still passes unchanged.",
+        "Given the server has been running and creating records, when it restarts, then new records continue with the next available id rather than colliding with existing ones.",
+        "Trust: tests never touch the real database file - they run against an isolated, throwaway in-memory database per test file, so a test run can never corrupt or depend on real persisted data."
+      ],
+      "blocked_by": [],
+      "owner_agent": "System Administrator",
+      "failure_paths": [
+        "Data is lost when the server restarts (the defect this story exists to fix).",
+        "IDs collide or restart from 1 after a restart, overwriting or duplicating existing records.",
+        "The native database library fails to load on some platform, crashing the whole backend at startup.",
+        "A test run touches the real database file instead of an isolated one, corrupting or depending on real persisted data."
+      ],
+      "task_guidance": "Add better-sqlite3 and a shared backend/src/db/connection.ts. Migrate fieldsService, bookingsService, escalationsService, schedulingIssuesService, and auditTrailService's storage from in-memory arrays to real reads/writes against the database file, one service at a time, keeping every exported function's signature and business logic unchanged. Use an isolated in-memory database per test file.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-017",
+      "title": "Facility manager dashboard",
+      "release": "r4",
+      "fulfills": [
+        "REQ-021"
+      ],
+      "narrative": "As a facility manager, I want an at-a-glance overview when I open the app, so that I know what's happening today without clicking through six separate pages.",
+      "acceptance": [
+        "Given real data exists, when a manager opens the Dashboard, then the four summary cards (Available Fields, Today's Bookings, Pending Approvals, Scheduling Issues) show accurate real counts.",
+        "Given at least one booking is scheduled for today, when the manager views the Today's Bookings section, then they see the customer, field, time, and status for each.",
+        "Given a field has a confirmed booking covering the current moment, when the manager views Field Availability, then that field shows \"Booked\" while every other field shows \"Available\".",
+        "Given bookings, scheduling issues, and escalation decisions have happened, when the manager views Recent Activity, then they see a merged, most-recent-first feed without any event appearing twice.",
+        "Given nothing has happened yet, when the manager opens the Dashboard, then each section shows a clear empty state rather than a blank page.",
+        "Given the manager clicks a Quick Action, when they click \"Book a Field\", \"View Bookings\", or \"Manage Fields\", then the app navigates to the corresponding existing page.",
+        "Trust: every number and row on this page is read from an existing accessor already used elsewhere in the app - no second, parallel data source was created for the dashboard."
+      ],
+      "blocked_by": [
+        "STORY-001",
+        "STORY-002",
+        "STORY-004",
+        "STORY-011",
+        "STORY-012",
+        "STORY-014",
+        "STORY-015"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "Any of the underlying data fails to load, and the page shows a partially-broken dashboard instead of one clear error.",
+        "Nothing has happened yet and a section shows a blank space instead of an empty state.",
+        "A human-decision audit entry is mistaken for a second, separate activity event alongside the original request.",
+        "A field's live \"currently booked\" status is computed wrong at the boundary of a booking's start/end time."
+      ],
+      "task_guidance": "Build a new Dashboard page using only existing accessors (fields, bookings, escalations, scheduling issues, audit trail filtered by entityType). No new backend endpoint. Merge booking/scheduling-issue/customer-issue audit entries into one sorted activity feed, filtering human-decision entries by the presence of a `decision` field so they are never double-counted against the AI-instant-resolution shape sharing the same entityType/action. Wire Quick Actions to the existing tab-navigation via a callback prop.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-018",
+      "title": "Field details page",
+      "release": "r4",
+      "fulfills": [
+        "REQ-022"
+      ],
+      "narrative": "As a customer, I want to see full details about a field - a bigger picture, its amenities, and what times are open - before I commit to booking it, so that I'm not choosing blind off a small card.",
+      "acceptance": [
+        "Given a customer clicks a field's name or image on the main booking page, when the details page opens, then it shows the field's name, location, price, surface type, size, and description.",
+        "Given a field has amenities, when the customer views its details page, then each amenity is listed.",
+        "Given a date is selected on the details page, when the customer views Availability, then each operating hour shows Available, Booked, or Past, matching real existing bookings for that field and date.",
+        "Given the customer clicks \"Book This Field\" or an available time slot, when the booking modal opens, then it is the same existing booking modal, pre-filled with the date the customer was previewing.",
+        "Given the customer clicks \"Back to all fields\", when they return to the grid, then the existing \"Book Now\" button still works exactly as before.",
+        "Given a database file created before this story, when the backend starts, then the existing 3 fields gain the new descriptive content without losing any existing data.",
+        "Trust: the availability preview and the booking modal's own slot grid use the exact same shared logic - no second, independently-written implementation that could disagree with the first."
+      ],
+      "blocked_by": [
+        "STORY-001",
+        "STORY-002",
+        "STORY-013",
+        "STORY-016"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "A database file from before this story has the 3 seed fields without size/description/amenities populated.",
+        "The availability preview's booking-overlap check fails to load and blocks booking instead of just losing its preview.",
+        "Booking from the details page bypasses the same conflict-checked booking flow used when booking directly from a field card."
+      ],
+      "task_guidance": "Widen the fields table with size_format/description/amenities via an idempotent ALTER TABLE migration plus a backfill for pre-existing rows. Extract slot-availability logic from BookingForm into a shared frontend/src/utils/timeSlots.ts so the new read-only preview and the booking modal's interactive grid share one implementation. Add an initialDate prop to BookingForm so booking from the details page opens pre-filled with the previewed date. Drop a star rating entirely rather than fabricate one - no review system exists in this app.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-019",
+      "title": "Notifications and alerts",
+      "release": "r4",
+      "fulfills": [
+        "REQ-023"
+      ],
+      "narrative": "As a facility manager or customer, I want a notification bell that surfaces booking and scheduling events as they happen, so that I don't have to go looking for them across several pages.",
+      "acceptance": [
+        "Given real events have happened, when the user opens the notification panel, then each notification shows a short title and a \"Field • time\" or equivalent subtitle, matching the real underlying data.",
+        "Given a booking is starting soon, when the user opens the panel, then an \"Upcoming booking\" notification appears with a countdown (\"In 2 hours\"), not a calendar date.",
+        "Given unread notifications exist, when the user looks at the bell, then an unread-count badge is shown; given none exist, then no badge is shown.",
+        "Given the user clicks a notification, when it is a type that routes to an existing page, then that notification is marked read, the panel closes, and the app navigates there.",
+        "Given the user clicks \"Mark all as read\", when there were unread notifications, then all of them become read and the button disables itself once none remain.",
+        "Given the user marks something as read and reloads, when the panel reopens, then that notification is still shown as read.",
+        "Trust: the notification feed and the Dashboard's Recent Activity feed are driven by the exact same shared categorization logic - no second, independently-written copy that could disagree with the first."
+      ],
+      "blocked_by": [
+        "STORY-011",
+        "STORY-014",
+        "STORY-015",
+        "STORY-017"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "The user-named \"Booking approved\" category doesn't correspond to anything this system actually does - bookings auto-confirm; refund/complaint requests are what get approved or denied.",
+        "The underlying data fails to load and the panel crashes or shows nothing instead of a clear message.",
+        "localStorage is unavailable and notifications stop working entirely instead of just losing read-state persistence.",
+        "The human-decision audit entry is double-counted as a second approved/denied notification alongside the AI-instant-resolution entry."
+      ],
+      "task_guidance": "Extract buildActivityFeed from DashboardPage.tsx into a shared frontend/src/utils/activityFeed.ts, widen it with title/fieldName/relevantTime fields, and add buildUpcomingBookingNotifications alongside it. Build a useNotifications hook (polls existing endpoints every 30s) and a NotificationBell component in the header with an unread badge, dropdown panel, and Mark all as read. Read/unread state in localStorage only - no backend change. Label the approve/deny category honestly as \"Request approved/denied,\" not \"Booking approved.\" Drop Field maintenance reminder entirely.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-020",
+      "title": "Scheduling issues conflict center",
+      "release": "r4",
+      "fulfills": [
+        "REQ-024"
+      ],
+      "narrative": "As a facility manager, I want the Scheduling Issues page to actually show and let me resolve conflicts, so that 'Scheduling issues' in the nav leads somewhere useful instead of a single static sentence.",
+      "acceptance": [
+        "Given no scheduling issues exist, when the manager opens the page, then a celebratory empty state is shown (\"All schedules look good\" / \"No scheduling conflicts require your attention right now.\" / \"All fields are currently scheduled without conflicts.\"), not the old static sentence.",
+        "Given open and/or resolved issues exist, when the manager opens the page, then the 4 summary cards (Active Issues, Double Bookings, Field Conflicts, Maintenance Conflicts) show real, honestly-derived counts.",
+        "Given an open issue, when it is shown as a card, then it displays the issue type, field name, date/time, the cause, current status, and \"View Bookings\" / \"Resolve Issue\" actions.",
+        "Given the manager clicks \"View Bookings\", when the click registers, then the app navigates to the All Bookings page.",
+        "Given the manager clicks \"Resolve Issue\", when the modal opens, then it shows both the real conflicting booking and the declined request, and offers change-time, move-field, cancel, and mark-as-resolved actions.",
+        "Given the manager resolves an issue by any action, when it succeeds, then the issue leaves the open list and the modal closes.",
+        "Given the manager filters by All / Double Bookings / Field Conflicts / Maintenance / Resolved, when a filter is selected, then only the matching issues are shown, with Maintenance always empty and Resolved showing only resolved issues.",
+        "Trust: no new backend functionality was added - both the fetch-all-issues and cancel-booking capabilities already existed and were already tested before this story."
+      ],
+      "blocked_by": [
+        "STORY-012",
+        "STORY-014"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "No open issues exist and the page shows a blank page or the literal old sentence instead of the celebratory empty state.",
+        "Issues exist but none match the active filter, and the page looks identical to having zero issues instead of a simpler \"no match\" message.",
+        "The conflicting booking cannot be found and the mutating actions (cancel/reschedule/move) are not disabled with an explanation.",
+        "Cancelling the real booking fails but the UI proceeds to create a replacement booking or call resolve anyway.",
+        "The booking is cancelled but recreating it at the new time/field fails, and the issue is silently resolved or the original booking is lost without being reported.",
+        "Resolving the issue fails server-side but the UI shows a false success.",
+        "Loading issues/bookings/fields fails and the page crashes or looks like an empty conflict center instead of showing a clear error."
+      ],
+      "task_guidance": "Add fetchAllSchedulingIssues() to schedulingIssuesApi.ts (GET /api/scheduling-issues with no status param already returns every issue - zero backend change needed) and cancelBooking() to bookingsApi.ts (POST /api/bookings/:id/cancel already exists and is already tested). Build SchedulingIssuesPage.tsx with 4 summary cards, a filter tab bar, issue cards, and a two-tier empty state. Build ResolveIssueModal.tsx reusing timeSlots.ts for the reschedule/move slot grid, implementing reschedule/move as cancel-then-recreate rather than a new backend endpoint. The conflict's second booking was never actually created in the database (createBooking throws on conflict) - show it as informational only, sourced from the issue's own details. Delete the superseded SchedulingIssueCard.tsx.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-021",
+      "title": "Analytics dashboard upgrade",
+      "release": "r4",
+      "fulfills": [
+        "REQ-025"
+      ],
+      "narrative": "As a facility manager, I want a visual breakdown of how my fields and bookings are performing, so that I can see trends, revenue, and busy times at a glance instead of reading a single day-of-week table.",
+      "acceptance": [
+        "Given real bookings and fields, when the manager opens Analytics, then the 4 summary cards (Total Bookings, Total Revenue, Average Booking Value, Field Utilization) show real, honestly-derived numbers for the selected range.",
+        "Given bookings exist in the selected range, when the page renders, then Booking Trends and Revenue show a readable chart of real values over time, not a day-of-week table.",
+        "Given no bookings exist in the selected range, when the page renders, then Booking Trends, Revenue, and Peak Booking Times show a clean empty-state message instead of fabricated numbers.",
+        "Given real fields and bookings, when Field Performance renders, then every field is listed with its real booking count, revenue, and utilization percentage, including an honest zero for a field with no bookings in range.",
+        "Given bookings at specific times, when Peak Booking Times renders, then it shows which hours are busiest using real booking start times.",
+        "Given the manager switches between 7 / 30 / 90 Days, when the range changes, then every figure on the page updates to reflect that range.",
+        "Trust: no new backend functionality was added - revenue and utilization are computed in the frontend from the existing bookings and fields endpoints, and the existing busy/slow analytics report (STORY-007) is still displayed, not replaced."
+      ],
+      "blocked_by": [
+        "STORY-007",
+        "STORY-014"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "The selected date range has zero confirmed bookings and Booking Trends/Revenue/Peak Booking Times render an empty-looking chart or invented numbers instead of a clean empty state.",
+        "A booking references a field that no longer exists and its revenue contribution throws or crashes the page instead of being treated as $0.",
+        "There are no fields at all and Field Performance shows an empty table instead of a clear message.",
+        "Switching the date range updates some figures but not others, leaving the page internally inconsistent.",
+        "Loading bookings, fields, or the analytics report fails and the page crashes or silently shows an empty dashboard instead of a clear error."
+      ],
+      "task_guidance": "Build frontend/src/utils/analyticsMetrics.ts with pure, unit-tested functions: filterBookingsInRange, bookingRevenue (duration x field.pricePerHour), computeAnalyticsSummary, buildFieldPerformance, buildTrendBuckets (daily for 7 days, weekly for 30/90), and buildPeakHours (bucketed by local hour, reusing OPERATING_HOURS/formatHourLabel from timeSlots.ts). Rewrite AnalyticsDashboardPage.tsx to fetch fields+bookings+the existing analytics report, add a 7/30/90-day range selector (reuse the existing .gk-filter-tabs pattern), render 4 summary cards, two simple CSS bar charts (Booking Trends, Revenue), a Field Performance table, and a horizontal bar chart for Peak Booking Times. Keep the existing /api/analytics/report busy/slow summary sentence visible rather than removing it. No backend changes.",
+      "due_on": null,
+      "due_baseline_on": null
+    },
+    {
+      "id": "STORY-022",
+      "title": "GoalKick AI chat assistant upgrade",
+      "release": "r4",
+      "fulfills": [
+        "REQ-026"
+      ],
+      "narrative": "As a facility manager, I want \"Ask a question\" to feel like a real assistant for running the facility, so that I can quickly check on bookings, fields, and schedules without hunting across pages.",
+      "acceptance": [
+        "Given the assistant page loads, when it renders, then it shows \"GoalKick AI\", \"Your soccer facility assistant\", the description line, and all 6 suggested questions.",
+        "Given the manager clicks a suggested question, when it is processed, then the question appears in the chat and a real, data-grounded answer follows, with a typing indicator shown while it's being computed.",
+        "Given a question about fields, bookings, booking times, scheduling issues, or customers, when it matches a known local intent, then the answer is computed from real application data, not invented.",
+        "Given a question outside the local intents (e.g. pricing), when it is asked, then it is answered by the existing backend assistant exactly as before, preserving STORY-003/008's behavior and audit logging.",
+        "Given multiple exchanges happen, when the conversation continues, then every message shows on the correct side (user vs. GoalKick AI) with an avatar and a timestamp, and earlier messages are never replaced.",
+        "Given the underlying data or the backend fails, when that happens, then the page shows a clear error rather than crashing or silently failing.",
+        "Trust: no external AI API or API key was added, and the original backend assistant endpoint and its scope are unchanged, not removed."
+      ],
+      "blocked_by": [
+        "STORY-003",
+        "STORY-008",
+        "STORY-012",
+        "STORY-014"
+      ],
+      "owner_agent": "Frontend Team",
+      "failure_paths": [
+        "The initial facility-data fetch fails and the assistant crashes or silently gives wrong local answers instead of warning that local-data answers may be out of date while backend-routed questions still work.",
+        "A question matches no local intent and the backend also declines, but the honest \"not able to answer that yet\" message does not surface.",
+        "The backend fallback request fails outright and the rest of the conversation is lost or the page crashes.",
+        "A locally-answered question has no booking history yet and a fabricated ranking or count is shown instead of an honest \"not enough history\" answer.",
+        "Clicking a suggestion or sending text while already \"typing\" fires a second overlapping request."
+      ],
+      "task_guidance": "Build frontend/src/utils/assistantIntents.ts: matchAssistantIntent() pattern-matches a question to one of 7 intents (the 6 suggested questions plus \"customers\"), and per-intent answer builders compute real answers from fields/bookings/openIssues already fetched elsewhere in the app (fetchAvailableFields, fetchAllBookings, fetchOpenIssues) - reuse fieldLabel from activityFeed.ts and formatHourLabel from timeSlots.ts rather than duplicating. Rewrite AssistantPage.tsx as a chat UI: header (GoalKick AI / subtitle / description), 6 suggestion buttons, a scrollable message list with user/AI bubbles + avatar + timestamps + a typing indicator, and an input bar (\"Ask GoalKick AI...\" + Send). A matched local intent answers instantly from local data; anything unmatched calls the existing askQuestion() against /api/assistant/ask unchanged, using a fixed \"Facility Manager\" actor name for the audit log since there is no per-session customer name in this design. Disable suggestions/input until the initial data fetch resolves. No backend changes, no new external dependency. Rename the nav tab from \"Ask a question\" to \"GoalKick AI\".",
+      "due_on": null,
+      "due_baseline_on": null
     }
   ],
   "agents": [],
@@ -591,15 +1030,16 @@
       "scheduler"
     ],
     "counts": {
-      "requirements_total": 17,
+      "requirements_total": 26,
       "requirements_by_kind": {
         "CONSTRAINT": 2,
-        "FUNC": 15
+        "FUNC": 23,
+        "NFR": 1
       },
-      "stories_total": 12,
+      "stories_total": 22,
       "releases_total": 5,
       "agents_total": 0,
-      "failure_paths_total": 35,
+      "failure_paths_total": 82,
       "agents_by_autonomy": {}
     }
   }

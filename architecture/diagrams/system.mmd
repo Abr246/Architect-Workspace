@@ -1,0 +1,35 @@
+%% System flowchart for this repo, derived from architecture/inventory.md and architecture/seven-layer.md.
+%% Node budget is 8 (per instructions), so these are grouped. Groupings, spelled out:
+%%   "Backend services"            = fieldsService, bookingsService, escalationsService, auditTrailService,
+%%                                   schedulingService, schedulingIssuesService, assistantService,
+%%                                   analyticsService, customerServiceService (all under backend/src/services/).
+%%   "Governance & reliability labs" = governance-lab/* + reliability-lab/* (standalone demo subsystems;
+%%                                   run manually via `node run.js` / `node desk.js`, no HTTP caller modeled here).
+%%   "MCP tool servers"            = mcp-server/src/server.py (no tools defined yet) +
+%%                                   order-status-mcp/server.py (search_orders, escalate_order_issue, handoff_brief).
+%%   "Model-call scripts"          = scripts/score_prompt.py + inbox-triage/check_setup.py (the only two places
+%%                                   in this repo that call the Anthropic API).
+%%   "External AI counterparties"  = the Anthropic API itself, plus whatever external MCP client/agent calls
+%%                                   order-status-mcp's tools (folded together to stay within the node budget).
+flowchart LR
+  subgraph TRUST["Trust boundary"]
+    API["Backend API<br/>Express + Zod routes"]
+    SVC["Backend services<br/>business logic"]
+    DB["SQLite datastore"]
+    LAB["Governance & reliability labs"]
+    MCP["MCP tool servers<br/>mcp-server + order-status-mcp"]
+    SCR["Model-call scripts<br/>score_prompt.py + check_setup.py"]
+    API --> SVC
+    SVC --> DB
+  end
+  style TRUST stroke-dasharray: 5 5,fill:none
+
+  BR["Browser client<br/>Customer + React SPA"]
+  AI["External AI counterparties<br/>Anthropic API + MCP client/agent"]
+
+  BR -->|"B1 zod safeParse<br/>POST/PATCH bodies only"| API
+  API -->|"B2 UNVALIDATED"| BR
+  AI -->|"B3 pydantic Field<br/>constraints + enum"| MCP
+  MCP -->|"B4 UNVALIDATED"| AI
+  SCR -->|"B5 key-format<br/>check only"| AI
+  AI -->|"B6 UNVALIDATED"| SCR

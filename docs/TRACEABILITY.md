@@ -21,7 +21,16 @@ none, because it is context rather than work.
 | REQ-013 | Functional | must | STORY-012 |
 | REQ-014 | Functional | must | STORY-007 |
 | REQ-015 | Functional | must | STORY-004, STORY-009 |
-| REQ-016 | Constraint | must | STORY-010 |
-| REQ-017 | Constraint | must | STORY-010 |
+| REQ-016 | Constraint | must | STORY-016 |
+| REQ-017 | Constraint | must | STORY-016 |
+| REQ-018 | Non-functional | must | STORY-013 |
+| REQ-019 | Functional | must | STORY-014 |
+| REQ-020 | Functional | must | STORY-015 |
+| REQ-021 | Functional | must | STORY-017 |
+| REQ-022 | Functional | must | STORY-018 |
+| REQ-023 | Functional | must | STORY-019 |
+| REQ-024 | Functional | must | STORY-020 |
+| REQ-025 | Functional | must | STORY-021 |
+| REQ-026 | Functional | must | STORY-022 |
 
 ✅ Every must-have requirement is fulfilled by at least one story.

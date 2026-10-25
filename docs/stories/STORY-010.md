@@ -8,9 +8,9 @@ As a system administrator, I want to optimize system performance, so that user i
 
 ## The requirement this satisfies
 
-- **REQ-016** (Constraint, must) — The system must connect to the booking database.
-- **REQ-017** (Constraint, must) — The system must connect to the customer information database.
 - **REQ-011** (Functional, must) — The system must detect cancellations.
+
+_Note: REQ-016 and REQ-017 (database connections) were originally listed here but never actually built by this story — its own acceptance criteria below are about response-time performance, not persistence. That gap was flagged to the user at the time and deliberately deferred, then genuinely fulfilled later by STORY-016. Re-pointed the traceability to be honest about what this story actually does._
 
 ## How to build it
 

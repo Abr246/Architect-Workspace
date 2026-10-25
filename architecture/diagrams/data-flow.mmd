@@ -1,0 +1,44 @@
+%% Traces ONE real request through actual code: order-status-mcp/server.py's
+%% escalate_order_issue tool (lines 199-332), the only path in this repo where a
+%% correlation id is genuinely generated and logged end-to-end.
+%% Layer bindings come from architecture/seven-layer.md:
+%%   Semantic L3       = the Pydantic/Annotated Field + Enum validation on the tool's parameters.
+%%   Orchestration L7  = the escalate_order_issue function body (the tool/prompt surface),
+%%                       including its root-escape gate _resolve_within_roots (lines 55-105).
+%%   Observability L6  = the _emit_log structured-logging calls (lines 20-52).
+%%   Storage L1        = the escalations.jsonl ticket file (ESCALATIONS_FILE, line 108).
+%% NOTE on rule "first message stamps a correlation id": the code generates
+%% correlation_id = uuid4().hex INSIDE the handler (line 227), after parameter
+%% validation and before any logging -- there is no id to stamp on message 1
+%% itself, since the client never supplies one. That is what the code actually
+%% does, so the stamp appears as L7's first self-action below, not on message 1.
+%% The "order not found" early-return branch (lines 233-248) is omitted here to
+%% keep focus on the propose/gate/execute path; it never reaches the gate at all.
+sequenceDiagram
+  participant Client as MCP Client
+  participant L3 as Semantic L3
+  participant L7 as Orchestration L7
+  participant L6 as Observability L6
+  participant L1 as Storage L1
+
+  Client->>L3: "escalate_order_issue(order_id, customer_message, reason)"
+  Note over L3: "Boundary A - validated: Field(min_length/max_length)<br/>on order_id/customer_message + EscalationReason enum<br/>(server.py lines 200-217)"
+  L3->>L7: "validated args"
+  L7->>L7: "stamp correlation_id = uuid4().hex (line 227)"
+  L7->>L6: "_emit_log(tool_started, correlation_id, order_id)"
+  L7->>L7: "PROPOSE: build ticket object<br/>{ticket_id, order_id, customer_message, reason, filed_at}"
+  L7->>L7: "GATE: _resolve_within_roots(ESCALATIONS_FILE)"
+  Note over L7: "Boundary B - validated: resolved path must fall inside<br/>an MCP-client-declared root (lines 55-105);<br/>fails closed if no roots are usable"
+  alt gate denies (no usable root)
+    L7->>L6: "_emit_log(access_denied, correlation_id)"
+    L7->>Client: "return escalated:false, ticket:null"
+  else gate allows
+    L7->>L6: "_emit_log(external_call_started, correlation_id)"
+    L7->>L1: "EXECUTE: append json.dumps(ticket) as one line"
+    Note over L1: "Boundary C - no validator of its own:<br/>relies entirely on Boundary B's gate, already passed"
+    L1-->>L7: "write complete (OSError re-raised and logged if not)"
+    L7->>L6: "_emit_log(external_call_finished, correlation_id)"
+    L7->>L6: "_emit_log(tool_completed, correlation_id, escalated:true, ticket_id)"
+    Note over L7,Client: "Boundary D - UNVALIDATED: plain dict returned,<br/>no schema/type check on the response shape"
+    L7->>Client: "return escalated:true, ticket, message"
+  end
