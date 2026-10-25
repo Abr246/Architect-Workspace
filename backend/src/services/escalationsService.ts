@@ -1,3 +1,4 @@
+import { db, nextSequenceNumber } from '../db/connection';
 import { recordAuditEntry } from './auditTrailService';
 
 // STORY-009 widens this to 'general' — a customer issue that isn't
@@ -52,17 +53,63 @@ export class DecisionConflictError extends Error {
   }
 }
 
-// Walking skeleton: in-memory store, same pattern as fieldsService and
-// bookingsService, until a real database lands in a later story.
-let escalations: Escalation[] = [];
-let nextId = 1;
+interface EscalationRow {
+  id: string;
+  type: EscalationType;
+  customer_name: string;
+  description: string;
+  status: EscalationStatus;
+  created_at: string;
+  decided_at: string | null;
+  decided_by: string | null;
+  decision_notes: string | null;
+  customer_notified_at: string | null;
+}
+
+function rowToEscalation(row: EscalationRow): Escalation {
+  return {
+    id: row.id,
+    type: row.type,
+    customerName: row.customer_name,
+    description: row.description,
+    status: row.status,
+    createdAt: row.created_at,
+    decidedAt: row.decided_at,
+    decidedBy: row.decided_by,
+    decisionNotes: row.decision_notes,
+    customerNotifiedAt: row.customer_notified_at,
+  };
+}
+
+function loadAllEscalations(): Escalation[] {
+  const rows = db.prepare('SELECT * FROM escalations ORDER BY rowid ASC').all() as EscalationRow[];
+  return rows.map(rowToEscalation);
+}
+
+function getEscalationRow(id: string): Escalation | null {
+  const row = db.prepare('SELECT * FROM escalations WHERE id = ?').get(id) as EscalationRow | undefined;
+  return row ? rowToEscalation(row) : null;
+}
+
+const insertEscalationStmt = db.prepare(
+  `INSERT INTO escalations (id, type, customer_name, description, status, created_at, decided_at, decided_by, decision_notes, customer_notified_at)
+   VALUES (@id, @type, @customerName, @description, @status, @createdAt, @decidedAt, @decidedBy, @decisionNotes, @customerNotifiedAt)`,
+);
+
+const updateDecisionStmt = db.prepare(
+  'UPDATE escalations SET status = @status, decided_at = @decidedAt, decided_by = @decidedBy, decision_notes = @decisionNotes WHERE id = @id',
+);
+
+const updateNotifiedStmt = db.prepare('UPDATE escalations SET customer_notified_at = @customerNotifiedAt WHERE id = @id');
+
+let nextId = nextSequenceNumber('escalations', 'escalation');
 
 export function createEscalation(input: CreateEscalationInput): { escalation: Escalation; created: boolean } {
   // Idempotent retry: an identical request for an escalation that's still
   // pending (undecided) returns the existing record rather than creating a
   // duplicate. Once something has been decided, an identical request is
   // treated as a genuinely new issue, not a retry of the old one.
-  const existingPending = escalations.find(
+  const existingPending = loadAllEscalations().find(
     (e) =>
       e.status === 'pending' &&
       e.type === input.type &&
@@ -86,7 +133,7 @@ export function createEscalation(input: CreateEscalationInput): { escalation: Es
     decisionNotes: null,
     customerNotifiedAt: null,
   };
-  escalations.push(escalation);
+  insertEscalationStmt.run(escalation);
 
   // Every refund/complaint is, by this story's own requirement, an
   // "important decision" — so every real creation here is the escalation
@@ -113,7 +160,7 @@ export function createEscalation(input: CreateEscalationInput): { escalation: Es
 }
 
 export function decideEscalation(id: string, input: DecideEscalationInput): { escalation: Escalation; decided: boolean } {
-  const escalation = escalations.find((e) => e.id === id);
+  const escalation = getEscalationRow(id);
   if (!escalation) {
     throw new EscalationNotFoundError(id);
   }
@@ -140,13 +187,20 @@ export function decideEscalation(id: string, input: DecideEscalationInput): { es
   escalation.decidedAt = new Date().toISOString();
   escalation.decidedBy = input.decidedBy;
   escalation.decisionNotes = input.notes ?? null;
+  updateDecisionStmt.run({
+    id: escalation.id,
+    status: escalation.status,
+    decidedAt: escalation.decidedAt,
+    decidedBy: escalation.decidedBy,
+    decisionNotes: escalation.decisionNotes,
+  });
 
   // The decision outcome, logged with a timestamp — this is the other half
   // of this story's Trust criterion (creation is already logged above).
   // STORY-009: wrapped in try/catch (it previously wasn't) — the decision
-  // has already been recorded in memory by this point, so a logging
-  // failure here must not crash the whole operation, same as every other
-  // logging call in this codebase.
+  // has already been recorded by this point, so a logging failure here
+  // must not crash the whole operation, same as every other logging call
+  // in this codebase.
   try {
     // eslint-disable-next-line no-console
     console.log(
@@ -194,6 +248,7 @@ function notifyCustomerOfOutcome(escalation: Escalation): void {
       }),
     );
     escalation.customerNotifiedAt = escalation.decidedAt;
+    updateNotifiedStmt.run({ id: escalation.id, customerNotifiedAt: escalation.customerNotifiedAt });
   } catch (err) {
     // "Customer notification failure" — the decision stands either way;
     // customerNotifiedAt simply stays null, which is honest, not silent.
@@ -220,22 +275,22 @@ function notifyCustomerOfOutcome(escalation: Escalation): void {
 }
 
 export function listEscalations(status?: EscalationStatus): Escalation[] {
-  if (!status) return [...escalations];
-  return escalations.filter((e) => e.status === status);
+  if (!status) return loadAllEscalations();
+  return loadAllEscalations().filter((e) => e.status === status);
 }
 
 // STORY-009: the customer-facing "check the outcome" lookup — a single
 // record, not the staff-facing list above.
 export function getEscalationById(id: string): Escalation {
-  const escalation = escalations.find((e) => e.id === id);
+  const escalation = getEscalationRow(id);
   if (!escalation) {
     throw new EscalationNotFoundError(id);
   }
   return escalation;
 }
 
-// Test-only: reset the in-memory store between test cases.
+// Test-only: reset the store between test cases.
 export function resetEscalations(): void {
-  escalations = [];
+  db.exec('DELETE FROM escalations');
   nextId = 1;
 }

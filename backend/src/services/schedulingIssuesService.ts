@@ -1,3 +1,4 @@
+import { db, nextSequenceNumber } from '../db/connection';
 import { recordAuditEntry } from './auditTrailService';
 
 export type SchedulingIssueStatus = 'open' | 'resolved';
@@ -22,10 +23,54 @@ export class SchedulingIssueNotFoundError extends Error {
   }
 }
 
-// Walking skeleton: in-memory store, same pattern as every other service
-// in this build, until a real database lands in a later story.
-let issues: SchedulingIssue[] = [];
-let nextId = 1;
+interface SchedulingIssueRow {
+  id: string;
+  type: 'conflict';
+  field_id: string;
+  details: string;
+  status: SchedulingIssueStatus;
+  detected_at: string;
+  notified_at: string | null;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  resolution_notes: string | null;
+}
+
+function rowToIssue(row: SchedulingIssueRow): SchedulingIssue {
+  return {
+    id: row.id,
+    type: row.type,
+    fieldId: row.field_id,
+    details: JSON.parse(row.details) as Record<string, unknown>,
+    status: row.status,
+    detectedAt: row.detected_at,
+    notifiedAt: row.notified_at,
+    resolvedAt: row.resolved_at,
+    resolvedBy: row.resolved_by,
+    resolutionNotes: row.resolution_notes,
+  };
+}
+
+function loadAllIssues(): SchedulingIssue[] {
+  const rows = db.prepare('SELECT * FROM scheduling_issues ORDER BY rowid ASC').all() as SchedulingIssueRow[];
+  return rows.map(rowToIssue);
+}
+
+function getIssueRow(id: string): SchedulingIssue | null {
+  const row = db.prepare('SELECT * FROM scheduling_issues WHERE id = ?').get(id) as SchedulingIssueRow | undefined;
+  return row ? rowToIssue(row) : null;
+}
+
+const insertIssueStmt = db.prepare(
+  `INSERT INTO scheduling_issues (id, type, field_id, details, status, detected_at, notified_at, resolved_at, resolved_by, resolution_notes)
+   VALUES (@id, @type, @fieldId, @details, @status, @detectedAt, @notifiedAt, @resolvedAt, @resolvedBy, @resolutionNotes)`,
+);
+
+const updateResolutionStmt = db.prepare(
+  'UPDATE scheduling_issues SET status = @status, resolved_at = @resolvedAt, resolved_by = @resolvedBy, resolution_notes = @resolutionNotes WHERE id = @id',
+);
+
+let nextId = nextSequenceNumber('scheduling_issues', 'issue');
 
 // Called from bookingsService when a genuine booking conflict is detected
 // between two different customers (not an idempotent retry). "Notify the
@@ -47,7 +92,7 @@ export function reportSchedulingConflict(fieldId: string, details: Record<string
     resolvedBy: null,
     resolutionNotes: null,
   };
-  issues.push(issue);
+  insertIssueStmt.run({ ...issue, details: JSON.stringify(issue.details) });
 
   try {
     // eslint-disable-next-line no-console
@@ -84,7 +129,7 @@ export function resolveSchedulingIssue(
   resolvedBy: string,
   notes?: string,
 ): { issue: SchedulingIssue; resolved: boolean } {
-  const issue = issues.find((i) => i.id === id);
+  const issue = getIssueRow(id);
   if (!issue) {
     throw new SchedulingIssueNotFoundError(id);
   }
@@ -99,6 +144,13 @@ export function resolveSchedulingIssue(
   issue.resolvedAt = new Date().toISOString();
   issue.resolvedBy = resolvedBy;
   issue.resolutionNotes = notes ?? null;
+  updateResolutionStmt.run({
+    id: issue.id,
+    status: issue.status,
+    resolvedAt: issue.resolvedAt,
+    resolvedBy: issue.resolvedBy,
+    resolutionNotes: issue.resolutionNotes,
+  });
 
   recordAuditEntry({
     entityType: 'scheduling_issue',
@@ -112,12 +164,12 @@ export function resolveSchedulingIssue(
 }
 
 export function listSchedulingIssues(status?: SchedulingIssueStatus): SchedulingIssue[] {
-  if (!status) return [...issues];
-  return issues.filter((i) => i.status === status);
+  if (!status) return loadAllIssues();
+  return loadAllIssues().filter((i) => i.status === status);
 }
 
-// Test-only: reset the in-memory store between test cases.
+// Test-only: reset the store between test cases.
 export function resetSchedulingIssues(): void {
-  issues = [];
+  db.exec('DELETE FROM scheduling_issues');
   nextId = 1;
 }
