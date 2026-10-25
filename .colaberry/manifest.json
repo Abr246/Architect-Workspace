@@ -24,7 +24,7 @@
     },
     {
       "path": "artifacts/INDEX.md",
-      "sha256": "abbffdd24cbaec76f78305d7558e183cc13280c1c169fdc74322be85e4095c7f"
+      "sha256": "7dee303958351cfca4aca51c7f8a6deee9502c05bce1995cb9374a7d4b3edc3b"
     },
     {
       "path": "artifacts/week-01/project-overview.md",
@@ -61,6 +61,10 @@
     {
       "path": "artifacts/week-09/readme.md",
       "sha256": "85681f7b82ec5198ebafe02563d46945541b9b560dea9fd1209fd79ccb630872"
+    },
+    {
+      "path": "artifacts/week-10/progress.md",
+      "sha256": "96e0f836fa6310dcaf2594fb08408140c1eeb7c50d5d548d60243cd9aa6d5d34"
     },
     {
       "path": "docs/DATA_CONTRACT.md",
