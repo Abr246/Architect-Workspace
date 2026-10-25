@@ -48,4 +48,26 @@ describe('GET /api/audit-trail', () => {
     expect(res.status).toBe(200);
     expect(res.body.entries).toEqual([]);
   });
+
+  it('filters by entityType', async () => {
+    const app = createApp();
+    await request(app).post('/api/bookings').send(validBooking);
+    await request(app)
+      .post('/api/assistant/ask')
+      .send({ customerName: 'Mia', question: 'How much is Riverside Pitch?' });
+
+    const res = await request(app).get('/api/audit-trail?entityType=ai_interaction');
+
+    expect(res.status).toBe(200);
+    expect(res.body.entries).toHaveLength(1);
+    expect(res.body.entries[0].entityType).toBe('ai_interaction');
+  });
+
+  it('returns 400 for an invalid entityType filter', async () => {
+    const app = createApp();
+    const res = await request(app).get('/api/audit-trail?entityType=not-a-real-type');
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
 });

@@ -1,3 +1,5 @@
+import { db, nextSequenceNumber } from '../db/connection';
+
 // STORY-012 widened both unions to admit scheduling issues alongside
 // bookings, STORY-003 widened them again for AI assistant interactions,
 // STORY-009 widens them once more for the AI-or-human customer service
@@ -26,11 +28,36 @@ export interface RecordAuditEntryInput {
   details: Record<string, unknown>;
 }
 
+interface AuditEntryRow {
+  id: string;
+  entity_type: AuditEntityType;
+  entity_id: string;
+  action: AuditAction;
+  actor: string;
+  timestamp: string;
+  details: string;
+}
+
+function rowToEntry(row: AuditEntryRow): AuditEntry {
+  return {
+    id: row.id,
+    entityType: row.entity_type,
+    entityId: row.entity_id,
+    action: row.action,
+    actor: row.actor,
+    timestamp: row.timestamp,
+    details: JSON.parse(row.details) as Record<string, unknown>,
+  };
+}
+
 // The audit trail itself — a structured, queryable record, distinct from
 // the console logging STORY-001/002/004 already do. Console output isn't
 // "accessible for verification" in any structured sense; this is.
-let entries: AuditEntry[] = [];
-let nextId = 1;
+let nextId = nextSequenceNumber('audit_entries', 'audit');
+
+const insertEntry = db.prepare(
+  'INSERT INTO audit_entries (id, entity_type, entity_id, action, actor, timestamp, details) VALUES (@id, @entityType, @entityId, @action, @actor, @timestamp, @details)',
+);
 
 export function recordAuditEntry(input: RecordAuditEntryInput): AuditEntry {
   const entry: AuditEntry = {
@@ -38,17 +65,34 @@ export function recordAuditEntry(input: RecordAuditEntryInput): AuditEntry {
     ...input,
     timestamp: new Date().toISOString(),
   };
-  entries.push(entry);
+  insertEntry.run({ ...entry, details: JSON.stringify(entry.details) });
   return entry;
 }
 
-export function listAuditEntries(entityId?: string): AuditEntry[] {
-  if (!entityId) return [...entries];
-  return entries.filter((e) => e.entityId === entityId);
+// entityType is a second, independent optional filter (not a breaking
+// change to the existing entityId-only signature - every current caller
+// still compiles and behaves identically) so a staff-facing view can ask
+// "every ai_interaction" without needing to know any specific entityId.
+export function listAuditEntries(entityId?: string, entityType?: AuditEntityType): AuditEntry[] {
+  const conditions: string[] = [];
+  const params: Record<string, string> = {};
+
+  if (entityId) {
+    conditions.push('entity_id = @entityId');
+    params.entityId = entityId;
+  }
+  if (entityType) {
+    conditions.push('entity_type = @entityType');
+    params.entityType = entityType;
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const rows = db.prepare(`SELECT * FROM audit_entries ${whereClause} ORDER BY rowid ASC`).all(params) as AuditEntryRow[];
+  return rows.map(rowToEntry);
 }
 
-// Test-only: reset the in-memory store between test cases.
+// Test-only: reset the store between test cases.
 export function resetAuditTrail(): void {
-  entries = [];
+  db.exec('DELETE FROM audit_entries');
   nextId = 1;
 }
