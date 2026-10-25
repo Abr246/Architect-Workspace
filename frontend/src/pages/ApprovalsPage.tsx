@@ -32,25 +32,29 @@ export function ApprovalsPage() {
   }
 
   if (state === 'loading') {
-    return <p>Loading pending approvals…</p>;
+    return <p className="gk-status">Loading pending approvals…</p>;
   }
 
   if (state === 'error') {
     return <p role="alert">Couldn't load pending approvals right now. Please try again shortly.</p>;
   }
 
-  if (escalations.length === 0) {
-    return <p>No refunds or complaints are waiting for approval.</p>;
-  }
-
   return (
-    <div>
+    <div className="gk-page">
       <h1>Pending approvals</h1>
-      <ul>
-        {escalations.map((escalation) => (
-          <EscalationCard key={escalation.id} escalation={escalation} onDecided={handleDecided} />
-        ))}
-      </ul>
+      {escalations.length === 0 ? (
+        <div className="gk-empty-state">
+          <span className="gk-empty-state__icon gk-empty-state__icon--success" aria-hidden="true">✓</span>
+          <h3>All caught up</h3>
+          <p>No refunds or complaints are waiting for approval.</p>
+        </div>
+      ) : (
+        <ul className="gk-list">
+          {escalations.map((escalation) => (
+            <EscalationCard key={escalation.id} escalation={escalation} onDecided={handleDecided} />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

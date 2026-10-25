@@ -51,7 +51,7 @@ describe('ApprovalsPage', () => {
     expect(screen.queryByText(/^complaint$/i)).not.toBeInTheDocument();
   });
 
-  it('shows an empty state when nothing is pending', async () => {
+  it('shows an empty state when nothing is pending, without losing the page title', async () => {
     mockFetchJsonOnce({ escalations: [] });
 
     render(<ApprovalsPage />);
@@ -59,6 +59,9 @@ describe('ApprovalsPage', () => {
     await waitFor(() => {
       expect(screen.getByText(/no refunds or complaints/i)).toBeInTheDocument();
     });
+    // Regression: the empty case used to bypass the page wrapper entirely,
+    // so the heading disappeared along with the list.
+    expect(screen.getByRole('heading', { name: 'Pending approvals' })).toBeInTheDocument();
   });
 
   it('approving an escalation removes it from the list', async () => {
