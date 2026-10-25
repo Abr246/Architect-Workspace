@@ -20,6 +20,19 @@ export async function fetchOpenIssues(): Promise<SchedulingIssue[]> {
   return data.issues as SchedulingIssue[];
 }
 
+// Unlike fetchOpenIssues, this returns both open and resolved issues - the
+// route already supported this (no status filter = everything); this is
+// just the first frontend caller to ask for it, for a "Resolved" filter and
+// a "both" view.
+export async function fetchAllSchedulingIssues(): Promise<SchedulingIssue[]> {
+  const res = await fetch('/api/scheduling-issues');
+  if (!res.ok) {
+    throw new Error(`Failed to load scheduling issues (status ${res.status})`);
+  }
+  const data = await res.json();
+  return data.issues as SchedulingIssue[];
+}
+
 export type ResolveResult =
   | { status: 'resolved'; issue: SchedulingIssue }
   | { status: 'notfound'; message: string }

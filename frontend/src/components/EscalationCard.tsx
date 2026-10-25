@@ -51,26 +51,44 @@ export function EscalationCard({ escalation, onDecided }: Props) {
   }
 
   return (
-    <li>
-      <form onSubmit={handleSubmit}>
-        <p>
-          <strong>{escalationTypeLabel(escalation.type)}</strong> from {escalation.customerName}
-        </p>
+    <li className="gk-card">
+      <form className="gk-form" onSubmit={handleSubmit}>
+        <div className="gk-card-row">
+          <p>
+            <strong>{escalationTypeLabel(escalation.type)}</strong> from {escalation.customerName}
+          </p>
+          <span className="gk-badge gk-badge--warning">
+            <span className="gk-badge__dot" aria-hidden="true" />
+            Awaiting decision
+          </span>
+        </div>
         <p>{escalation.description}</p>
-        <label>
+        <label className="gk-field">
           Decided by
           <input type="text" value={decidedBy} onChange={(e) => setDecidedBy(e.target.value)} required />
         </label>
-        <label>
+        <label className="gk-field">
           Notes (optional)
           <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} />
         </label>
-        <button type="button" disabled={submitting || !decidedBy} onClick={() => handleDecision('approved')}>
-          Approve
-        </button>
-        <button type="button" disabled={submitting || !decidedBy} onClick={() => handleDecision('denied')}>
-          Deny
-        </button>
+        <div className="gk-form-actions">
+          <button
+            type="button"
+            className="gk-button gk-button--primary"
+            disabled={submitting || !decidedBy}
+            onClick={() => handleDecision('approved')}
+          >
+            Approve
+          </button>
+          <button
+            type="button"
+            className="gk-button gk-button--danger"
+            disabled={submitting || !decidedBy}
+            onClick={() => handleDecision('denied')}
+          >
+            Deny
+          </button>
+        </div>
         {error && <p role="alert">{error}</p>}
       </form>
     </li>

@@ -22,6 +22,18 @@ export async function fetchPendingEscalations(): Promise<Escalation[]> {
   return data.escalations as Escalation[];
 }
 
+// Unlike fetchPendingEscalations, this returns every status (pending,
+// approved, denied) - for a staff view that needs to show what became of
+// something already decided, not just what's still waiting.
+export async function fetchAllEscalations(): Promise<Escalation[]> {
+  const res = await fetch('/api/escalations');
+  if (!res.ok) {
+    throw new Error(`Failed to load escalations (status ${res.status})`);
+  }
+  const data = await res.json();
+  return data.escalations as Escalation[];
+}
+
 export type DecisionOutcome = 'approved' | 'denied';
 
 export type DecisionResult =
