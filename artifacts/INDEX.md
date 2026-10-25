@@ -13,5 +13,6 @@ week by week. Each row links to the artifact in this repo.
 | Week 6 | Build Your Production MCP Server — ADR-001-transport-selection.md | [`adr-001-transport-selection.md`](./week-06/adr-001-transport-selection.md) | GoalKick | 5 KB |
 | Week 7 | Build Your Subagent Integration — directive-writer.md | [`directive-writer.md`](./week-07/directive-writer.md) | GoalKick | 4 KB |
 | Week 8 | Build Your Automation Platform — close-out-story.md | [`close-out-story.md`](./week-08/close-out-story.md) | GoalKick | 6 KB |
+| Week 9 | Build — The Order Desk That Survives a Bad Vendor — README.md | [`readme.md`](./week-09/readme.md) | GoalKick | 635 B |
 
-8 artifacts.
+9 artifacts.
