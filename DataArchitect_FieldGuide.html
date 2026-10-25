@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Architect Field Guide — Project Beacon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cherry:#FB2832; --berry:#367895; --leaf:#5BA63C; --amber:#E8920C;
+  --text:#1A1A1A; --muted:#6B6B6B; --border:#E4E4E3; --surface:#FFFFFF; --surface-alt:#F8F8F7;
+  --bg:#FFFFFF; --shadow: 0 1px 3px rgba(26,26,26,.08), 0 1px 2px rgba(26,26,26,.06);
+  --font-body:'Roboto',system-ui,Arial,sans-serif; --font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;
+  --radius:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+    --text:#EDEDED; --muted:#9A9A9A; --border:#2A2A2A; --surface:#161616; --surface-alt:#1B1B1B; --bg:#0F0F0F;
+    --shadow: 0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+  --text:#EDEDED; --muted:#9A9A9A; --border:#2A2A2A; --surface:#161616; --surface-alt:#1B1B1B; --bg:#0F0F0F;
+  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.55;}
+h1,h2,h3,h4{font-family:var(--font-body);color:var(--berry);font-weight:700;line-height:1.25;}
+code,pre,.mono,.doc-control td,table.data td.mono{font-family:var(--font-mono);}
+a{color:var(--berry);}
+p{margin:.6em 0;}
+.muted{color:var(--muted);}
+button{font-family:var(--font-body);cursor:pointer;}
+
+/* ---------- header ---------- */
+header.topbar{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:16px;
+  padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+}
+header.topbar img.logo{height:38px;display:block;}
+header.topbar .title-block{display:flex;flex-direction:column;line-height:1.15;margin-right:auto;}
+header.topbar .title-block .t1{font-weight:700;font-size:15px;color:var(--berry);}
+header.topbar .title-block .t2{font-size:11px;color:var(--muted);letter-spacing:.02em;}
+.search-wrap{position:relative;width:min(360px,40vw);}
+.search-wrap input{
+  width:100%;padding:9px 12px 9px 34px;border:1px solid var(--border);border-radius:20px;
+  background:var(--surface-alt);color:var(--text);font-size:13.5px;
+}
+.search-wrap input:focus{outline:2px solid var(--berry);outline-offset:1px;}
+.search-wrap .icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
+.search-results{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);max-height:360px;overflow:auto;display:none;z-index:60;
+}
+.search-results.show{display:block;}
+.search-results .res{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;}
+.search-results .res:last-child{border-bottom:none;}
+.search-results .res:hover{background:var(--surface-alt);}
+.search-results .res .rt{font-weight:700;font-size:13px;color:var(--berry);}
+.search-results .res .rs{font-size:12px;color:var(--muted);margin-top:2px;}
+.search-results .empty{padding:14px;color:var(--muted);font-size:13px;}
+.theme-btn{
+  border:1px solid var(--border);background:var(--surface-alt);color:var(--text);border-radius:18px;
+  padding:7px 12px;font-size:12px;white-space:nowrap;
+}
+
+/* ---------- layout ---------- */
+.layout{display:grid;grid-template-columns:250px 1fr;max-width:1400px;margin:0 auto;}
+nav.sidebar{
+  position:sticky;top:59px;align-self:start;height:calc(100vh - 59px);overflow-y:auto;
+  border-right:1px solid var(--border);padding:18px 10px 40px;background:var(--surface);
+}
+nav.sidebar .grp-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+  font-weight:700;margin:18px 10px 6px;}
+nav.sidebar .grp-label:first-child{margin-top:4px;}
+nav.sidebar a{
+  display:block;padding:7px 10px;border-radius:6px;color:var(--text);text-decoration:none;font-size:13px;
+  border-left:3px solid transparent;
+}
+nav.sidebar a .num{color:var(--muted);font-family:var(--font-mono);font-size:11px;margin-right:4px;}
+nav.sidebar a:hover{background:var(--surface-alt);}
+nav.sidebar a.active{background:var(--surface-alt);border-left-color:var(--cherry);color:var(--berry);font-weight:700;}
+main{padding:28px 32px 80px;min-width:0;}
+
+/* ---------- ask assistant ---------- */
+.ask-panel{
+  border:1px solid var(--border);border-radius:12px;background:var(--surface-alt);padding:20px 22px;margin-bottom:28px;
+}
+.ask-panel h2{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:8px;}
+.ask-panel .sub{color:var(--muted);font-size:13px;margin-bottom:12px;}
+.ask-row{display:flex;gap:10px;}
+.ask-row input{flex:1;padding:11px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:14px;}
+.ask-row button{background:var(--cherry);color:#fff;border:none;border-radius:8px;padding:0 20px;font-weight:700;font-size:13.5px;}
+.ask-row button:hover{filter:brightness(1.06);}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;}
+.chip{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:5px 11px;font-size:12px;color:var(--berry);}
+.chip:hover{background:var(--surface-alt);}
+.ask-answer{margin-top:14px;padding:14px 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:none;}
+.ask-answer.show{display:block;}
+.ask-answer .aa-src{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--leaf);font-weight:700;margin-bottom:5px;}
+.ask-answer .aa-text{font-size:13.5px;}
+.ask-answer a.jump{font-size:12.5px;font-weight:700;}
+
+/* ---------- sections & doc cards ---------- */
+section.topic{padding:30px 0;border-bottom:1px solid var(--border);scroll-margin-top:72px;}
+section.topic:last-of-type{border-bottom:none;}
+section.topic h2{font-size:22px;margin:0 0 4px;}
+section.topic .kicker{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:10px;}
+.flash{animation:flashbg 1.6s ease;}
+@keyframes flashbg{0%{background:rgba(251,40,50,.12);}100%{background:transparent;}}
+
+table.data{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0;}
+table.data th{background:var(--berry);color:#fff;text-align:left;padding:8px 10px;font-weight:700;font-size:12px;}
+table.data td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.data tr:nth-child(even) td{background:var(--surface-alt);}
+table.data caption{text-align:left;font-weight:700;color:var(--berry);padding:6px 0;font-size:13px;}
+.pii-yes{color:var(--cherry);font-weight:700;}
+.pii-no{color:var(--leaf);}
+.sev-High{color:var(--cherry);font-weight:700;}
+.sev-Medium{color:var(--amber);font-weight:700;}
+.sev-Low{color:var(--leaf);font-weight:700;}
+
+.callout{border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13.5px;border:1px solid;}
+.callout.note{border-color:var(--berry);background:rgba(54,120,149,.08);}
+.callout.warn{border-color:var(--amber);background:rgba(232,146,12,.10);}
+.callout.good{border-color:var(--leaf);background:rgba(91,166,60,.10);}
+.callout b{display:block;margin-bottom:3px;text-transform:uppercase;font-size:11px;letter-spacing:.06em;}
+.callout.note b{color:var(--berry);}
+.callout.warn b{color:var(--amber);}
+.callout.good b{color:var(--leaf);}
+
+pre.code{background:#1A1A1A;color:#EDEDED;border-radius:8px;padding:16px 18px;overflow-x:auto;font-size:12.5px;font-family:var(--font-mono);line-height:1.55;}
+pre.code .cm{color:#8AC759;}
+:root[data-theme="dark"] pre.code, :root:not([data-theme="light"]) pre.code{background:#000;}
+
+.doc-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;}
+.doc-toolbar button{border:1px solid var(--border);background:var(--surface);color:var(--berry);border-radius:7px;
+  padding:8px 14px;font-size:12.5px;font-weight:700;}
+.doc-toolbar button.primary{background:var(--cherry);color:#fff;border-color:var(--cherry);}
+.doc-toolbar button:hover{filter:brightness(1.05);}
+.doc-meta-strip{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;font-size:12.5px;}
+.doc-meta-strip div{padding:8px 14px;border-right:1px solid var(--border);background:var(--surface-alt);}
+.doc-meta-strip div:last-child{border-right:none;}
+.doc-meta-strip b{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+.doc-export-body{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px 26px;}
+.doc-export-body h3{font-size:16px;margin-top:22px;}
+.doc-export-body h3:first-child{margin-top:0;}
+.doc-export-body h4{font-size:13.5px;color:var(--text);margin-bottom:4px;}
+
+.cardinality-row{display:grid;grid-template-columns:1fr 60px 1fr 2fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
+.cardinality-row.head{font-weight:700;color:var(--muted);text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;}
+.card-badge{display:inline-block;background:var(--surface-alt);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-family:var(--font-mono);font-weight:700;color:var(--berry);text-align:center;}
+
+svg.diagram{width:100%;height:auto;display:block;}
+.diagram-box{fill:var(--surface-alt);stroke:var(--berry);stroke-width:1.5;}
+.diagram-box-ref{fill:var(--surface);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 3;}
+.diagram-box-fact{fill:var(--berry);stroke:var(--berry);}
+.diagram-title{fill:var(--berry);font-weight:700;font-family:var(--font-body);}
+.diagram-title-fact{fill:#fff;font-weight:700;font-family:var(--font-body);}
+.diagram-text{fill:var(--text);font-family:var(--font-mono);}
+.diagram-text-ref{fill:var(--muted);font-family:var(--font-mono);}
+.diagram-line{stroke:var(--berry);stroke-width:1.4;fill:none;}
+.diagram-line-dash{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:5 4;}
+.diagram-stage{fill:var(--surface-alt);stroke:var(--berry);stroke-width:1.6;}
+.diagram-stage-alt{fill:var(--berry);stroke:var(--berry);}
+.diagram-cap{fill:var(--muted);font-family:var(--font-body);font-size:10px;}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:16px 0 22px;}
+.kpi-tile{border:1px solid var(--border);border-radius:10px;padding:16px 18px;background:var(--surface);}
+.kpi-tile .kl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+.kpi-tile .kv{font-size:26px;font-weight:900;color:var(--berry);font-family:var(--font-mono);margin:4px 0;}
+.kpi-tile .kd{font-size:12px;font-weight:700;}
+.kpi-tile .kd.up-good{color:var(--leaf);}
+.kpi-tile .kd.up-bad{color:var(--amber);}
+.kpi-tile .kd.down-good{color:var(--leaf);}
+.chart-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin:18px 0;}
+.chart-card{border:1px solid var(--border);border-radius:10px;padding:16px 18px;background:var(--surface);}
+.chart-card h4{margin:0 0 10px;font-size:13px;color:var(--text);}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:11.5px;}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block;}
+
+footer.site{padding:28px 32px 60px;color:var(--muted);font-size:12px;text-align:center;border-top:1px solid var(--border);margin-top:20px;}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  nav.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .chart-grid{grid-template-columns:1fr;}
+  .search-wrap{width:100%;}
+}
+@media print{
+  header.topbar,nav.sidebar,.ask-panel,.doc-toolbar,footer.site{display:none !important;}
+  .layout{display:block;}
+  main{padding:0;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <img class="logo" alt="Colaberry" src="data:image/png;base64,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">
+  <div class="title-block">
+    <span class="t1">Data Architect Field Guide</span>
+    <span class="t2">Colaberry Enterprise AI Leadership Accelerator — Project Beacon</span>
+  </div>
+  <div class="search-wrap">
+    <span class="icon">&#128269;</span>
+    <input id="searchInput" type="text" placeholder="Search the guide (e.g. idempotent, PII, star schema)&hellip;" autocomplete="off">
+    <div id="searchResults" class="search-results"></div>
+  </div>
+  <button class="theme-btn" id="themeToggle" type="button">Dark mode</button>
+</header>
+
+<div class="layout">
+<nav class="sidebar" id="sideNav">
+  <div class="grp-label">Foundations</div>
+  <a href="#overview" data-id="overview"><span class="num">00</span>Initiative Overview</a>
+  <a href="#f-cvlvp" data-id="f-cvlvp"><span class="num">01</span>Conceptual · Logical · Physical</a>
+  <a href="#f-erd" data-id="f-erd"><span class="num">02</span>Entities, Relationships &amp; ERD</a>
+  <a href="#f-norm" data-id="f-norm"><span class="num">03</span>Normalization vs Denormalization</a>
+  <a href="#f-oltp-olap" data-id="f-oltp-olap"><span class="num">04</span>OLTP vs OLAP, Warehouse vs Lake</a>
+  <a href="#f-etl-elt" data-id="f-etl-elt"><span class="num">05</span>ETL vs ELT &amp; Pipelines</a>
+  <a href="#f-quality-lineage" data-id="f-quality-lineage"><span class="num">06</span>Data Quality &amp; Lineage</a>
+  <a href="#f-master" data-id="f-master"><span class="num">07</span>Master Data &amp; Dictionary</a>
+  <a href="#f-governance" data-id="f-governance"><span class="num">08</span>Governance, PII &amp; Retention</a>
+  <a href="#f-schema-evo" data-id="f-schema-evo"><span class="num">09</span>Schema Evolution</a>
+  <a href="#f-review" data-id="f-review"><span class="num">10</span>Good vs Bad Design &amp; Review Lens</a>
+
+  <div class="grp-label">Project Beacon Documents</div>
+  <a href="#doc-model" data-id="doc-model"><span class="num">D1</span>Data Model &amp; ERD</a>
+  <a href="#doc-dictionary" data-id="doc-dictionary"><span class="num">D2</span>Data Dictionary</a>
+  <a href="#doc-ddl" data-id="doc-ddl"><span class="num">D3</span>Physical Schema / DDL</a>
+  <a href="#doc-pipeline" data-id="doc-pipeline"><span class="num">D4</span>Pipeline (ETL/ELT) Design</a>
+  <a href="#doc-quality" data-id="doc-quality"><span class="num">D5</span>Data Quality Rules</a>
+  <a href="#doc-governance" data-id="doc-governance"><span class="num">D6</span>Governance &amp; Retention Policy</a>
+  <a href="#doc-storage" data-id="doc-storage"><span class="num">D7</span>Storage &amp; Retention Strategy</a>
+  <a href="#doc-lineage" data-id="doc-lineage"><span class="num">D8</span>Data Lineage Map</a>
+  <a href="#doc-master" data-id="doc-master"><span class="num">D9</span>Master &amp; Reference Data</a>
+</nav>
+
+<main>
+
+<div class="ask-panel">
+  <h2>Ask the Field Guide</h2>
+  <div class="sub">Offline Q&amp;A — matches your question to the most relevant section of this guide. No external API; every answer is pulled from the content below.</div>
+  <form id="askForm" class="ask-row">
+    <input id="askInput" type="text" placeholder="e.g. What makes a pipeline idempotent? Where is PII stored? What's a star schema?" autocomplete="off">
+    <button type="submit">Ask</button>
+  </form>
+  <div class="chips">
+    <span class="chip">What is idempotency?</span>
+    <span class="chip">ETL vs ELT?</span>
+    <span class="chip">Where is PII classified?</span>
+    <span class="chip">What is a star schema?</span>
+    <span class="chip">How long are claims retained?</span>
+    <span class="chip">What is a golden record?</span>
+  </div>
+  <div id="askAnswer" class="ask-answer"></div>
+</div>
+
+<section class="topic searchable" id="overview">
+  <div class="kicker">The Scenario You Will Direct, Evaluate &amp; Approve</div>
+  <h2>Project Beacon — Meridian Auto Insurance</h2>
+  <p><b>Meridian Auto Insurance</b> is a mid-size regional auto carrier writing policies across 14 states. Today, policy issuance lives in <span class="mono">PolicyAdmin</span> (a legacy Postgres system), claims handling lives in a separate <span class="mono">ClaimsSystem</span>, and premium collection runs through a third-party <span class="mono">PaymentGateway</span>. Underwriting, Finance, and the state Departments of Insurance each pull numbers that don't reconcile, because each pulls from a different source with a different definition of "premium" or "open claim."</p>
+  <p><b>Project Beacon</b> is the initiative to unify Policies, Claims, and Payments into one governed enterprise data warehouse — with a documented model, a single data dictionary, enforced quality rules, traceable lineage, and a retention policy that satisfies state insurance regulators. You are the <b>AI Solution Architect</b> on this initiative. You will not hand-write the pipeline code — an AI coding agent will. Your job is to direct what gets built, evaluate whether the generated model and pipeline are correct, and approve (or reject) the result before it touches production. The nine documents in this guide are the artifacts you use to do that.</p>
+  <div class="callout note"><b>Why this matters to you specifically</b>An AI agent will happily generate a schema, a pipeline, and a dashboard in minutes. It will not tell you, unprompted, that it forgot a foreign key, left a PII field unclassified, or built a pipeline that double-counts claim payments on retry. That is the ~20% of data architecture this guide exists to teach: enough to catch it.</div>
+
+  <div class="kpi-row">
+    <div class="kpi-tile"><div class="kl">Total Written Premium</div><div class="kv">$184.6M</div><div class="kd up-good">&#9650; 4.2% vs prior quarter</div></div>
+    <div class="kpi-tile"><div class="kl">Loss Ratio</div><div class="kv">61.3%</div><div class="kd down-good">&#9660; 1.8 pts vs prior quarter</div></div>
+    <div class="kpi-tile"><div class="kl">Open Claims</div><div class="kv">1,284</div><div class="kd up-bad">&#9650; 6.1% vs prior quarter</div></div>
+    <div class="kpi-tile"><div class="kl">Data Quality Pass Rate</div><div class="kv">98.7%</div><div class="kd up-good">&#9650; 0.4 pts vs prior quarter</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>Claims by Coverage Type (trailing 12 months)</h4>
+      <svg class="diagram" viewBox="0 0 400 240" role="img" aria-label="Bar chart of claims by coverage type">
+        <line x1="20" y1="200" x2="380" y2="200" class="diagram-line"/>
+        <rect x="30" y="40" width="55" height="160" class="diagram-stage-alt"/>
+        <text x="57.5" y="33" text-anchor="middle" class="diagram-text" font-size="11" font-weight="700">412</text>
+        <text x="57.5" y="216" text-anchor="middle" class="diagram-cap">Liability</text>
+        <rect x="115" y="62" width="55" height="138" class="diagram-stage-alt"/>
+        <text x="142.5" y="55" text-anchor="middle" class="diagram-text" font-size="11" font-weight="700">356</text>
+        <text x="142.5" y="216" text-anchor="middle" class="diagram-cap">Collision</text>
+        <rect x="200" y="84" width="55" height="116" class="diagram-stage-alt"/>
+        <text x="227.5" y="77" text-anchor="middle" class="diagram-text" font-size="11" font-weight="700">298</text>
+        <text x="227.5" y="216" text-anchor="middle" class="diagram-cap">Comprehensive</text>
+        <rect x="285" y="115" width="55" height="85" class="diagram-stage-alt"/>
+        <text x="312.5" y="108" text-anchor="middle" class="diagram-text" font-size="11" font-weight="700">218</text>
+        <text x="312.5" y="216" text-anchor="middle" class="diagram-cap">UM / UIM</text>
+      </svg>
+    </div>
+    <div class="chart-card">
+      <h4>Claim Status Distribution</h4>
+      <svg class="diagram" viewBox="0 0 200 200" role="img" aria-label="Donut chart of claim status distribution">
+        <g transform="rotate(-90 100 100)">
+          <circle cx="100" cy="100" r="70" fill="none" stroke="var(--berry)" stroke-width="32" stroke-dasharray="96.76 343.06" stroke-dashoffset="0"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="var(--amber)" stroke-width="32" stroke-dasharray="79.17 360.65" stroke-dashoffset="-96.76"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="var(--leaf)" stroke-width="32" stroke-dasharray="52.78 387.04" stroke-dashoffset="-175.93"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="var(--cherry)" stroke-width="32" stroke-dasharray="35.19 404.63" stroke-dashoffset="-228.71"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="var(--muted)" stroke-width="32" stroke-dasharray="175.93 263.89" stroke-dashoffset="-263.90"/>
+        </g>
+        <text x="100" y="96" text-anchor="middle" class="diagram-text" font-size="20" font-weight="900">1,284</text>
+        <text x="100" y="114" text-anchor="middle" class="diagram-cap">open claims</text>
+      </svg>
+      <div class="legend">
+        <span><i style="background:var(--berry)"></i>Open 22%</span>
+        <span><i style="background:var(--amber)"></i>Under Review 18%</span>
+        <span><i style="background:var(--leaf)"></i>Approved 12%</span>
+        <span><i style="background:var(--cherry)"></i>Denied 8%</span>
+        <span><i style="background:var(--muted)"></i>Closed 40%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <h4>Monthly Loss Ratio Trend</h4>
+    <svg class="diagram" viewBox="0 0 400 220" role="img" aria-label="Line chart of monthly loss ratio trend">
+      <line x1="20" y1="180" x2="390" y2="180" class="diagram-line"/>
+      <line x1="20" y1="20" x2="20" y2="180" class="diagram-line"/>
+      <text x="14" y="24" text-anchor="end" class="diagram-cap">80%</text>
+      <text x="14" y="102" text-anchor="end" class="diagram-cap">40%</text>
+      <text x="14" y="184" text-anchor="end" class="diagram-cap">0%</text>
+      <polyline points="30,64 61,56 92,50 123,60 154,66 185,62 216,54 247,44 278,52 309,58 340,62 371,58" fill="none" stroke="var(--berry)" stroke-width="2.5"/>
+      <g fill="var(--berry)">
+        <circle cx="30" cy="64" r="3"/><circle cx="61" cy="56" r="3"/><circle cx="92" cy="50" r="3"/><circle cx="123" cy="60" r="3"/>
+        <circle cx="154" cy="66" r="3"/><circle cx="185" cy="62" r="3"/><circle cx="216" cy="54" r="3"/><circle cx="247" cy="44" r="3"/>
+        <circle cx="278" cy="52" r="3"/><circle cx="309" cy="58" r="3"/><circle cx="340" cy="62" r="3"/><circle cx="371" cy="58" r="3"/>
+      </g>
+      <text x="30" y="196" text-anchor="middle" class="diagram-cap">Jan</text><text x="92" y="196" text-anchor="middle" class="diagram-cap">Mar</text>
+      <text x="154" y="196" text-anchor="middle" class="diagram-cap">May</text><text x="216" y="196" text-anchor="middle" class="diagram-cap">Jul</text>
+      <text x="278" y="196" text-anchor="middle" class="diagram-cap">Sep</text><text x="340" y="196" text-anchor="middle" class="diagram-cap">Nov</text>
+    </svg>
+  </div>
+</section>
+
+<section class="topic searchable" id="f-cvlvp">
+  <div class="kicker">Foundations · 01</div>
+  <h2>Conceptual, Logical &amp; Physical Models</h2>
+  <p>Every real data model is written three times, at three altitudes, and an AI agent that skips straight to the third one is the most common failure mode you will need to catch.</p>
+  <p><b>Conceptual model</b> — business language, no columns, no types. For Beacon: "A Policyholder holds Policies. A Policy insures Vehicles and carries Coverage. A Claim is filed against a Policy." This is what you review with underwriting and claims leadership; if they can't read it, it's wrong.</p>
+  <p><b>Logical model</b> — entities gain attributes, primary keys, and foreign keys, but still no vendor-specific types. This is where cardinality gets nailed down (see the next topic) and where you catch missing relationships before anyone writes SQL.</p>
+  <p><b>Physical model</b> — the logical model made real in a specific engine: <span class="mono">BIGSERIAL</span> vs <span class="mono">UUID</span>, actual <span class="mono">VARCHAR</span> lengths, indexes, partitioning, constraint syntax. This is <a href="#doc-ddl" data-target="doc-ddl">Document D3</a> in this guide.</p>
+  <div class="callout warn"><b>Review lens</b>If an AI agent hands you a physical schema (DDL) with no logical model behind it, that is your first red flag — you cannot evaluate "is this the right shape" from CREATE TABLE statements alone.</div>
+</section>
+
+<section class="topic searchable" id="f-erd">
+  <div class="kicker">Foundations · 02</div>
+  <h2>Entities, Relationships &amp; ERD Cardinality</h2>
+  <p>An <b>entity</b> is one real thing worth tracking on its own — Customer, Policy, Vehicle, Claim. A <b>relationship</b> connects two entities and always carries a <b>cardinality</b>: how many of one side can relate to how many of the other.</p>
+  <p>Crow's-foot notation reads from the entity outward: a single tick means "exactly one," a circle means "zero (optional)," and the three-pronged "crow's foot" means "many." A Policy-to-Vehicle relationship drawn as <span class="mono">1 — &#8916; </span> (one-to-many) means one policy can schedule many vehicles, but each vehicle row belongs to exactly one policy.</p>
+  <table class="data">
+    <thead><tr><th>Reading</th><th>Symbol</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>One and only one</td><td class="mono">—|—</td><td>Exactly one related row is required.</td></tr>
+      <tr><td>Zero or one</td><td class="mono">—o—</td><td>The relationship is optional on this side.</td></tr>
+      <tr><td>One or many</td><td class="mono">—&#8916;</td><td>At least one related row, no upper bound.</td></tr>
+      <tr><td>Zero or many</td><td class="mono">—o&#8916;</td><td>The relationship is optional and unbounded.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout good"><b>Why you check this first</b>Cardinality is the single fastest way to catch a wrong model. If an agent models Claim-to-Policy as one-to-one, every policyholder with two claims breaks the schema. See the full cardinality table in <a href="#doc-model" data-target="doc-model">Document D1</a>.</div>
+</section>
+
+<section class="topic searchable" id="f-norm">
+  <div class="kicker">Foundations · 03</div>
+  <h2>Normalization vs Denormalization</h2>
+  <p><b>Normalization</b> removes repeated and derivable data by splitting it into related tables, so every fact is stored exactly once. <b>Denormalization</b> deliberately re-introduces some repetition — usually by pre-joining or pre-aggregating — to make reads faster or simpler.</p>
+  <table class="data">
+    <thead><tr><th></th><th>Normalized (OLTP)</th><th>Denormalized (OLAP / reporting)</th></tr></thead>
+    <tbody>
+      <tr><td>Example</td><td class="mono">claim, policy, customer</td><td class="mono">fact_claim joined flat with policy &amp; customer attributes</td></tr>
+      <tr><td>Optimized for</td><td>Safe, fast writes; no update anomalies</td><td>Fast reads; fewer joins for BI tools</td></tr>
+      <tr><td>Risk if done wrong</td><td>Slow, join-heavy reads</td><td>Update anomalies, storage bloat, drift between copies</td></tr>
+    </tbody>
+  </table>
+  <p>The rule of thumb Beacon follows: <b>normalize the source of record (OLTP), denormalize the read layer (OLAP)</b> deliberately, through a controlled pipeline — never let denormalization happen by accident inside a transactional table.</p>
+  <div class="callout warn"><b>Anti-pattern to flag</b>A single "god table" with policy, vehicle, claim, and payment columns all in one row is not denormalization for performance — it's a missing model. Ask an agent to justify every denormalized table with a specific read pattern it serves.</div>
+</section>
+
+<section class="topic searchable" id="f-oltp-olap">
+  <div class="kicker">Foundations · 04</div>
+  <h2>OLTP vs OLAP, Warehouse vs Lake</h2>
+  <p><b>OLTP</b> (Online Transaction Processing) systems run the business moment to moment: PolicyAdmin writing a new policy, ClaimsSystem recording a payout. Rows are inserted and updated one at a time, normalized, and protected by ACID transactions.</p>
+  <p><b>OLAP</b> (Online Analytical Processing) systems answer questions across millions of rows at once: "what was our loss ratio by state last quarter." They favor read speed over write speed, and are usually organized as a <b>star schema</b> — one or more central <b>fact tables</b> (measurable events: a claim, a payment) surrounded by <b>dimension tables</b> (the who/what/when/where: policy, customer, vehicle, date) that facts join out to.</p>
+  <p>A <b>data warehouse</b> holds structured, modeled, schema-on-write data curated for a known set of business questions — Beacon's warehouse is exactly this. A <b>data lake</b> holds raw or semi-structured data (schema-on-read) at lower cost, useful for data science exploration before a shape is known. Beacon lands raw extracts in object storage (lake-like) before modeling them into the warehouse — see <a href="#doc-pipeline" data-target="doc-pipeline">Document D4</a>.</p>
+  <div class="callout note"><b>Review lens</b>If a "warehouse" an agent designed has no dimension tables and every fact table repeats fifteen descriptive columns, it's a wide flat file wearing a warehouse's name — ask for the star schema.</div>
+</section>
+
+<section class="topic searchable" id="f-etl-elt">
+  <div class="kicker">Foundations · 05</div>
+  <h2>ETL vs ELT &amp; Pipelines</h2>
+  <p><b>ETL</b> (Extract, Transform, Load) transforms data in flight, before it lands in the target — the classic pattern when compute is expensive and the warehouse is fragile. <b>ELT</b> (Extract, Load, Transform) lands raw data first, then transforms it inside the warehouse using its own compute — the dominant pattern now that warehouses are cheap and elastic. Beacon uses ELT: raw extracts land untouched, then dbt-style SQL models transform them into the curated star schema.</p>
+  <p>A pipeline is not one step, it's a chain of stages, and the stage boundaries are where correctness is won or lost: <b>extract</b> (pull from source), <b>validate</b> (structural and quality checks), <b>transform</b> (clean, conform, model), <b>load/publish</b> (make visible to consumers). See the full staged design in <a href="#doc-pipeline" data-target="doc-pipeline">Document D4</a>.</p>
+  <div class="callout warn"><b>The property you must always demand: idempotency</b>Running the same batch twice — because a job retried, or someone re-ran a backfill — must produce the exact same end state, not duplicate rows. This is done with natural/idempotency keys and <span class="mono">MERGE</span>/<span class="mono">UPSERT</span> semantics instead of blind <span class="mono">INSERT</span>. A pipeline that "works the first time" but duplicates claim payments on retry is not done — it's a production incident waiting for a network blip.</div>
+</section>
+
+<section class="topic searchable" id="f-quality-lineage">
+  <div class="kicker">Foundations · 06</div>
+  <h2>Data Quality &amp; Lineage</h2>
+  <p>Data quality is checked along four recurring dimensions: <b>validity</b> (is the value well-formed — a real state code, a 17-character VIN), <b>completeness</b> (are required fields populated), <b>uniqueness</b> (no accidental duplicates on a key that should be one-per-entity), and <b>consistency</b> (do related facts agree — a claim's date of loss can't be after it was reported). Beacon's full rule set, with severity and the action each rule triggers, is <a href="#doc-quality" data-target="doc-quality">Document D5</a>.</p>
+  <p><b>Lineage</b> answers a different question: for any number on a dashboard, where did it come from, through which transformation, from which source column? Without lineage, "why does the loss ratio look wrong" has no answer faster than reading every line of SQL in the pipeline. With it, you trace <span class="mono">fact_claim.paid_amount</span> straight back to <span class="mono">claim_payment.amount</span> in ClaimsSystem in one lookup — <a href="#doc-lineage" data-target="doc-lineage">Document D8</a>.</p>
+  <div class="callout good"><b>Review lens</b>Every field that appears on an executive dashboard should have a lineage row. A field you can't trace to a source is a field you can't defend to a regulator or an auditor.</div>
+</section>
+
+<section class="topic searchable" id="f-master">
+  <div class="kicker">Foundations · 07</div>
+  <h2>Master Data &amp; the Data Dictionary</h2>
+  <p><b>Master data</b> is the small set of core business entities that many systems need to agree on — at Beacon, that's the Customer identity. The Quote system, PolicyAdmin, and ClaimsSystem each capture a policyholder independently, sometimes with a typo'd name or an old address. <b>Master Data Management (MDM)</b> matches those records to a single <b>golden record</b> and gives every system a crosswalk back to it — detailed in <a href="#doc-master" data-target="doc-master">Document D9</a>.</p>
+  <p><b>Reference data</b> (or code sets) are the small, shared, centrally-stewarded lookup lists everyone must use the same way: state codes, coverage types, claim statuses. If PolicyAdmin and the warehouse ever disagree on what code <span class="mono">"CL"</span> means, every downstream number is wrong.</p>
+  <p>The <b>data dictionary</b> is the contract that makes any of this auditable: every field, its type, its plain-English meaning, its source, whether it's required, and whether it's PII — <a href="#doc-dictionary" data-target="doc-dictionary">Document D2</a>. If a field exists in the warehouse but not in the dictionary, that's an orphan column, and it should not ship.</p>
+</section>
+
+<section class="topic searchable" id="f-governance">
+  <div class="kicker">Foundations · 08</div>
+  <h2>Governance, PII &amp; Retention</h2>
+  <p><b>Governance</b> is the set of rules for who may access which data, under what conditions, for how long, and how it eventually gets deleted. It is not paperwork bolted on afterward — for an insurer, it is largely dictated by state Department of Insurance regulation and is as load-bearing as the schema itself.</p>
+  <p><b>PII</b> (Personally Identifiable Information) must be classified field-by-field, not table-by-table: <span class="mono">customer.city</span> is not PII on its own, but <span class="mono">customer.address_line1</span> is. Classification drives everything downstream — access tier, masking in BI tools, and retention clock. Beacon uses four tiers: Restricted, Confidential, Internal, Public — full definitions in <a href="#doc-governance" data-target="doc-governance">Document D6</a>.</p>
+  <p><b>Retention</b> is a promise with an expiration date on both ends: data must be kept long enough to satisfy regulatory and legal-hold requirements, and deleted once that window closes — indefinite retention "just in case" is itself a compliance and security liability.</p>
+  <div class="callout warn"><b>Review lens</b>Ask an AI-generated schema one question per PII field: "what is its retention period, and what deletes it?" If the agent can't answer, the field isn't governed, it's just stored.</div>
+</section>
+
+<section class="topic searchable" id="f-schema-evo">
+  <div class="kicker">Foundations · 09</div>
+  <h2>Schema Evolution</h2>
+  <p>Schemas change — Meridian will add a new coverage type, or ClaimsSystem will add a field for subrogation recovery. The question is whether that change is <b>backward-compatible</b>: adding a nullable column or a new reference code is safe; renaming a column, changing a type, or making a nullable field required breaks every consumer that hasn't been updated in lockstep.</p>
+  <p>Two patterns keep evolution safe: <b>additive-only changes</b> in the OLTP source (never repurpose a column's meaning — add a new one), and <b>Slowly Changing Dimensions (SCD Type 2)</b> in the warehouse, which version a dimension row instead of overwriting it — so a policy's state at the time of a claim is preserved even after the customer later moves.</p>
+  <div class="callout note"><b>Review lens</b>A pipeline that fails outright when a new, unexpected column appears in the source is safer than one that silently drops or misaligns it. "Fail loud on the unexpected" beats "guess and continue."</div>
+</section>
+
+<section class="topic searchable" id="f-review">
+  <div class="kicker">Foundations · 10</div>
+  <h2>Good vs Bad Design, KPIs &amp; the Review Lens</h2>
+  <table class="data">
+    <thead><tr><th>Signal</th><th>Good design</th><th>Bad design</th></tr></thead>
+    <tbody>
+      <tr><td>Entities</td><td>One entity per real-world thing, with a stable key</td><td>One giant table mixing policy, vehicle, and claim columns</td></tr>
+      <tr><td>Relationships</td><td>Every relationship states its cardinality and is enforced by a FK</td><td>Relationships implied by naming convention only, no constraint</td></tr>
+      <tr><td>Normal form</td><td>Normalized where written (OLTP), denormalized only for known reads (OLAP)</td><td>Denormalized everywhere "to be safe," or normalized in a reporting layer nobody can query</td></tr>
+      <tr><td>Fields</td><td>Every field defined in the data dictionary and traceable to a source</td><td>Orphan columns nobody can explain</td></tr>
+      <tr><td>Pipelines</td><td>Idempotent, retried safely, quarantines bad rows</td><td>Re-running a job duplicates or silently drops data</td></tr>
+      <tr><td>PII</td><td>Classified per field, access-tiered, retention-dated</td><td>PII mixed in with public fields, no access control</td></tr>
+    </tbody>
+  </table>
+  <p>The KPIs that tell you whether Beacon's data foundation is healthy, independent of any single dashboard number: <b>schema conformance rate</b> (% of loaded rows matching the declared contract), <b>data quality pass rate</b>, <b>lineage coverage</b> (% of reported fields with a documented source), <b>pipeline SLA adherence</b>, and <b>PII classification coverage</b> (% of fields with a governance tag).</p>
+  <div class="callout good"><b>Your review checklist as AI Solution Architect</b>1. Does the conceptual model match the business in plain language? 2. Does every relationship have a stated, enforced cardinality? 3. Is every field in the dictionary, with PII classified? 4. Is the pipeline idempotent and does it have a documented failure path? 5. Does retention have both a start and an end?</div>
+</section>
+
+<section class="topic searchable" id="doc-model"
+  data-doc-title="Data Model & Entity-Relationship Diagram"
+  data-doc-subtitle="Conceptual, Logical & Physical Views — Policies, Vehicles, Coverage, Claims & Payments"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D1</div>
+  <h2>Data Model &amp; Entity-Relationship Diagram</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-model')">Download HTML</button>
+    <button onclick="printDoc('doc-model')">Save as PDF</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+
+  <div class="doc-export-body">
+  <h3>1. Conceptual Model</h3>
+  <p>In business language: a <b>Policyholder</b> holds one or more <b>Policies</b>, sold either directly or through an <b>Agent</b>. Each Policy insures one or more <b>Vehicles</b> and carries one or more <b>Coverage</b> lines (Liability, Collision, Comprehensive, UM/UIM). A Policy is billed through <b>Premium Payments</b>. When a covered incident occurs, a <b>Claim</b> is filed against the Policy and the specific Vehicle involved, assigned to an <b>Adjuster</b>, and may generate one or more <b>Claim Payments</b>.</p>
+
+  <h3>2. Logical Model — Entities &amp; Keys</h3>
+  <table class="data">
+    <thead><tr><th>Entity</th><th>Primary Key</th><th>Foreign Keys</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Customer</td><td class="mono">customer_id</td><td class="mono">state_code</td><td>Policyholder golden record (post-MDM)</td></tr>
+      <tr><td>Agent</td><td class="mono">agent_id</td><td class="mono">state_code</td><td>Licensed agent/broker of record</td></tr>
+      <tr><td>Policy</td><td class="mono">policy_id</td><td class="mono">customer_id, agent_id, state_code</td><td>The insurance contract</td></tr>
+      <tr><td>Vehicle</td><td class="mono">vehicle_id</td><td class="mono">policy_id</td><td>Insured vehicle scheduled on a policy</td></tr>
+      <tr><td>Coverage</td><td class="mono">coverage_id</td><td class="mono">policy_id, coverage_type_code</td><td>A coverage line item on a policy</td></tr>
+      <tr><td>Adjuster</td><td class="mono">adjuster_id</td><td class="mono">—</td><td>Claims handler</td></tr>
+      <tr><td>Claim</td><td class="mono">claim_id</td><td class="mono">policy_id, vehicle_id, adjuster_id, claim_status_code</td><td>A filed loss event</td></tr>
+      <tr><td>claim_payment</td><td class="mono">claim_payment_id</td><td class="mono">claim_id</td><td>A payout transaction against a claim</td></tr>
+      <tr><td>premium_payment</td><td class="mono">payment_id</td><td class="mono">policy_id</td><td>A billed/collected premium installment</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3. Entity-Relationship Diagram (Crow's Foot Notation)</h3>
+  <svg class="diagram" viewBox="0 0 1030 500" role="img" aria-label="Entity relationship diagram for Project Beacon">
+    <defs>
+      <marker id="mOne" markerWidth="12" markerHeight="14" refX="9" refY="7" orient="auto"><path d="M9,0 L9,14 M5,0 L5,14" class="diagram-line" stroke-width="1.3"/></marker>
+      <marker id="mMany" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto"><path d="M0,0 L11,7 L0,14 M0,7 L11,7" class="diagram-line" stroke-width="1.3" fill="none"/></marker>
+    </defs>
+    <path d="M210,58 L270,175" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M210,218 L270,205" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M105,340 L112,256" class="diagram-line-dash" marker-start="url(#mOne)"/>
+    <path d="M190,360 L300,232" class="diagram-line-dash" marker-start="url(#mOne)"/>
+    <path d="M380,140 L640,96" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M380,228 L640,325" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M300,230 L380,320" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M490,185 L800,190" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M740,58 L900,140" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M895,68 L905,140" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M905,244 L905,320" class="diagram-line" marker-start="url(#mOne)" marker-end="url(#mMany)"/>
+    <path d="M635,410 L650,396" class="diagram-line-dash" marker-start="url(#mOne)"/>
+    <path d="M895,410 L960,244" class="diagram-line-dash" marker-start="url(#mOne)"/>
+
+    <rect x="20" y="20" width="190" height="76" rx="6" class="diagram-box"/>
+    <text x="30" y="42" class="diagram-title" font-size="13">Agent</text>
+    <text x="30" y="60" class="diagram-text" font-size="10.5"><tspan x="30" dy="0">PK  agent_id</tspan><tspan x="30" dy="14">license_number</tspan><tspan x="30" dy="14">FK  state_code</tspan></text>
+
+    <rect x="20" y="180" width="190" height="76" rx="6" class="diagram-box"/>
+    <text x="30" y="202" class="diagram-title" font-size="13">Customer</text>
+    <text x="30" y="220" class="diagram-text" font-size="10.5"><tspan x="30" dy="0">PK  customer_id</tspan><tspan x="30" dy="14">first_name, last_name</tspan><tspan x="30" dy="14">FK  state_code</tspan></text>
+
+    <rect x="20" y="340" width="170" height="48" rx="6" class="diagram-box-ref"/>
+    <text x="30" y="359" class="diagram-title" font-size="11.5">ref_state (ref)</text>
+    <text x="30" y="376" class="diagram-text-ref" font-size="10">PK  state_code</text>
+
+    <rect x="270" y="140" width="220" height="90" rx="6" class="diagram-box"/>
+    <text x="280" y="162" class="diagram-title" font-size="13">Policy</text>
+    <text x="280" y="180" class="diagram-text" font-size="10.5"><tspan x="280" dy="0">PK  policy_id</tspan><tspan x="280" dy="14">FK  customer_id, agent_id</tspan><tspan x="280" dy="14">FK  state_code</tspan><tspan x="280" dy="14">status, annual_premium</tspan></text>
+
+    <rect x="270" y="320" width="220" height="62" rx="6" class="diagram-box"/>
+    <text x="280" y="342" class="diagram-title" font-size="12.5">premium_payment</text>
+    <text x="280" y="360" class="diagram-text" font-size="10.5"><tspan x="280" dy="0">PK  payment_id</tspan><tspan x="280" dy="14">FK  policy_id</tspan></text>
+
+    <rect x="540" y="20" width="200" height="76" rx="6" class="diagram-box"/>
+    <text x="550" y="42" class="diagram-title" font-size="13">Vehicle</text>
+    <text x="550" y="60" class="diagram-text" font-size="10.5"><tspan x="550" dy="0">PK  vehicle_id</tspan><tspan x="550" dy="14">FK  policy_id</tspan><tspan x="550" dy="14">vin, make, model</tspan></text>
+
+    <rect x="540" y="320" width="200" height="76" rx="6" class="diagram-box"/>
+    <text x="550" y="342" class="diagram-title" font-size="13">Coverage</text>
+    <text x="550" y="360" class="diagram-text" font-size="10.5"><tspan x="550" dy="0">PK  coverage_id</tspan><tspan x="550" dy="14">FK  policy_id</tspan><tspan x="550" dy="14">FK  coverage_type_code</tspan></text>
+
+    <rect x="540" y="410" width="190" height="48" rx="6" class="diagram-box-ref"/>
+    <text x="550" y="429" class="diagram-title" font-size="11.5">ref_coverage_type (ref)</text>
+    <text x="550" y="446" class="diagram-text-ref" font-size="10">PK  coverage_type_code</text>
+
+    <rect x="800" y="20" width="190" height="48" rx="6" class="diagram-box"/>
+    <text x="810" y="42" class="diagram-title" font-size="13">Adjuster</text>
+    <text x="810" y="58" class="diagram-text" font-size="10.5">PK  adjuster_id</text>
+
+    <rect x="800" y="140" width="210" height="104" rx="6" class="diagram-box"/>
+    <text x="810" y="162" class="diagram-title" font-size="13">Claim</text>
+    <text x="810" y="180" class="diagram-text" font-size="10.5"><tspan x="810" dy="0">PK  claim_id</tspan><tspan x="810" dy="14">FK  policy_id, vehicle_id</tspan><tspan x="810" dy="14">FK  adjuster_id</tspan><tspan x="810" dy="14">FK  claim_status_code</tspan></text>
+
+    <rect x="800" y="320" width="210" height="62" rx="6" class="diagram-box"/>
+    <text x="810" y="342" class="diagram-title" font-size="12.5">claim_payment</text>
+    <text x="810" y="360" class="diagram-text" font-size="10.5"><tspan x="810" dy="0">PK  claim_payment_id</tspan><tspan x="810" dy="14">FK  claim_id</tspan></text>
+
+    <rect x="800" y="410" width="190" height="48" rx="6" class="diagram-box-ref"/>
+    <text x="810" y="429" class="diagram-title" font-size="11.5">ref_claim_status (ref)</text>
+    <text x="810" y="446" class="diagram-text-ref" font-size="10">PK  claim_status_code</text>
+  </svg>
+  <p class="muted" style="font-size:12px;">Solid lines = enforced foreign-key relationships (one–tick, many–crow's-foot). Dashed lines = reference/lookup relationships to centrally-stewarded code sets (see <a href="#doc-master" data-target="doc-master">Document D9</a>).</p>
+
+  <h3>4. Cardinality &amp; Business Rules</h3>
+  <div class="cardinality-row head"><div>Parent</div><div>Card.</div><div>Child</div><div>Business rule</div></div>
+  <div class="cardinality-row"><div>Customer</div><div><span class="card-badge">1:N</span></div><div>Policy</div><div>A policyholder may hold multiple policies over time; a policy has exactly one policyholder of record.</div></div>
+  <div class="cardinality-row"><div>Agent</div><div><span class="card-badge">0,1:N</span></div><div>Policy</div><div>A policy may be direct-written with no agent; an agent may service many policies.</div></div>
+  <div class="cardinality-row"><div>Policy</div><div><span class="card-badge">1:N</span></div><div>Vehicle</div><div>A policy insures one or more vehicles; a vehicle is scheduled on exactly one policy at a time.</div></div>
+  <div class="cardinality-row"><div>Policy</div><div><span class="card-badge">1:N</span></div><div>Coverage</div><div>A policy carries one or more coverage lines; each line belongs to exactly one policy.</div></div>
+  <div class="cardinality-row"><div>Policy</div><div><span class="card-badge">0:N</span></div><div>Claim</div><div>A policy may have zero or more claims; a claim is filed against exactly one policy.</div></div>
+  <div class="cardinality-row"><div>Vehicle</div><div><span class="card-badge">0:N</span></div><div>Claim</div><div>A vehicle may be involved in multiple claims over its insured life; a claim involves exactly one vehicle.</div></div>
+  <div class="cardinality-row"><div>Adjuster</div><div><span class="card-badge">0,1:N</span></div><div>Claim</div><div>An unassigned claim has no adjuster yet; one adjuster handles many claims.</div></div>
+  <div class="cardinality-row"><div>Claim</div><div><span class="card-badge">0:N</span></div><div>claim_payment</div><div>A claim may generate multiple payouts (partial, supplemental); each payout belongs to exactly one claim.</div></div>
+  <div class="cardinality-row"><div>Policy</div><div><span class="card-badge">1:N</span></div><div>premium_payment</div><div>A policy is billed in installments; each payment applies to exactly one policy.</div></div>
+
+  <h3>5. Physical Model — Analytical Star Schema</h3>
+  <p>The physical warehouse model denormalizes deliberately for read performance: <span class="mono">fact_claim</span> sits at the center, surrounded by conformed dimensions that multiple facts (future <span class="mono">fact_premium</span>, <span class="mono">fact_payment</span>) can share.</p>
+  <svg class="diagram" viewBox="0 0 700 500" role="img" aria-label="Star schema diagram">
+    <line x1="350" y1="250" x2="140" y2="90" class="diagram-line"/>
+    <line x1="350" y1="250" x2="105" y2="280" class="diagram-line"/>
+    <line x1="350" y1="250" x2="560" y2="90" class="diagram-line"/>
+    <line x1="350" y1="250" x2="595" y2="280" class="diagram-line"/>
+    <line x1="350" y1="250" x2="140" y2="430" class="diagram-line"/>
+    <line x1="350" y1="250" x2="560" y2="430" class="diagram-line"/>
+    <rect x="270" y="210" width="160" height="80" rx="8" class="diagram-box-fact"/>
+    <text x="350" y="245" text-anchor="middle" class="diagram-title-fact" font-size="13">fact_claim</text>
+    <text x="350" y="262" text-anchor="middle" class="diagram-title-fact" font-size="9.5" opacity=".85">paid_amount, reserve_amount</text>
+    <text x="350" y="276" text-anchor="middle" class="diagram-title-fact" font-size="9.5" opacity=".85">fraud_flag, claim_status_code</text>
+    <rect x="60" y="60" width="160" height="60" rx="6" class="diagram-box"/><text x="140" y="86" text-anchor="middle" class="diagram-title" font-size="12">dim_policy</text><text x="140" y="102" text-anchor="middle" class="diagram-text-ref" font-size="9.5">SCD Type 2</text>
+    <rect x="25" y="250" width="160" height="60" rx="6" class="diagram-box"/><text x="105" y="276" text-anchor="middle" class="diagram-title" font-size="12">dim_customer</text><text x="105" y="292" text-anchor="middle" class="diagram-text-ref" font-size="9.5">SCD Type 2</text>
+    <rect x="480" y="60" width="160" height="60" rx="6" class="diagram-box"/><text x="560" y="86" text-anchor="middle" class="diagram-title" font-size="12">dim_vehicle</text>
+    <rect x="515" y="250" width="160" height="60" rx="6" class="diagram-box"/><text x="595" y="276" text-anchor="middle" class="diagram-title" font-size="12">dim_agent</text>
+    <rect x="60" y="400" width="160" height="60" rx="6" class="diagram-box"/><text x="140" y="426" text-anchor="middle" class="diagram-title" font-size="12">dim_date</text>
+    <rect x="480" y="400" width="160" height="60" rx="6" class="diagram-box"/><text x="560" y="426" text-anchor="middle" class="diagram-title" font-size="12">dim_claim_status</text>
+  </svg>
+
+  <div class="callout note"><b>How to review this document</b>Confirm every entity in Section 2 has a stable primary key; confirm every relationship line in Section 3 has a matching row in Section 4; confirm the star schema's dimensions are all present in the Data Dictionary (Document D2) and the physical DDL (Document D3).</div>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-dictionary"
+  data-doc-title="Data Dictionary" data-doc-subtitle="Every Field — Type, Meaning, Source, Nullability, PII Classification"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D2</div>
+  <h2>Data Dictionary</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-dictionary')">Download HTML</button>
+    <button onclick="printDoc('doc-dictionary')">Save as PDF</button>
+    <button onclick="downloadCSV(DATA_DICTIONARY,[{key:'table',label:'Table'},{key:'field',label:'Field'},{key:'type',label:'Type'},{key:'meaning',label:'Meaning'},{key:'source',label:'Source'},{key:'nullable',label:'Nullable'},{key:'pii',label:'PII'}],'DataDictionary_ProjectBeacon.csv')">Download CSV</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>Scope</h3>
+    <p>This dictionary is the field-level contract for the nine OLTP source tables backing Project Beacon (<span class="mono">customer, agent, policy, vehicle, coverage, adjuster, claim, claim_payment, premium_payment</span>). Every field is typed, defined in plain language, sourced to its system of record, marked nullable or required, and classified for PII. A field with no row here is not permitted to ship. See <a href="#doc-governance" data-target="doc-governance">Document D6</a> for what the PII classification implies for access and retention.</p>
+    <div class="callout warn"><b>Reading the PII column</b><span class="pii-yes">Yes</span> means the field alone or in combination is personally identifying and must be access-tiered per Document D6. <span class="pii-no">No</span> means the field is safe for broader internal access on its own.</div>
+    <div id="dictionaryTableWrap"><p class="muted">Loading dictionary&hellip;</p></div>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-ddl"
+  data-doc-title="Physical Schema — DDL" data-doc-subtitle="PostgreSQL CREATE TABLE Statements — OLTP Sources &amp; Warehouse Star Schema"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D3</div>
+  <h2>Physical Schema / DDL</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-ddl')">Download HTML</button>
+    <button onclick="printDoc('doc-ddl')">Save as PDF</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>1. OLTP Source Schema — Reference Tables</h3>
+    <p>Every FK below is enforced at the database, not "by convention." Reference tables are populated and stewarded per <a href="#doc-master" data-target="doc-master">Document D9</a>.</p>
+<pre class="code">-- Reference: US states valid for policy issuance and residency
+CREATE TABLE ref_state (
+  state_code       CHAR(2)      NOT NULL,
+  state_name       VARCHAR(40)  NOT NULL,
+  region           VARCHAR(20)  NOT NULL,
+  CONSTRAINT pk_ref_state PRIMARY KEY (state_code)
+);
+
+-- Reference: coverage types offered on an auto policy
+CREATE TABLE ref_coverage_type (
+  coverage_type_code  VARCHAR(10)  NOT NULL,
+  coverage_type_name  VARCHAR(60)  NOT NULL,
+  is_required_by_law  BOOLEAN      NOT NULL DEFAULT FALSE,
+  CONSTRAINT pk_ref_coverage_type PRIMARY KEY (coverage_type_code)
+);
+
+-- Reference: claim lifecycle states
+CREATE TABLE ref_claim_status (
+  claim_status_code  VARCHAR(10)  NOT NULL,
+  claim_status_name  VARCHAR(40)  NOT NULL,
+  is_terminal         BOOLEAN      NOT NULL DEFAULT FALSE,
+  CONSTRAINT pk_ref_claim_status PRIMARY KEY (claim_status_code)
+);</pre>
+
+    <h3>2. OLTP Source Schema — Core Entities</h3>
+<pre class="code">-- Policyholders (source of record: PolicyAdmin)
+CREATE TABLE customer (
+  customer_id     BIGSERIAL     NOT NULL,
+  first_name      VARCHAR(60)   NOT NULL,
+  last_name       VARCHAR(60)   NOT NULL,
+  date_of_birth   DATE          NOT NULL,
+  ssn_last4       CHAR(4),
+  email           VARCHAR(120),
+  phone           VARCHAR(20),
+  address_line1   VARCHAR(120),
+  city            VARCHAR(60),
+  state_code      CHAR(2)       NOT NULL,
+  zip_code        VARCHAR(10),
+  created_at      TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  CONSTRAINT pk_customer PRIMARY KEY (customer_id),
+  CONSTRAINT fk_customer_state FOREIGN KEY (state_code) REFERENCES ref_state (state_code),
+  CONSTRAINT ck_customer_dob CHECK (date_of_birth <= CURRENT_DATE)
+);
+CREATE INDEX ix_customer_state ON customer (state_code);
+CREATE INDEX ix_customer_name  ON customer (last_name, first_name);
+
+-- Licensed agents and brokers (source of record: PolicyAdmin)
+CREATE TABLE agent (
+  agent_id          BIGSERIAL     NOT NULL,
+  agent_name        VARCHAR(120)  NOT NULL,
+  license_number    VARCHAR(30)   NOT NULL,
+  state_code        CHAR(2)       NOT NULL,
+  commission_rate   DECIMAL(5,4)  NOT NULL DEFAULT 0.0000,
+  CONSTRAINT pk_agent PRIMARY KEY (agent_id),
+  CONSTRAINT uq_agent_license UNIQUE (license_number),
+  CONSTRAINT fk_agent_state FOREIGN KEY (state_code) REFERENCES ref_state (state_code),
+  CONSTRAINT ck_agent_commission CHECK (commission_rate BETWEEN 0 AND 1)
+);
+
+-- Auto policies (source of record: PolicyAdmin)
+CREATE TABLE policy (
+  policy_id                  BIGSERIAL      NOT NULL,
+  policy_number              VARCHAR(20)    NOT NULL,
+  customer_id                BIGINT         NOT NULL,
+  agent_id                   BIGINT,
+  state_code                 CHAR(2)        NOT NULL,
+  effective_date             DATE           NOT NULL,
+  expiration_date            DATE           NOT NULL,
+  status                     VARCHAR(20)    NOT NULL DEFAULT 'Quoted',
+  annual_premium             DECIMAL(10,2)  NOT NULL,
+  cancellation_reason_code   VARCHAR(20),
+  CONSTRAINT pk_policy PRIMARY KEY (policy_id),
+  CONSTRAINT uq_policy_number UNIQUE (policy_number),
+  CONSTRAINT fk_policy_customer FOREIGN KEY (customer_id) REFERENCES customer (customer_id),
+  CONSTRAINT fk_policy_agent FOREIGN KEY (agent_id) REFERENCES agent (agent_id),
+  CONSTRAINT fk_policy_state FOREIGN KEY (state_code) REFERENCES ref_state (state_code),
+  CONSTRAINT ck_policy_term CHECK (expiration_date > effective_date),
+  CONSTRAINT ck_policy_status CHECK (status IN ('Quoted','Active','Cancelled','Expired','Renewed'))
+);
+CREATE INDEX ix_policy_customer     ON policy (customer_id);
+CREATE INDEX ix_policy_status_dates ON policy (status, effective_date, expiration_date);
+
+-- Insured vehicles (source of record: PolicyAdmin)
+CREATE TABLE vehicle (
+  vehicle_id      BIGSERIAL     NOT NULL,
+  policy_id       BIGINT        NOT NULL,
+  vin             CHAR(17)      NOT NULL,
+  make            VARCHAR(40)   NOT NULL,
+  model           VARCHAR(40)   NOT NULL,
+  model_year      SMALLINT      NOT NULL,
+  garaging_zip    VARCHAR(10),
+  CONSTRAINT pk_vehicle PRIMARY KEY (vehicle_id),
+  CONSTRAINT fk_vehicle_policy FOREIGN KEY (policy_id) REFERENCES policy (policy_id),
+  CONSTRAINT ck_vehicle_vin_len CHECK (char_length(vin) = 17),
+  CONSTRAINT ck_vehicle_year CHECK (model_year BETWEEN 1980 AND 2100)
+);
+CREATE INDEX ix_vehicle_policy ON vehicle (policy_id);
+CREATE UNIQUE INDEX uq_vehicle_vin_policy ON vehicle (vin, policy_id);
+
+-- Coverage line items attached to a policy (source of record: PolicyAdmin)
+CREATE TABLE coverage (
+  coverage_id           BIGSERIAL      NOT NULL,
+  policy_id             BIGINT         NOT NULL,
+  coverage_type_code    VARCHAR(10)    NOT NULL,
+  limit_amount          DECIMAL(10,2)  NOT NULL,
+  deductible_amount     DECIMAL(10,2)  NOT NULL DEFAULT 0,
+  CONSTRAINT pk_coverage PRIMARY KEY (coverage_id),
+  CONSTRAINT fk_coverage_policy FOREIGN KEY (policy_id) REFERENCES policy (policy_id),
+  CONSTRAINT fk_coverage_type FOREIGN KEY (coverage_type_code) REFERENCES ref_coverage_type (coverage_type_code),
+  CONSTRAINT ck_coverage_limit CHECK (limit_amount >= 0),
+  CONSTRAINT ck_coverage_deductible CHECK (deductible_amount >= 0)
+);
+CREATE INDEX ix_coverage_policy ON coverage (policy_id);</pre>
+
+    <h3>3. OLTP Source Schema — Claims &amp; Payments</h3>
+<pre class="code">-- Claims adjusters (source of record: ClaimsSystem)
+CREATE TABLE adjuster (
+  adjuster_id     BIGSERIAL     NOT NULL,
+  adjuster_name   VARCHAR(120)  NOT NULL,
+  region_code     VARCHAR(10)   NOT NULL,
+  CONSTRAINT pk_adjuster PRIMARY KEY (adjuster_id)
+);
+
+-- Claims (source of record: ClaimsSystem)
+CREATE TABLE claim (
+  claim_id             BIGSERIAL      NOT NULL,
+  claim_number         VARCHAR(20)    NOT NULL,
+  policy_id            BIGINT         NOT NULL,
+  vehicle_id           BIGINT         NOT NULL,
+  adjuster_id          BIGINT,
+  date_of_loss         DATE           NOT NULL,
+  reported_date        DATE           NOT NULL,
+  claim_status_code    VARCHAR(10)    NOT NULL DEFAULT 'OPEN',
+  loss_description     TEXT,
+  fraud_flag           BOOLEAN        NOT NULL DEFAULT FALSE,
+  reserve_amount       DECIMAL(10,2)  NOT NULL DEFAULT 0,
+  CONSTRAINT pk_claim PRIMARY KEY (claim_id),
+  CONSTRAINT uq_claim_number UNIQUE (claim_number),
+  CONSTRAINT fk_claim_policy FOREIGN KEY (policy_id) REFERENCES policy (policy_id),
+  CONSTRAINT fk_claim_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicle (vehicle_id),
+  CONSTRAINT fk_claim_adjuster FOREIGN KEY (adjuster_id) REFERENCES adjuster (adjuster_id),
+  CONSTRAINT fk_claim_status FOREIGN KEY (claim_status_code) REFERENCES ref_claim_status (claim_status_code),
+  CONSTRAINT ck_claim_dates CHECK (date_of_loss <= reported_date)
+);
+CREATE INDEX ix_claim_policy   ON claim (policy_id);
+CREATE INDEX ix_claim_status   ON claim (claim_status_code);
+CREATE INDEX ix_claim_adjuster ON claim (adjuster_id);
+
+-- Claim payout transactions (source of record: ClaimsSystem)
+CREATE TABLE claim_payment (
+  claim_payment_id     BIGSERIAL      NOT NULL,
+  claim_id              BIGINT         NOT NULL,
+  source_payment_id     VARCHAR(60)    NOT NULL,   -- idempotency key
+  payment_date           DATE           NOT NULL,
+  amount                 DECIMAL(10,2)  NOT NULL,
+  payment_type           VARCHAR(20)    NOT NULL,
+  payee_type              VARCHAR(20)    NOT NULL,
+  CONSTRAINT pk_claim_payment PRIMARY KEY (claim_payment_id),
+  CONSTRAINT uq_claim_payment_source UNIQUE (source_payment_id),
+  CONSTRAINT fk_claim_payment_claim FOREIGN KEY (claim_id) REFERENCES claim (claim_id),
+  CONSTRAINT ck_claim_payment_amount CHECK (amount > 0)
+);
+CREATE INDEX ix_claim_payment_claim ON claim_payment (claim_id);
+
+-- Premium payment transactions (source of record: PaymentGateway)
+CREATE TABLE premium_payment (
+  payment_id          BIGSERIAL      NOT NULL,
+  policy_id           BIGINT         NOT NULL,
+  source_payment_id   VARCHAR(60)    NOT NULL,   -- idempotency key
+  payment_date         DATE           NOT NULL,
+  amount_due            DECIMAL(10,2)  NOT NULL,
+  amount_paid            DECIMAL(10,2)  NOT NULL,
+  payment_method          VARCHAR(20)    NOT NULL,
+  card_last4              CHAR(4),
+  CONSTRAINT pk_premium_payment PRIMARY KEY (payment_id),
+  CONSTRAINT uq_premium_payment_source UNIQUE (source_payment_id),
+  CONSTRAINT fk_premium_payment_policy FOREIGN KEY (policy_id) REFERENCES policy (policy_id),
+  CONSTRAINT ck_premium_payment_amount CHECK (amount_paid >= 0)
+);
+CREATE INDEX ix_premium_payment_policy ON premium_payment (policy_id);</pre>
+
+    <h3>4. Warehouse (OLAP) — Star Schema, Abbreviated</h3>
+    <p>Dimensions use SCD Type 2 versioning; facts key on the natural source id so replays <span class="mono">MERGE</span> instead of duplicate. Full pattern in <a href="#doc-pipeline" data-target="doc-pipeline">Document D4</a>.</p>
+<pre class="code">CREATE TABLE dim_policy (
+  policy_sk         BIGSERIAL     NOT NULL,   -- surrogate key
+  policy_id         BIGINT        NOT NULL,   -- natural key from source
+  policy_number     VARCHAR(20)   NOT NULL,
+  state_code        CHAR(2)       NOT NULL,
+  status            VARCHAR(20)   NOT NULL,
+  valid_from        TIMESTAMPTZ   NOT NULL,
+  valid_to          TIMESTAMPTZ,
+  is_current        BOOLEAN       NOT NULL DEFAULT TRUE,
+  CONSTRAINT pk_dim_policy PRIMARY KEY (policy_sk)
+);
+CREATE INDEX ix_dim_policy_natural ON dim_policy (policy_id, is_current);
+
+CREATE TABLE fact_claim (
+  claim_id            BIGINT         NOT NULL,   -- natural key = idempotency key
+  policy_sk            BIGINT         NOT NULL,
+  vehicle_sk             BIGINT         NOT NULL,
+  date_of_loss_sk          INTEGER        NOT NULL,
+  claim_status_code       VARCHAR(10)    NOT NULL,
+  paid_amount               DECIMAL(12,2)  NOT NULL DEFAULT 0,
+  reserve_amount             DECIMAL(12,2)  NOT NULL DEFAULT 0,
+  fraud_flag                   BOOLEAN        NOT NULL DEFAULT FALSE,
+  load_batch_id                  UUID           NOT NULL,
+  loaded_at                        TIMESTAMPTZ    NOT NULL DEFAULT now(),
+  CONSTRAINT pk_fact_claim PRIMARY KEY (claim_id),
+  CONSTRAINT fk_fact_claim_policy FOREIGN KEY (policy_sk) REFERENCES dim_policy (policy_sk)
+);</pre>
+    <div class="callout good"><b>What to check in generated DDL</b>Every FK target exists and is a PK/unique key; every monetary column has a fixed-precision <span class="mono">DECIMAL</span>, never <span class="mono">FLOAT</span>; every table has an index supporting its most common WHERE/JOIN column; idempotency-key columns (<span class="mono">source_payment_id</span>) carry a UNIQUE constraint, not just an index.</div>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-pipeline"
+  data-doc-title="Pipeline (ETL/ELT) Design" data-doc-subtitle="Source-to-Warehouse Stages — Idempotent &amp; Re-runnable by Design"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D4</div>
+  <h2>Pipeline (ETL/ELT) Design</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-pipeline')">Download HTML</button>
+    <button onclick="printDoc('doc-pipeline')">Save as PDF</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>1. Sources</h3>
+    <p><span class="mono">PolicyAdmin</span> (Postgres OLTP, CDC-eligible), <span class="mono">ClaimsSystem</span> (Postgres OLTP, CDC-eligible), <span class="mono">PaymentGateway</span> (third-party webhook + daily settlement file). All three land in the same raw zone before any transformation, so a source outage never blocks the others.</p>
+
+    <h3>2. Stage Flow</h3>
+    <svg class="diagram" viewBox="0 0 980 260" role="img" aria-label="Pipeline data flow diagram">
+      <defs><marker id="pArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 Z" class="diagram-line" fill="var(--berry)"/></marker></defs>
+      <line x1="130" y1="70" x2="170" y2="70" class="diagram-line" marker-end="url(#pArrow)"/>
+      <line x1="290" y1="70" x2="330" y2="70" class="diagram-line" marker-end="url(#pArrow)"/>
+      <line x1="450" y1="70" x2="490" y2="70" class="diagram-line" marker-end="url(#pArrow)"/>
+      <line x1="610" y1="70" x2="650" y2="70" class="diagram-line" marker-end="url(#pArrow)"/>
+      <line x1="770" y1="70" x2="810" y2="70" class="diagram-line" marker-end="url(#pArrow)"/>
+      <line x1="410" y1="110" x2="410" y2="160" class="diagram-line-dash" marker-end="url(#pArrow)"/>
+      <rect x="10" y="30" width="120" height="80" rx="6" class="diagram-stage"/>
+      <text x="70" y="65" text-anchor="middle" class="diagram-title" font-size="11">Sources</text>
+      <text x="70" y="80" text-anchor="middle" class="diagram-text-ref" font-size="8.5">PolicyAdmin</text>
+      <text x="70" y="92" text-anchor="middle" class="diagram-text-ref" font-size="8.5">ClaimsSystem</text>
+      <text x="70" y="104" text-anchor="middle" class="diagram-text-ref" font-size="8.5">PaymentGateway</text>
+      <rect x="170" y="30" width="120" height="80" rx="6" class="diagram-stage"/>
+      <text x="230" y="65" text-anchor="middle" class="diagram-title" font-size="11">Raw Landing</text>
+      <text x="230" y="82" text-anchor="middle" class="diagram-text-ref" font-size="8.5">append-only</text>
+      <text x="230" y="94" text-anchor="middle" class="diagram-text-ref" font-size="8.5">partitioned by dt</text>
+      <rect x="330" y="30" width="120" height="80" rx="6" class="diagram-stage"/>
+      <text x="390" y="65" text-anchor="middle" class="diagram-title" font-size="11">Validate</text>
+      <text x="390" y="82" text-anchor="middle" class="diagram-text-ref" font-size="8.5">schema + DQ gate</text>
+      <text x="390" y="94" text-anchor="middle" class="diagram-text-ref" font-size="8.5">(Document D5)</text>
+      <rect x="490" y="30" width="120" height="80" rx="6" class="diagram-stage"/>
+      <text x="550" y="65" text-anchor="middle" class="diagram-title" font-size="11">Transform</text>
+      <text x="550" y="82" text-anchor="middle" class="diagram-text-ref" font-size="8.5">SCD2 dims</text>
+      <text x="550" y="94" text-anchor="middle" class="diagram-text-ref" font-size="8.5">MERGE facts</text>
+      <rect x="650" y="30" width="120" height="80" rx="6" class="diagram-stage-alt"/>
+      <text x="710" y="65" text-anchor="middle" class="diagram-title-fact" font-size="11">Curated Warehouse</text>
+      <text x="710" y="82" text-anchor="middle" class="diagram-title-fact" font-size="8.5" opacity=".85">star schema</text>
+      <text x="710" y="94" text-anchor="middle" class="diagram-title-fact" font-size="8.5" opacity=".85">atomic publish</text>
+      <rect x="810" y="30" width="160" height="80" rx="6" class="diagram-stage"/>
+      <text x="890" y="60" text-anchor="middle" class="diagram-title" font-size="11">Consumption</text>
+      <text x="890" y="77" text-anchor="middle" class="diagram-text-ref" font-size="8.5">BI / Power BI</text>
+      <text x="890" y="89" text-anchor="middle" class="diagram-text-ref" font-size="8.5">Risk model, DOI filing</text>
+      <rect x="340" y="160" width="140" height="60" rx="6" class="diagram-box-ref"/>
+      <text x="410" y="184" text-anchor="middle" class="diagram-title" font-size="10.5">Quarantine /</text>
+      <text x="410" y="198" text-anchor="middle" class="diagram-title" font-size="10.5">Dead-letter</text>
+      <text x="410" y="212" text-anchor="middle" class="diagram-text-ref" font-size="8">circuit breaker at 2% failure</text>
+    </svg>
+
+    <h3>3. Stage Detail</h3>
+    <table class="data">
+      <thead><tr><th>#</th><th>Stage</th><th>What happens</th><th>Idempotency mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Extract / Land</td><td>CDC or scheduled pull since last watermark; raw append-only files land in object storage, partitioned by <span class="mono">system/table/dt</span>.</td><td>Watermark stored in <span class="mono">load_control</span>; re-running the same window is a safe no-op after first success.</td></tr>
+        <tr><td>2</td><td>Validate</td><td>Structural schema check (column count/types) against the declared contract.</td><td>Failing rows are written to quarantine keyed by <span class="mono">(batch_id, source_pk)</span> — re-run clears and reinserts, never appends.</td></tr>
+        <tr><td>3</td><td>Standardize</td><td>Type casts, trimming, VIN uppercasing, state-code normalization. Pure functions only, no side effects.</td><td>Deterministic: identical input always yields identical output.</td></tr>
+        <tr><td>4</td><td>Data Quality Gate</td><td>Applies every rule in <a href="#doc-quality" data-target="doc-quality">Document D5</a>; High-severity failures quarantine the row.</td><td>Batch-level failure counter; &gt;2% failure rate trips the circuit breaker and halts the batch.</td></tr>
+        <tr><td>5</td><td>Transform / Model</td><td>Builds SCD2 dimensions (<span class="mono">dim_policy</span>, <span class="mono">dim_customer</span>&hellip;) and facts (<span class="mono">fact_claim</span>&hellip;).</td><td><span class="mono">MERGE ... WHEN MATCHED</span> keyed on natural id + change hash — replays overwrite, never duplicate.</td></tr>
+        <tr><td>6</td><td>Publish</td><td>Atomic view repoint / partition swap into the query-facing schema.</td><td>Partially-loaded data is never visible to BI mid-batch.</td></tr>
+        <tr><td>7</td><td>Consume</td><td>Power BI semantic model, underwriting risk feature store, state DOI regulatory extract.</td><td>All three read only from curated tables, never from raw or staging.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4. Failure-First Design</h3>
+    <table class="data">
+      <thead><tr><th>Question</th><th>Answer for this pipeline</th></tr></thead>
+      <tbody>
+        <tr><td>What happens if this fails?</td><td>The stage halts, the batch is marked <span class="mono">FAILED</span> in <span class="mono">load_control</span>, and no partial commit reaches the curated schema.</td></tr>
+        <tr><td>Retry strategy?</td><td>3 attempts, exponential backoff (30s / 2m / 8m). Extract times out at 15 min, DQ gate at 5 min, transform at 30 min.</td></tr>
+        <tr><td>Recovery if retries exhaust?</td><td>Dead-letter entry with full batch context (correlation ID, failing rows, stage) written for manual triage; on-call paged.</td></tr>
+        <tr><td>Failure modes explicitly handled</td><td>Source unreachable, malformed schema, DQ threshold breach, duplicate delivery, connection drop mid-transaction.</td></tr>
+        <tr><td>Failure modes NOT handled (v1)</td><td>Source-side data corruption upstream of extract; a state DOI code-table change requiring a new reference value (routed to the steward process in Document D9 instead).</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><b>Concrete idempotency patterns in use</b>Dedup key <span class="mono">(source_system, source_table, source_pk, change_seq)</span> on CDC events; <span class="mono">MERGE</span> upserts on every fact/dim load; watermark-based extract re-runs; quarantine table keyed by <span class="mono">(batch_id, source_pk)</span>.</div>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-quality"
+  data-doc-title="Data Quality Rules" data-doc-subtitle="Validity, Completeness, Uniqueness, Consistency &amp; Timeliness Checks"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D5</div>
+  <h2>Data Quality Rules</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-quality')">Download HTML</button>
+    <button onclick="printDoc('doc-quality')">Save as PDF</button>
+    <button onclick="downloadCSV(DATA_QUALITY_RULES,[{key:'id',label:'ID'},{key:'dimension',label:'Dimension'},{key:'rule',label:'Rule'},{key:'target',label:'Target'},{key:'logic',label:'Logic'},{key:'severity',label:'Severity'},{key:'action',label:'Action'}],'DataQualityRules_ProjectBeacon.csv')">Download CSV</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>Scope &amp; Enforcement Point</h3>
+    <p>These fourteen rules are enforced at the <b>Validate</b> and <b>Data Quality Gate</b> stages of the pipeline (<a href="#doc-pipeline" data-target="doc-pipeline">Document D4</a>, stages 2 and 4), before any row reaches a transform. High-severity failures quarantine the row and never reach the curated warehouse; Medium and Low severity failures are flagged for human review but may still load, depending on the rule.</p>
+    <div id="qualityTableWrap"><p class="muted">Loading rules&hellip;</p></div>
+    <h3>Batch-Level Threshold</h3>
+    <p>If more than <b>2% of rows</b> in a single batch fail a High-severity rule, the batch halts entirely (circuit breaker) rather than loading a partially-clean dataset — see Failure-First Design in Document D4, Section 4.</p>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-governance"
+  data-doc-title="Data Governance &amp; Retention Policy" data-doc-subtitle="PII Classification, Access Tiers &amp; Retention Windows"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Chief Compliance Officer, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D6</div>
+  <h2>Data Governance &amp; Retention Policy</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-governance')">Download HTML</button>
+    <button onclick="printDoc('doc-governance')">Save as PDF</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>1. PII Classification Tiers</h3>
+    <table class="data">
+      <thead><tr><th>Tier</th><th>Definition</th><th>Example fields</th><th>Default access</th></tr></thead>
+      <tbody>
+        <tr><td><b>Restricted</b></td><td>Full identifiers that alone enable identity theft or fraud.</td><td>Full SSN (tokenized vault only), full card PAN, driver's license number</td><td>No direct database access; only via a governed tokenization service with its own audit log.</td></tr>
+        <tr><td><b>Confidential</b></td><td>Identifies a specific person when combined with other fields.</td><td class="mono">first_name, last_name, date_of_birth, address_line1, email, phone, ssn_last4, card_last4, loss_description</td><td>Role-based; masked by default in the BI semantic layer.</td></tr>
+        <tr><td><b>Internal</b></td><td>Business data, not personally identifying on its own.</td><td class="mono">policy_number, claim_number, vin, annual_premium, reserve_amount</td><td>All authenticated Meridian employees.</td></tr>
+        <tr><td><b>Public</b></td><td>Aggregate or rollup data with no individual-level detail.</td><td class="mono">state-level KPI rollups, published loss-ratio trend</td><td>Open within the organization; eligible for external reporting.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2. Access Model</h3>
+    <table class="data">
+      <thead><tr><th>Role</th><th>Reads</th><th>Restriction</th></tr></thead>
+      <tbody>
+        <tr><td>Underwriting</td><td>Customer, Policy, Vehicle — Confidential &amp; Internal tiers</td><td>No Restricted-tier access; SSN/PAN never surfaced, only tokens.</td></tr>
+        <tr><td>Claims Adjuster</td><td>Claim, claim_payment, and the specific Policy/Vehicle/Customer tied to their assigned claims</td><td>Row-level security scoped by <span class="mono">adjuster_id</span> / region — cannot browse claims outside their queue.</td></tr>
+        <tr><td>Analytics / BI</td><td>Curated warehouse only, Confidential fields masked by default</td><td>Re-identifying a masked field requires documented business justification and steward approval.</td></tr>
+        <tr><td>Data Platform / Pipeline service account</td><td>Full OLTP + warehouse, for load purposes only</td><td>No interactive human login; all actions logged with a correlation ID.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3. Retention Schedule</h3>
+    <table class="data">
+      <thead><tr><th>Record class</th><th>Retention window</th><th>Basis</th></tr></thead>
+      <tbody>
+        <tr><td>Policy &amp; billing records</td><td>7 years after policy termination</td><td>State DOI record-retention requirement</td></tr>
+        <tr><td>Claim records</td><td>7 years after claim closure (extended automatically under litigation hold)</td><td>State DOI requirement + statute of limitations exposure</td></tr>
+        <tr><td>Restricted-tier PII (tokenization vault)</td><td>Retained only as long as the referencing record; minimized by design (full SSN/PAN never duplicated outside the vault)</td><td>Data minimization principle</td></tr>
+        <tr><td>Warehouse hot/warm tiers</td><td>Mirror source retention (see <a href="#doc-storage" data-target="doc-storage">Document D7</a>)</td><td>Consistency with source-of-record policy</td></tr>
+        <tr><td>Access audit logs (Restricted-tier reads)</td><td>3 years</td><td>Internal security policy</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4. Deletion &amp; Right-to-Be-Forgotten</h3>
+    <p>A verified customer deletion request is logged immediately. Records under an <b>active claim</b>, a <b>litigation hold</b>, or a still-open <b>regulatory retention window</b> are carved out — they cannot be deleted early even on request; the customer is notified of the specific legal basis for the exception. Deletion executes automatically at the retention boundary via a scheduled job using a <b>soft-delete-then-hard-delete</b> pattern: records are tombstoned immediately and physically purged after a 30-day grace period, both steps idempotent and safe to re-run.</p>
+    <div class="callout warn"><b>Forbidden pattern</b>Deleting a row and forgetting its downstream copies (a cached extract, a BI export, a backup) is a governance violation, not a technicality. Every deletion job must enumerate every place the record was propagated to.</div>
+    <div class="callout note"><b>Review lens</b>For any PII field in <a href="#doc-dictionary" data-target="doc-dictionary">Document D2</a>, you should be able to state its tier, its access role, and its retention window from this document alone. If you can't, the field isn't governed yet.</div>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-storage"
+  data-doc-title="Storage &amp; Retention Strategy" data-doc-subtitle="OLTP / OLAP Split and Hot / Warm / Cold Tiering"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D7</div>
+  <h2>Storage &amp; Retention Strategy</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-storage')">Download HTML</button>
+    <button onclick="printDoc('doc-storage')">Save as PDF</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>1. OLTP / OLAP Split</h3>
+    <p><span class="mono">PolicyAdmin</span> and <span class="mono">ClaimsSystem</span> (Postgres) remain the systems of record for transactional writes — small, fast, ACID-safe operations. The warehouse (columnar OLAP engine) is populated exclusively through the pipeline in <a href="#doc-pipeline" data-target="doc-pipeline">Document D4</a> and is never written to directly by an application. Raw extracts land in low-cost object storage as an intermediate, lake-like layer before modeling.</p>
+
+    <h3>2. Hot / Warm / Cold Tiering</h3>
+    <table class="data">
+      <thead><tr><th>Tier</th><th>Age window</th><th>Storage</th><th>Query SLA</th><th>Access pattern</th></tr></thead>
+      <tbody>
+        <tr><td><b>Hot</b></td><td>0–13 months</td><td>Warehouse, compute-optimized, clustered on <span class="mono">policy_id</span> / <span class="mono">claim_id</span></td><td>&lt; 5s p95</td><td>Live dashboards, underwriting models, daily ops</td></tr>
+        <tr><td><b>Warm</b></td><td>13–84 months (up to 7 yrs)</td><td>Warehouse, partitioned, compressed, cheaper storage class</td><td>&lt; 60s p95</td><td>Trend analysis, quarterly regulatory filings</td></tr>
+        <tr><td><b>Cold</b></td><td>&gt; 84 months</td><td>Archived to low-cost object storage (not directly queryable)</td><td>Restore-on-request only</td><td>Litigation hold or audit request only; deleted at the 7-year boundary absent a hold</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3. Tier Transition Logic</h3>
+    <p>A nightly job moves fact partitions from Hot to Warm on their 13-month anniversary, and from Warm to Cold (archive) on their 84-month anniversary, unless a litigation-hold flag is present on the related policy or claim — in which case the record is pinned in its current tier and re-evaluated monthly. Both transitions are idempotent partition operations: re-running the job on an already-transitioned partition is a no-op.</p>
+    <div class="callout note"><b>Why this split, not "keep everything hot"</b>Hot-tier compute is the most expensive resource in the stack. A claim closed six years ago is regulatorily required to exist, but nobody needs sub-5-second query time against it — cold storage meets the retention obligation at a fraction of the cost.</div>
+    <div class="callout warn"><b>Review lens</b>Confirm the deletion-at-boundary logic here matches the retention windows in <a href="#doc-governance" data-target="doc-governance">Document D6</a> exactly — a mismatch between the two documents is itself a compliance defect.</div>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-lineage"
+  data-doc-title="Data Lineage Map" data-doc-subtitle="Every Reported Field Traced to Its Source Column"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D8</div>
+  <h2>Data Lineage Map</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-lineage')">Download HTML</button>
+    <button onclick="printDoc('doc-lineage')">Save as PDF</button>
+    <button onclick="downloadCSV(DATA_LINEAGE,[{key:'reportedField',label:'Reported Field'},{key:'warehouseColumn',label:'Warehouse Column'},{key:'sourceSystem',label:'Source System'},{key:'sourceColumn',label:'Source Column'},{key:'stage',label:'Pipeline Stage'},{key:'logic',label:'Transform Logic'}],'DataLineageMap_ProjectBeacon.csv')">Download CSV</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>Purpose</h3>
+    <p>Every field that appears on an executive dashboard or a regulatory filing is traced here back through its pipeline transform stage to its exact source-system column. This is the document you open when a number looks wrong and you need to know, in one lookup, whether the defect is upstream (source data) or downstream (a transform bug).</p>
+    <div id="lineageTableWrap"><p class="muted">Loading lineage map&hellip;</p></div>
+    <div class="callout good"><b>Coverage rule</b>A field with no row in this table is not permitted on a published dashboard. Lineage coverage is tracked as a KPI — see <a href="#f-review" data-target="f-review">Foundations, Good vs Bad Design &amp; the Review Lens</a>.</div>
+  </div>
+</section>
+
+<section class="topic searchable" id="doc-master"
+  data-doc-title="Master &amp; Reference Data Definition" data-doc-subtitle="The Golden Customer Record and Shared Code Sets"
+  data-doc-version="1.0" data-doc-status="Approved for Build"
+  data-doc-owner="Data Architecture Team, Project Beacon" data-doc-date="2026-09-21"
+  data-doc-class="Confidential – Internal Use"
+  data-doc-prepared="AI Solution Architect, Project Beacon" data-doc-reviewed="Lead Data Architect, Meridian Auto Insurance"
+  data-doc-approved="VP, Enterprise Data &amp; Analytics">
+  <div class="kicker">Document D9</div>
+  <h2>Master &amp; Reference Data Definition</h2>
+  <div class="doc-toolbar">
+    <button class="primary" onclick="downloadDoc('doc-master')">Download HTML</button>
+    <button onclick="printDoc('doc-master')">Save as PDF</button>
+  </div>
+  <div class="doc-meta-strip">
+    <div><b>Version</b>1.0</div><div><b>Status</b>Approved for Build</div>
+    <div><b>Owner</b>Data Architecture Team</div><div><b>Date</b>2026-09-21</div>
+  </div>
+  <div class="doc-export-body">
+    <h3>1. The Golden Customer Record</h3>
+    <p>A single policyholder can be captured independently by three systems, each with a slightly different spelling, address, or contact detail: the pre-bind Quote system, the post-bind <span class="mono">PolicyAdmin</span> system, and <span class="mono">ClaimsSystem</span> at First Notice of Loss. Master Data Management (MDM) resolves these into one <b>golden record</b>:</p>
+    <table class="data">
+      <thead><tr><th>Step</th><th>Method</th></tr></thead>
+      <tbody>
+        <tr><td>1. Deterministic match</td><td>Exact match on <span class="mono">(tokenized SSN, date_of_birth)</span> — highest confidence, auto-merged.</td></tr>
+        <tr><td>2. Probabilistic match</td><td>Fuzzy match on <span class="mono">(name, date_of_birth, zip_code)</span> for records without a usable SSN token; scores in the ambiguous band route to a human review queue rather than auto-merging.</td></tr>
+        <tr><td>3. Survivorship</td><td><span class="mono">PolicyAdmin.customer_id</span> is the golden/survivor key once a match is confirmed — it is the system of record for a bound policyholder.</td></tr>
+        <tr><td>4. Crosswalk</td><td>Quote and Claims systems retain a mapping table <span class="mono">(source_system, source_customer_id, golden_customer_id)</span> so no source system is forced to change its own primary key.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2. Reference / Code Set Stewardship</h3>
+    <table class="data">
+      <thead><tr><th>Code set</th><th>Owner / steward</th><th>Refresh cadence</th><th>Consumers</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">ref_state</td><td>Data Governance</td><td>As-needed (rare)</td><td>PolicyAdmin, ClaimsSystem, Warehouse</td></tr>
+        <tr><td class="mono">ref_coverage_type</td><td>Underwriting Product</td><td>Quarterly product review</td><td>PolicyAdmin, Warehouse</td></tr>
+        <tr><td class="mono">ref_claim_status</td><td>Claims Operations</td><td>As-needed (rare)</td><td>ClaimsSystem, Warehouse</td></tr>
+        <tr><td>Vehicle make/model lookup</td><td>Underwriting Product</td><td>Quarterly, sourced from a licensed VIN-decode reference feed</td><td>PolicyAdmin, Warehouse (dim_vehicle)</td></tr>
+      </tbody>
+    </table>
+    <p>Every code set has exactly one owner and one production table. A new code (e.g. a new coverage type for a usage-based-insurance pilot) requires steward approval before it ships to any system — this is what keeps PolicyAdmin, ClaimsSystem, and the warehouse from ever disagreeing on what a code means.</p>
+    <div class="callout warn"><b>Anti-pattern to flag</b>If an AI agent proposes hard-coding a lookup list (e.g. state names) inside application code or a dbt model instead of referencing the shared table, that's a master-data violation waiting to cause drift the next time the list changes.</div>
+  </div>
+</section>
+
+
+</main>
+</div>
+
+<footer class="site">
+  Colaberry &middot; Enterprise AI Leadership Accelerator &middot; Data Architect Field Guide &middot; Confidential &ndash; Internal Use &middot; Generated by Claude Code
+</footer>
+
+<script type="application/json" id="deepdive-metadata">
+{
+  "guide_type": "Data Architect Field Guide",
+  "curriculum_type": "deep_dive",
+  "week": 9,
+  "discipline": "Data Architect",
+  "student_id": "abdinur2468",
+  "project_id": "PROJECT-BEACON-MERIDIAN-AUTO",
+  "repository": "https://github.com/Abr246/Architect-Workspace",
+  "generated_by": "Claude Code",
+  "generated_date": "2026-09-21",
+  "version": "1.0.0",
+  "build_number": "1"
+}
+</script>
+
+<script>
+/*=========================================================
+  DATA — Project Beacon (Meridian Auto Insurance)
+=========================================================*/
+const LOGO_DATA_URI = "data:image/png;base64,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";
+
+const DATA_DICTIONARY = [
+{table:'customer',field:'customer_id',type:'BIGSERIAL',meaning:'Surrogate key uniquely identifying a policyholder (golden record after MDM match).',source:'PolicyAdmin (CUST_ID)',nullable:'NOT NULL',pii:'No'},
+{table:'customer',field:'first_name',type:'VARCHAR(60)',meaning:'Policyholder legal first name.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'Yes'},
+{table:'customer',field:'last_name',type:'VARCHAR(60)',meaning:'Policyholder legal last name.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'Yes'},
+{table:'customer',field:'date_of_birth',type:'DATE',meaning:'Date of birth; drives age-based rating factors.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'Yes'},
+{table:'customer',field:'ssn_last4',type:'CHAR(4)',meaning:'Last 4 digits of SSN for identity verification. Full SSN is tokenized in a separate vault, never stored here.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'Yes'},
+{table:'customer',field:'email',type:'VARCHAR(120)',meaning:'Primary contact email.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'Yes'},
+{table:'customer',field:'phone',type:'VARCHAR(20)',meaning:'Primary contact phone number.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'Yes'},
+{table:'customer',field:'address_line1',type:'VARCHAR(120)',meaning:'Mailing address street line.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'Yes'},
+{table:'customer',field:'city',type:'VARCHAR(60)',meaning:'Mailing address city.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'No'},
+{table:'customer',field:'state_code',type:'CHAR(2)',meaning:'FK to ref_state; state of residence, a key rating and regulatory factor.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'customer',field:'zip_code',type:'VARCHAR(10)',meaning:'Mailing ZIP/postal code.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'Yes'},
+{table:'customer',field:'created_at',type:'TIMESTAMPTZ',meaning:'Record creation timestamp at the source system.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'customer',field:'updated_at',type:'TIMESTAMPTZ',meaning:'Last update timestamp at the source system; used as the CDC watermark.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'agent',field:'agent_id',type:'BIGSERIAL',meaning:'Surrogate key for a licensed agent or broker.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'agent',field:'agent_name',type:'VARCHAR(120)',meaning:'Agent or agency legal name.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'agent',field:'license_number',type:'VARCHAR(30)',meaning:'State insurance license number; unique per agent.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'agent',field:'state_code',type:'CHAR(2)',meaning:'FK to ref_state; state of licensure.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'agent',field:'commission_rate',type:'DECIMAL(5,4)',meaning:'Commission percentage applied to written premium.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'policy_id',type:'BIGSERIAL',meaning:'Surrogate key for an auto policy.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'policy_number',type:'VARCHAR(20)',meaning:'Business-facing policy number shown to the customer.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'customer_id',type:'BIGINT',meaning:'FK to customer; policyholder of record.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'agent_id',type:'BIGINT',meaning:'FK to agent; null for direct-written policies.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'No'},
+{table:'policy',field:'state_code',type:'CHAR(2)',meaning:'FK to ref_state; state of issue governing rating and filings.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'effective_date',type:'DATE',meaning:'Policy term start date.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'expiration_date',type:'DATE',meaning:'Policy term end date.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'status',type:'VARCHAR(20)',meaning:'Lifecycle state: Quoted, Active, Cancelled, Expired, Renewed.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'annual_premium',type:'DECIMAL(10,2)',meaning:'Total written annual premium for the term.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'policy',field:'cancellation_reason_code',type:'VARCHAR(20)',meaning:'Populated only when status = Cancelled.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'No'},
+{table:'vehicle',field:'vehicle_id',type:'BIGSERIAL',meaning:'Surrogate key for an insured vehicle.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'vehicle',field:'policy_id',type:'BIGINT',meaning:'FK to policy; the policy insuring this vehicle.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'vehicle',field:'vin',type:'CHAR(17)',meaning:'Vehicle Identification Number.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'vehicle',field:'make',type:'VARCHAR(40)',meaning:'Manufacturer.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'vehicle',field:'model',type:'VARCHAR(40)',meaning:'Model name.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'vehicle',field:'model_year',type:'SMALLINT',meaning:'Model year; used in rating and vehicle risk segmentation.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'vehicle',field:'garaging_zip',type:'VARCHAR(10)',meaning:'ZIP where the vehicle is primarily kept; a rating factor and indirect location signal.',source:'PolicyAdmin',nullable:'NULLABLE',pii:'Yes'},
+{table:'coverage',field:'coverage_id',type:'BIGSERIAL',meaning:'Surrogate key for a coverage line item.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'coverage',field:'policy_id',type:'BIGINT',meaning:'FK to policy.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'coverage',field:'coverage_type_code',type:'VARCHAR(10)',meaning:'FK to ref_coverage_type: Liability, Collision, Comprehensive, UM/UIM.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'coverage',field:'limit_amount',type:'DECIMAL(10,2)',meaning:'Maximum payout limit for this coverage line.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'coverage',field:'deductible_amount',type:'DECIMAL(10,2)',meaning:'Deductible owed by the policyholder before payout.',source:'PolicyAdmin',nullable:'NOT NULL',pii:'No'},
+{table:'adjuster',field:'adjuster_id',type:'BIGSERIAL',meaning:'Surrogate key for a claims adjuster.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'adjuster',field:'adjuster_name',type:'VARCHAR(120)',meaning:'Adjuster full name.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'adjuster',field:'region_code',type:'VARCHAR(10)',meaning:'Assigned claims-handling region.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'claim_id',type:'BIGSERIAL',meaning:'Surrogate key for a claim.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'claim_number',type:'VARCHAR(20)',meaning:'Business-facing claim number shown to the customer.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'policy_id',type:'BIGINT',meaning:'FK to the policy in force at date of loss.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'vehicle_id',type:'BIGINT',meaning:'FK to the vehicle involved in the loss.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'adjuster_id',type:'BIGINT',meaning:'FK to adjuster assigned to handle the claim; null until triaged.',source:'ClaimsSystem',nullable:'NULLABLE',pii:'No'},
+{table:'claim',field:'date_of_loss',type:'DATE',meaning:'Date the covered incident occurred.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'reported_date',type:'DATE',meaning:'Date the claim was first reported (FNOL) to Meridian.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'claim_status_code',type:'VARCHAR(10)',meaning:'FK to ref_claim_status: Open, Under Review, Approved, Denied, Closed.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'loss_description',type:'TEXT',meaning:'Free-text narrative of the loss; may incidentally contain third-party names.',source:'ClaimsSystem',nullable:'NULLABLE',pii:'Yes'},
+{table:'claim',field:'fraud_flag',type:'BOOLEAN',meaning:'Set true when Special Investigations flags the claim for suspected fraud.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim',field:'reserve_amount',type:'DECIMAL(10,2)',meaning:'Estimated liability reserve currently held against the claim.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim_payment',field:'claim_payment_id',type:'BIGSERIAL',meaning:'Surrogate key for a claim payout transaction.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim_payment',field:'claim_id',type:'BIGINT',meaning:'FK to the claim being paid.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim_payment',field:'source_payment_id',type:'VARCHAR(60)',meaning:'Natural key from the source system; the idempotency key for replay-safe loads.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim_payment',field:'payment_date',type:'DATE',meaning:'Date the payout was issued.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim_payment',field:'amount',type:'DECIMAL(10,2)',meaning:'Payout amount issued.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim_payment',field:'payment_type',type:'VARCHAR(20)',meaning:'Payout category: Repair, MedPay, TotalLoss, Rental.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'claim_payment',field:'payee_type',type:'VARCHAR(20)',meaning:'Who received the payment: Policyholder, BodyShop, ThirdParty.',source:'ClaimsSystem',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'payment_id',type:'BIGSERIAL',meaning:'Surrogate key for a premium payment transaction.',source:'PaymentGateway',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'policy_id',type:'BIGINT',meaning:'FK to the policy being paid.',source:'PaymentGateway',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'source_payment_id',type:'VARCHAR(60)',meaning:'Natural key from the gateway; the idempotency key for replay-safe loads.',source:'PaymentGateway',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'payment_date',type:'DATE',meaning:'Date the payment was received.',source:'PaymentGateway',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'amount_due',type:'DECIMAL(10,2)',meaning:'Installment amount billed.',source:'PaymentGateway',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'amount_paid',type:'DECIMAL(10,2)',meaning:'Installment amount actually collected.',source:'PaymentGateway',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'payment_method',type:'VARCHAR(20)',meaning:'Method used: ACH, Card, Check.',source:'PaymentGateway',nullable:'NOT NULL',pii:'No'},
+{table:'premium_payment',field:'card_last4',type:'CHAR(4)',meaning:'Last 4 digits of card used; full PAN is tokenized by the payment processor and never lands here.',source:'PaymentGateway',nullable:'NULLABLE',pii:'Yes'},
+];
+
+const DATA_QUALITY_RULES = [
+{id:'DQ-001',dimension:'Validity',rule:'VIN format',target:'vehicle.vin',logic:"matches 17-char VIN pattern, excludes I/O/Q",severity:'High',action:'Reject row to quarantine'},
+{id:'DQ-002',dimension:'Validity',rule:'State code in reference set',target:'customer.state_code, policy.state_code',logic:'value EXISTS IN ref_state',severity:'High',action:'Reject row to quarantine'},
+{id:'DQ-003',dimension:'Validity',rule:'Date of loss not in the future',target:'claim.date_of_loss',logic:'date_of_loss <= CURRENT_DATE',severity:'High',action:'Reject row to quarantine'},
+{id:'DQ-004',dimension:'Consistency',rule:'Loss date precedes report date',target:'claim',logic:'date_of_loss <= reported_date',severity:'Medium',action:'Flag for adjuster review'},
+{id:'DQ-005',dimension:'Completeness',rule:'Required policy fields present',target:'policy',logic:'customer_id, state_code, effective_date, expiration_date NOT NULL',severity:'High',action:'Reject row to quarantine'},
+{id:'DQ-006',dimension:'Uniqueness',rule:'Policy number unique',target:'policy.policy_number',logic:'COUNT(*) BY policy_number = 1',severity:'High',action:'Reject row, alert data steward'},
+{id:'DQ-007',dimension:'Uniqueness',rule:'Claim number unique',target:'claim.claim_number',logic:'COUNT(*) BY claim_number = 1',severity:'High',action:'Reject row, alert data steward'},
+{id:'DQ-008',dimension:'Consistency',rule:'Claim references an in-force policy',target:'claim.policy_id',logic:'policy_id EXISTS AND date_of_loss BETWEEN effective_date AND expiration_date',severity:'High',action:'Flag for underwriting review'},
+{id:'DQ-009',dimension:'Validity',rule:'Payment amount positive',target:'claim_payment.amount, premium_payment.amount_paid',logic:'amount > 0',severity:'Medium',action:'Reject row to quarantine'},
+{id:'DQ-010',dimension:'Consistency',rule:'Coverage limit non-negative',target:'coverage.limit_amount',logic:'limit_amount >= 0',severity:'Medium',action:'Reject row to quarantine'},
+{id:'DQ-011',dimension:'Completeness',rule:'Contactability on active policies',target:'customer.email, customer.phone',logic:'email IS NOT NULL OR phone IS NOT NULL, WHERE policy.status = Active',severity:'Low',action:'Warn steward on weekly report'},
+{id:'DQ-012',dimension:'Timeliness',rule:'Warehouse freshness SLA',target:'fact_claim.loaded_at',logic:'MAX(loaded_at) within 4 hours of source commit',severity:'High',action:'Page on-call, trip circuit breaker'},
+{id:'DQ-013',dimension:'Consistency',rule:'Reserve within policy limit',target:'claim.reserve_amount',logic:'reserve_amount <= SUM(coverage.limit_amount) FOR policy_id',severity:'Medium',action:'Flag for adjuster review'},
+{id:'DQ-014',dimension:'Uniqueness',rule:'No duplicate claim payments',target:'claim_payment.source_payment_id',logic:'UNIQUE(source_payment_id) — the idempotency key',severity:'High',action:'Reject duplicate, no re-insert'},
+];
+
+const DATA_LINEAGE = [
+{reportedField:'Total Written Premium (KPI)',warehouseColumn:'fact_premium.written_premium',sourceSystem:'PolicyAdmin',sourceColumn:'policy.annual_premium',stage:'stg_policy &rarr; transform_policy',logic:'Direct copy; summed by period in the BI semantic layer.'},
+{reportedField:'Loss Ratio (KPI)',warehouseColumn:'fact_claim.paid_amount / fact_premium.earned_premium',sourceSystem:'ClaimsSystem, PolicyAdmin',sourceColumn:'claim_payment.amount; policy.annual_premium',stage:'transform_claims, transform_policy',logic:'paid_amount = SUM(claim_payment.amount) BY claim_id; earned_premium = annual_premium pro-rated by elapsed term days.'},
+{reportedField:'Claim Count by State',warehouseColumn:'dim_policy.state_code &rarr; fact_claim',sourceSystem:'PolicyAdmin',sourceColumn:'policy.state_code',stage:'transform_policy &rarr; dim_policy (SCD2)',logic:'state_code carried from the policy dimension via the policy_sk join on fact_claim.'},
+{reportedField:'Average Days to Close',warehouseColumn:'fact_claim.days_to_close',sourceSystem:'ClaimsSystem',sourceColumn:'claim.reported_date, claim status history closed timestamp',stage:'transform_claims',logic:'DATEDIFF(closed_date, reported_date), computed at load time from the status-change event stream.'},
+{reportedField:'Fraud Flag Rate',warehouseColumn:'fact_claim.fraud_flag',sourceSystem:'ClaimsSystem',sourceColumn:'claim.fraud_flag',stage:'transform_claims',logic:'Direct copy; aggregated as % of claims TRUE in the BI layer.'},
+{reportedField:'Customer PII Exposure Count',warehouseColumn:'governance_view.pii_field_count',sourceSystem:'MDM / Governance metadata',sourceColumn:'customer.ssn_last4, email, phone, address_line1',stage:'data_dictionary_tag (governance metadata, not row data)',logic:'Counted from PII classification tags on the Data Dictionary, never from row-level values.'},
+{reportedField:'Premium Collection Rate',warehouseColumn:'fact_payment.collection_rate',sourceSystem:'PaymentGateway',sourceColumn:'premium_payment.amount_paid, amount_due',stage:'transform_payments',logic:'SUM(amount_paid) / SUM(amount_due) BY policy_id AND period.'},
+{reportedField:'Vehicle Risk Segment',warehouseColumn:'dim_vehicle.risk_segment',sourceSystem:'PolicyAdmin (+ future telematics feed)',sourceColumn:'vehicle.make, model, model_year',stage:'transform_vehicle',logic:'Rule-based bucket assigned via a make/model/year lookup table maintained by Underwriting.'},
+{reportedField:'Agent Book of Business Size',warehouseColumn:'dim_agent.active_policy_count',sourceSystem:'PolicyAdmin',sourceColumn:'policy.agent_id, policy.status',stage:'transform_policy &rarr; dim_agent rollup',logic:"COUNT(DISTINCT policy_id) WHERE status = 'Active', grouped by agent_id."},
+];
+
+/*=========================================================
+  DOC EXPORT (HTML wrapper + print + CSV)
+=========================================================*/
+const DOC_STYLE = `
+  body{font-family:'Roboto',system-ui,Arial,sans-serif;color:#1A1A1A;background:#fff;margin:0;}
+  .doc-page{max-width:840px;margin:0 auto;padding:50px 56px 70px;}
+  .doc-cover{text-align:center;padding:40px 0 34px;border-bottom:4px solid #FB2832;margin-bottom:26px;}
+  .doc-cover img{height:42px;margin-bottom:18px;}
+  .doc-cover-kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#6B6B6B;font-weight:700;}
+  .doc-cover-title{font-size:28px;color:#367895;margin:10px 0 6px;font-weight:900;}
+  .doc-cover-sub{font-size:14px;color:#1A1A1A;}
+  .doc-cover-meta{font-size:12px;color:#6B6B6B;margin-top:10px;}
+  table.doc-control{width:100%;border-collapse:collapse;margin-bottom:28px;font-size:12.5px;}
+  table.doc-control th{background:#F8F8F7;color:#6B6B6B;text-transform:uppercase;letter-spacing:.05em;font-size:10px;text-align:left;padding:8px 10px;border:1px solid #E4E4E3;width:110px;}
+  table.doc-control td{padding:8px 10px;border:1px solid #E4E4E3;font-family:'Roboto Mono',monospace;}
+  .doc-body h3{color:#367895;font-size:17px;margin-top:26px;border-bottom:1px solid #E4E4E3;padding-bottom:5px;}
+  .doc-body h3:first-child{margin-top:0;}
+  .doc-body h4{font-size:13.5px;margin-bottom:4px;}
+  .doc-body table.data{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0;page-break-inside:auto;}
+  .doc-body table.data th{background:#367895;color:#fff;padding:7px 9px;text-align:left;}
+  .doc-body table.data td{padding:6px 9px;border-bottom:1px solid #E4E4E3;}
+  .doc-body table.data tr:nth-child(even) td{background:#F8F8F7;}
+  .doc-body pre.code{background:#1A1A1A;color:#EDEDED;border-radius:6px;padding:14px 16px;font-size:11.5px;overflow-x:auto;font-family:'Roboto Mono',monospace;}
+  .doc-body .callout{border-radius:6px;padding:10px 14px;margin:12px 0;font-size:12.5px;border:1px solid;}
+  .doc-body .callout.note{border-color:#367895;background:rgba(54,120,149,.08);}
+  .doc-body .callout.warn{border-color:#E8920C;background:rgba(232,146,12,.10);}
+  .doc-body .callout.good{border-color:#5BA63C;background:rgba(91,166,60,.10);}
+  .doc-body .callout b{display:block;font-size:10px;text-transform:uppercase;margin-bottom:3px;}
+  .doc-body svg{max-width:100%;}
+  .doc-body .doc-toolbar{display:none;}
+  .pii-yes{color:#FB2832;font-weight:700;}
+  .pii-no{color:#5BA63C;}
+  .sev-High{color:#FB2832;font-weight:700;}
+  .sev-Medium{color:#E8920C;font-weight:700;}
+  .sev-Low{color:#5BA63C;font-weight:700;}
+  table.doc-signoff{width:100%;border-collapse:collapse;margin-top:34px;font-size:12.5px;}
+  table.doc-signoff th{background:#F8F8F7;border:1px solid #E4E4E3;padding:8px;text-align:left;color:#6B6B6B;text-transform:uppercase;font-size:10px;}
+  table.doc-signoff td{border:1px solid #E4E4E3;padding:24px 10px 10px;vertical-align:bottom;}
+  .doc-footer{margin-top:30px;padding-top:14px;border-top:1px solid #E4E4E3;font-size:10.5px;color:#6B6B6B;text-align:center;}
+  @media print{ .doc-page{padding:20px 6px;} .doc-cover{padding-top:0;} }
+`;
+
+function buildDocHTML(section){
+  const d = section.dataset;
+  const body = section.querySelector('.doc-export-body').innerHTML;
+  const genDate = new Date().toISOString().slice(0,10);
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d.docTitle}</title><style>${DOC_STYLE}</style></head>
+  <body><div class="doc-page">
+    <div class="doc-cover">
+      <img src="${LOGO_DATA_URI}" alt="Colaberry">
+      <div class="doc-cover-kicker">Colaberry Enterprise AI Leadership Accelerator</div>
+      <div class="doc-cover-title">${d.docTitle}</div>
+      <div class="doc-cover-sub">${d.docSubtitle||''}</div>
+      <div class="doc-cover-meta">Project Beacon &middot; Meridian Auto Insurance &middot; Governed Enterprise Data Warehouse Initiative</div>
+    </div>
+    <table class="doc-control">
+      <tr><th>Version</th><td>${d.docVersion}</td><th>Status</th><td>${d.docStatus}</td></tr>
+      <tr><th>Owner</th><td>${d.docOwner}</td><th>Date</th><td>${d.docDate}</td></tr>
+      <tr><th>Classification</th><td colspan="3">${d.docClass}</td></tr>
+    </table>
+    <div class="doc-body">${body}</div>
+    <table class="doc-signoff">
+      <tr><th>Prepared by</th><th>Reviewed by</th><th>Approved by</th></tr>
+      <tr><td>${d.docPrepared}</td><td>${d.docReviewed}</td><td>${d.docApproved}</td></tr>
+    </table>
+    <div class="doc-footer">Colaberry &middot; Confidential &ndash; Internal Use &middot; ${d.docTitle} &middot; Generated ${genDate}</div>
+  </div></body></html>`;
+}
+
+function downloadBlob(filename, mime, content){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 800);
+}
+
+function downloadDoc(sectionId){
+  const section = document.getElementById(sectionId);
+  const html = buildDocHTML(section);
+  downloadBlob(section.dataset.docTitle.replace(/[^a-z0-9]+/gi,'_') + '.html', 'text/html', html);
+}
+
+function printDoc(sectionId){
+  const section = document.getElementById(sectionId);
+  const html = buildDocHTML(section);
+  const w = window.open('', '_blank');
+  w.document.open(); w.document.write(html); w.document.close();
+  w.onload = function(){ setTimeout(()=>w.print(), 300); };
+}
+
+function toCSV(rows, cols){
+  const esc = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+  const header = cols.map(c=>esc(c.label)).join(',');
+  const lines = rows.map(r=>cols.map(c=>esc(r[c.key])).join(','));
+  return [header, ...lines].join('\r\n');
+}
+function downloadCSV(rows, cols, filename){
+  downloadBlob(filename, 'text/csv', toCSV(rows, cols));
+}
+
+/*=========================================================
+  DATA-DRIVEN TABLE RENDERERS
+=========================================================*/
+function renderDictionary(){
+  const el = document.getElementById('dictionaryTableWrap');
+  if(!el) return;
+  const groups = {};
+  DATA_DICTIONARY.forEach(r=>{ (groups[r.table] = groups[r.table]||[]).push(r); });
+  let html = '';
+  Object.keys(groups).forEach(tbl=>{
+    html += `<h4>Table: <span class="mono">${tbl}</span></h4>`;
+    html += '<table class="data"><thead><tr><th>Field</th><th>Type</th><th>Meaning</th><th>Source</th><th>Nullable</th><th>PII</th></tr></thead><tbody>';
+    groups[tbl].forEach(r=>{
+      html += `<tr><td class="mono">${r.field}</td><td class="mono">${r.type}</td><td>${r.meaning}</td><td>${r.source}</td><td>${r.nullable}</td><td class="${r.pii==='Yes'?'pii-yes':'pii-no'}">${r.pii}</td></tr>`;
+    });
+    html += '</tbody></table>';
+  });
+  el.innerHTML = html;
+}
+function renderQualityRules(){
+  const el = document.getElementById('qualityTableWrap');
+  if(!el) return;
+  let html = '<table class="data"><thead><tr><th>ID</th><th>Dimension</th><th>Rule</th><th>Target</th><th>Logic</th><th>Severity</th><th>Action</th></tr></thead><tbody>';
+  DATA_QUALITY_RULES.forEach(r=>{
+    html += `<tr><td class="mono">${r.id}</td><td>${r.dimension}</td><td>${r.rule}</td><td class="mono">${r.target}</td><td class="mono">${r.logic}</td><td class="sev-${r.severity}">${r.severity}</td><td>${r.action}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+function renderLineage(){
+  const el = document.getElementById('lineageTableWrap');
+  if(!el) return;
+  let html = '<table class="data"><thead><tr><th>Reported Field</th><th>Warehouse Column</th><th>Source System</th><th>Source Column</th><th>Pipeline Stage</th><th>Transform Logic</th></tr></thead><tbody>';
+  DATA_LINEAGE.forEach(r=>{
+    html += `<tr><td>${r.reportedField}</td><td class="mono">${r.warehouseColumn}</td><td>${r.sourceSystem}</td><td class="mono">${r.sourceColumn}</td><td class="mono">${r.stage}</td><td>${r.logic}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+/*=========================================================
+  SEARCH + ASK (offline, content-matched)
+=========================================================*/
+let SEARCH_INDEX = [];
+function buildIndex(){
+  SEARCH_INDEX = [];
+  document.querySelectorAll('.searchable').forEach(sec=>{
+    const h = sec.querySelector('h2');
+    const title = h ? h.textContent.trim() : sec.id;
+    const text = sec.innerText.replace(/\s+/g,' ').trim();
+    SEARCH_INDEX.push({id: sec.id, title, text, textLower: text.toLowerCase()});
+  });
+}
+const KEYWORD_BOOST = {
+  'idempotent':'doc-pipeline','idempotency':'doc-pipeline','retry':'doc-pipeline','pipeline':'doc-pipeline',
+  'pii':'doc-governance','retention':'doc-governance','governance':'doc-governance','deletion':'doc-governance','access':'doc-governance',
+  'star schema':'f-oltp-olap','oltp':'f-oltp-olap','olap':'f-oltp-olap','warehouse':'f-oltp-olap','lake':'f-oltp-olap',
+  'normalization':'f-norm','denormalization':'f-norm','third normal form':'f-norm','3nf':'f-norm',
+  'erd':'f-erd','cardinality':'f-erd','entity':'f-erd','relationship':'f-erd',
+  'etl':'f-etl-elt','elt':'f-etl-elt',
+  'lineage':'doc-lineage','ddl':'doc-ddl','create table':'doc-ddl','schema':'doc-ddl',
+  'data dictionary':'doc-dictionary','field':'doc-dictionary',
+  'master data':'doc-master','golden record':'doc-master','reference data':'doc-master','mdm':'doc-master',
+  'quality':'doc-quality','validation':'doc-quality','completeness':'doc-quality','uniqueness':'doc-quality',
+  'hot warm cold':'doc-storage','tier':'doc-storage','storage':'doc-storage',
+  'schema evolution':'f-schema-evo','migration':'f-schema-evo',
+  'kpi':'f-review','review':'f-review'
+};
+function scoreEntry(entry, tokens, rawQuery){
+  let score = 0;
+  tokens.forEach(t=>{
+    if(!t) return;
+    const occ = entry.textLower.split(t).length - 1;
+    score += occ;
+    if(entry.title.toLowerCase().includes(t)) score += 6;
+  });
+  Object.keys(KEYWORD_BOOST).forEach(k=>{
+    if(rawQuery.includes(k) && KEYWORD_BOOST[k]===entry.id) score += 25;
+  });
+  return score;
+}
+function runSearch(query){
+  const q = query.toLowerCase().trim();
+  if(!q) return [];
+  const tokens = q.split(/\s+/).filter(Boolean);
+  return SEARCH_INDEX
+    .map(e => ({e, score: scoreEntry(e, tokens, q)}))
+    .filter(r => r.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0,6);
+}
+function snippetFor(entry, tokens){
+  const sentences = entry.text.split(/(?<=[.!?])\s+/);
+  for(const s of sentences){
+    const sl = s.toLowerCase();
+    if(tokens.some(t=>t && sl.includes(t))) return s.slice(0,260);
+  }
+  return entry.text.slice(0,220) + '&hellip;';
+}
+function jumpTo(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+
+/* search box wiring */
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+searchInput.addEventListener('input', ()=>{
+  const results = runSearch(searchInput.value);
+  if(!results.length){ searchResults.innerHTML = searchInput.value.trim() ? '<div class="empty">No matches. Try a different term.</div>' : ''; searchResults.classList.toggle('show', !!searchInput.value.trim()); return; }
+  const tokens = searchInput.value.toLowerCase().split(/\s+/).filter(Boolean);
+  searchResults.innerHTML = results.map(r=>`<div class="res" data-target="${r.e.id}"><div class="rt">${r.e.title}</div><div class="rs">${snippetFor(r.e, tokens)}</div></div>`).join('');
+  searchResults.classList.add('show');
+});
+searchResults.addEventListener('click', (e)=>{
+  const row = e.target.closest('.res');
+  if(!row) return;
+  jumpTo(row.dataset.target);
+  searchResults.classList.remove('show');
+  searchInput.value='';
+});
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.search-wrap')) searchResults.classList.remove('show');
+});
+
+/* ask assistant wiring */
+function askQuestion(q){
+  const answerEl = document.getElementById('askAnswer');
+  const results = runSearch(q);
+  if(!results.length){
+    answerEl.classList.add('show');
+    answerEl.innerHTML = `<div class="aa-src">No confident match</div><div class="aa-text">I couldn't find a confident match in the guide for "${q}". Try rephrasing, or browse the left topic nav.</div>`;
+    return;
+  }
+  const top = results[0].e;
+  const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const snippet = snippetFor(top, tokens);
+  answerEl.classList.add('show');
+  answerEl.innerHTML = `<div class="aa-src">From: ${top.title}</div><div class="aa-text">${snippet}</div><div style="margin-top:8px;"><a class="jump" href="#${top.id}" data-target="${top.id}">Jump to section &rarr;</a></div>`;
+}
+document.getElementById('askForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const val = document.getElementById('askInput').value.trim();
+  if(val) askQuestion(val);
+});
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.getElementById('askInput').value = chip.textContent;
+    askQuestion(chip.textContent);
+  });
+});
+document.getElementById('askAnswer').addEventListener('click', (e)=>{
+  const jump = e.target.closest('.jump');
+  if(jump){ e.preventDefault(); jumpTo(jump.dataset.target); }
+});
+
+/* nav active-state + theme toggle */
+function initNavObserver(){
+  const links = Array.from(document.querySelectorAll('nav.sidebar a'));
+  const sections = links.map(l=>document.getElementById(l.dataset.id)).filter(Boolean);
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        const link = links.find(l=>l.dataset.id===entry.target.id);
+        if(link) link.classList.add('active');
+      }
+    });
+  }, {rootMargin: '-15% 0px -70% 0px'});
+  sections.forEach(s=>obs.observe(s));
+}
+(function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('daFieldGuideTheme'); }catch(e){}
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('themeToggle');
+  function label(){
+    const cur = document.documentElement.getAttribute('data-theme');
+    btn.textContent = cur === 'dark' ? 'Light mode' : 'Dark mode';
+  }
+  label();
+  btn.addEventListener('click', ()=>{
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try{ localStorage.setItem('daFieldGuideTheme', next); }catch(e){}
+    label();
+  });
+})();
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderDictionary();
+  renderQualityRules();
+  renderLineage();
+  buildIndex();
+  initNavObserver();
+});
+</script>
+</body>
+</html>

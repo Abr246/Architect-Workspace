@@ -1,0 +1,14 @@
+{
+  "name": "reliability-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Order desk reliability lab — stand-in vendor + confirmation sender",
+  "type": "commonjs",
+  "main": "desk.js",
+  "scripts": {
+    "confirm": "node desk.js confirm",
+    "test": "node check-idempotency.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Manager Field Guide — Colaberry Enterprise AI Leadership Accelerator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================= COLABERRY DESIGN TOKENS ============================= */
+:root{
+  --cherry:#FB2832; --berry:#367895; --leaf:#5BA63C; --amber:#E8920C;
+  --text:#1A1A1A; --muted:#6B6B6B; --border:#E4E4E3; --surface:#FFFFFF; --surface-alt:#F8F8F7;
+  --font-body:'Roboto',system-ui,-apple-system,Arial,sans-serif;
+  --font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(26,26,26,.06),0 4px 14px rgba(26,26,26,.06);
+}
+:root[data-theme="dark"]{
+  --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+  --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+    --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-body);color:var(--text);background:var(--surface-alt);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:var(--font-body);color:var(--berry);font-weight:700;line-height:1.25;margin:0 0 .5em;}
+h1{font-size:1.9rem;} h2{font-size:1.45rem;margin-top:0;} h3{font-size:1.15rem;} h4{font-size:1rem;color:var(--text);}
+p{margin:.4em 0 .9em;}
+a{color:var(--berry);}
+code,.mono{font-family:var(--font-mono);}
+.muted{color:var(--muted);}
+.text-cherry{color:var(--cherry);} .text-leaf{color:var(--leaf);} .text-amber{color:var(--amber);} .text-berry{color:var(--berry);}
+ul,ol{padding-left:20px;}
+li{margin-bottom:3px;}
+
+/* ---------- Layout shell ---------- */
+#topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;box-shadow:var(--shadow);}
+#topbar .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+#topbar .brand img{height:38px;display:block;}
+#topbar .brand .titles{min-width:0;}
+#topbar .brand .titles .t1{font-weight:700;font-size:1rem;color:var(--berry);white-space:nowrap;}
+#topbar .brand .titles .t2{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+#topbar .searchwrap{flex:1;max-width:520px;position:relative;}
+#searchInput{width:100%;padding:10px 14px 10px 38px;border-radius:999px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;}
+#searchInput:focus{border-color:var(--berry);box-shadow:0 0 0 3px rgba(54,120,149,.15);}
+.searchicon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.95rem;}
+#searchResults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);max-height:420px;overflow:auto;display:none;z-index:60;}
+#searchResults .res-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;}
+#searchResults .res-item:last-child{border-bottom:none;}
+#searchResults .res-item:hover{background:var(--surface-alt);}
+#searchResults .res-item .rk{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--berry);font-weight:700;}
+#searchResults .res-item .rt{font-weight:500;}
+#searchResults .res-item .rs{font-size:.8rem;color:var(--muted);}
+#searchResults .res-empty{padding:14px;color:var(--muted);font-size:.85rem;}
+#topbar .actions{display:flex;align-items:center;gap:8px;}
+.iconbtn{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:.78rem;cursor:pointer;font-family:var(--font-body);white-space:nowrap;}
+.iconbtn:hover{border-color:var(--berry);}
+
+#shell{display:flex;align-items:flex-start;max-width:1500px;margin:0 auto;}
+#sidenav{width:270px;flex:none;position:sticky;top:59px;height:calc(100vh - 59px);overflow-y:auto;padding:18px 10px 60px 18px;border-right:1px solid var(--border);}
+#sidenav .navgroup{margin-bottom:18px;}
+#sidenav .navgroup-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;padding:0 10px;margin-bottom:6px;}
+#sidenav a.navlink{display:block;padding:7px 10px;border-radius:8px;color:var(--text);text-decoration:none;font-size:.86rem;border-left:3px solid transparent;}
+#sidenav a.navlink:hover{background:var(--surface-alt);}
+#sidenav a.navlink.active{background:var(--surface-alt);border-left-color:var(--cherry);color:var(--berry);font-weight:500;}
+
+main{flex:1;min-width:0;padding:26px 34px 100px;}
+section.page-section{max-width:1150px;margin:0 auto 64px;scroll-margin-top:72px;}
+section.page-section:first-of-type{margin-top:6px;}
+.section-kicker{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--cherry);font-weight:700;margin-bottom:6px;}
+.section-lede{font-size:1.02rem;color:var(--muted);max-width:800px;}
+hr.rule{border:none;border-top:1px solid var(--border);margin:28px 0;}
+
+/* ---------- Cards / callouts ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px;}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+.callout{border-radius:var(--radius);padding:14px 16px;margin:16px 0;border:1px solid var(--border);border-left:4px solid var(--berry);background:var(--surface);}
+.callout .co-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:4px;}
+.callout.tip{border-left-color:var(--leaf);} .callout.tip .co-label{color:var(--leaf);}
+.callout.warn{border-left-color:var(--amber);} .callout.warn .co-label{color:var(--amber);}
+.callout.key{border-left-color:var(--cherry);} .callout.key .co-label{color:var(--cherry);}
+.callout.info{border-left-color:var(--berry);} .callout.info .co-label{color:var(--berry);}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.68rem;font-weight:700;font-family:var(--font-mono);letter-spacing:.02em;white-space:nowrap;}
+.badge-hi{background:rgba(251,40,50,.12);color:var(--cherry);}
+.badge-med{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-lo{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-status-done{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-status-progress{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-status-notstarted{background:rgba(107,107,107,.16);color:var(--muted);}
+
+/* ---------- RACI letters ---------- */
+.raci-cell{text-align:center;font-family:var(--font-mono);font-weight:700;font-size:.82rem;}
+.raci-A{color:var(--cherry);} .raci-R{color:var(--berry);} .raci-C{color:var(--leaf);} .raci-I{color:var(--muted);}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table.data-table{width:100%;border-collapse:collapse;font-size:.84rem;background:var(--surface);}
+table.data-table thead th{background:var(--berry);color:#fff;text-align:left;padding:10px 12px;font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;}
+table.data-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.data-table tbody tr:nth-child(even){background:var(--surface-alt);}
+table.data-table td.mono, table.data-table th.mono{font-family:var(--font-mono);}
+table.data-table td.num{font-family:var(--font-mono);text-align:right;}
+
+/* ---------- Doc toolbar / control strip ---------- */
+.doc-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 20px;}
+.btn{font-family:var(--font-body);font-size:.82rem;font-weight:500;border-radius:8px;padding:9px 15px;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--cherry);color:#fff;}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--berry);color:var(--berry);}
+.btn-ghost{background:var(--surface-alt);color:var(--text);border-color:var(--border);}
+
+.doc-control-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;font-family:var(--font-mono);font-size:.76rem;}
+.doc-control-strip div{padding:10px 14px;border-right:1px solid var(--border);background:var(--surface);}
+.doc-control-strip div:last-child{border-right:none;}
+.doc-control-strip .dcs-label{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.62rem;margin-bottom:3px;}
+@media(max-width:800px){.doc-control-strip{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- KPI tiles ---------- */
+.kpi-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);}
+.kpi-tile .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+.kpi-tile .kpi-value{font-family:var(--font-mono);font-size:1.9rem;font-weight:700;color:var(--berry);margin:4px 0 2px;}
+.kpi-tile .kpi-delta{font-size:.78rem;font-family:var(--font-mono);}
+.kpi-tile .kpi-target{font-size:.72rem;color:var(--muted);margin-top:4px;}
+
+/* ---------- Sign-off block ---------- */
+.signoff{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:22px;}
+.signoff div{padding:16px;border-right:1px solid var(--border);background:var(--surface);}
+.signoff div:last-child{border-right:none;}
+.signoff .so-role{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
+.signoff .so-name{font-weight:600;margin:8px 0 26px;}
+.signoff .so-line{border-top:1px solid var(--border);padding-top:6px;font-size:.72rem;color:var(--muted);}
+@media(max-width:800px){.signoff{grid-template-columns:1fr;}}
+
+/* ---------- Diagram / chart frames ---------- */
+.diagram-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;overflow-x:auto;box-shadow:var(--shadow);}
+.diagram-caption{font-size:.78rem;color:var(--muted);margin-top:8px;text-align:center;}
+svg text{font-family:var(--font-body);}
+svg .mono-t{font-family:var(--font-mono);}
+.legend-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:.78rem;color:var(--muted);justify-content:center;}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;}
+.legend-swatch{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+/* ---------- Foundations chips / definitions ---------- */
+.def-term{font-weight:700;color:var(--berry);}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.chip{background:var(--surface-alt);border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:.78rem;font-family:var(--font-mono);}
+.lens-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.lens-item:last-child{border-bottom:none;}
+.lens-num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--berry);color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* ---------- Footer ---------- */
+#pagefoot{border-top:1px solid var(--border);padding:26px 34px;text-align:center;color:var(--muted);font-size:.78rem;background:var(--surface);}
+
+[id]{scroll-margin-top:70px;}
+
+/* ---------- Ask assistant ---------- */
+#askFab{position:fixed;bottom:22px;right:22px;z-index:80;background:var(--cherry);color:#fff;border:none;border-radius:999px;padding:14px 20px;font-family:var(--font-body);font-weight:700;font-size:.86rem;cursor:pointer;box-shadow:0 6px 20px rgba(251,40,50,.35);display:flex;align-items:center;gap:8px;}
+#askPanel{position:fixed;bottom:88px;right:22px;width:390px;max-width:92vw;max-height:70vh;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);z-index:80;display:none;flex-direction:column;overflow:hidden;}
+#askPanel.open{display:flex;}
+#askHead{background:var(--berry);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+#askHead .ah-t{font-weight:700;font-size:.92rem;}
+#askHead .ah-s{font-size:.72rem;opacity:.85;}
+#askClose{background:transparent;border:none;color:#fff;font-size:1.1rem;cursor:pointer;}
+#askBody{flex:1;overflow-y:auto;padding:14px 16px;font-size:.86rem;}
+#askBody .aq{background:var(--surface-alt);border-radius:10px 10px 2px 10px;padding:9px 12px;margin:8px 0 8px auto;max-width:88%;}
+#askBody .aa{background:rgba(54,120,149,.09);border-radius:10px 10px 10px 2px;padding:9px 12px;margin:8px auto 8px 0;max-width:92%;}
+#askBody .aa .aa-link{display:inline-block;margin-top:6px;font-size:.76rem;font-weight:700;}
+#askBody .ask-welcome{color:var(--muted);font-size:.82rem;}
+#askForm{display:flex;border-top:1px solid var(--border);}
+#askInput{flex:1;border:none;padding:12px 14px;font-family:var(--font-body);font-size:.85rem;outline:none;background:var(--surface);color:var(--text);}
+#askSend{background:var(--cherry);color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:700;}
+.ask-suggest{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:.72rem;margin:3px 4px 0 0;cursor:pointer;}
+.ask-suggest:hover{border-color:var(--berry);color:var(--berry);}
+
+/* ---------- Print (whole guide) ---------- */
+@media print{
+  #topbar,#sidenav,#askFab,#askPanel,.doc-toolbar,#pagefoot{display:none!important;}
+  main{padding:0;} body{background:#fff;}
+  section.page-section{max-width:100%;margin:0 0 24px;page-break-after:always;}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">
+    <img src="data:image/png;base64,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" alt="Colaberry">
+    <div class="titles">
+      <div class="t1">Project Manager Field Guide</div>
+      <div class="t2">Colaberry Enterprise AI Leadership Accelerator</div>
+    </div>
+  </div>
+  <div class="searchwrap">
+    <span class="searchicon">&#128269;</span>
+    <input id="searchInput" type="text" placeholder="Search the guide — try &quot;critical path&quot;, &quot;RACI&quot;, &quot;budget variance&quot;..." autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+  <div class="actions">
+    <button class="iconbtn" id="themeToggle" title="Toggle dark mode">Dark mode</button>
+    <button class="iconbtn" onclick="document.getElementById('askFab').click()">Ask the guide</button>
+  </div>
+</div>
+
+<div id="shell">
+  <nav id="sidenav">
+    <div class="navgroup">
+      <div class="navgroup-title">Start here</div>
+      <a class="navlink" href="#welcome" data-nav>Welcome &amp; how to use this guide</a>
+      <a class="navlink" href="#initiative" data-nav>The example initiative: CareSignal AI</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Foundations — the 20%</div>
+      <a class="navlink" href="#f-why" data-nav>Why project management exists</a>
+      <a class="navlink" href="#f-triangle" data-nav>The scope/schedule/cost triangle</a>
+      <a class="navlink" href="#f-wbs" data-nav>Work Breakdown Structure</a>
+      <a class="navlink" href="#f-criticalpath" data-nav>Critical path</a>
+      <a class="navlink" href="#f-milestones" data-nav>Milestones &amp; gates</a>
+      <a class="navlink" href="#f-raid" data-nav>RAID</a>
+      <a class="navlink" href="#f-raci" data-nav>RACI</a>
+      <a class="navlink" href="#f-agile" data-nav>Agile vs. waterfall vs. hybrid</a>
+      <a class="navlink" href="#f-velocity" data-nav>Velocity &amp; burndown</a>
+      <a class="navlink" href="#f-statusreporting" data-nav>Status reporting</a>
+      <a class="navlink" href="#f-goodbad" data-nav>Good vs. bad plans</a>
+      <a class="navlink" href="#f-kpis" data-nav>PM KPIs</a>
+      <a class="navlink" href="#f-lens" data-nav>The architect's review lens</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Documents — CareSignal AI</div>
+      <a class="navlink" href="#doc-charter" data-nav>1. Project Charter</a>
+      <a class="navlink" href="#doc-wbs" data-nav>2. Work Breakdown Structure</a>
+      <a class="navlink" href="#doc-timeline" data-nav>3. Milestone Timeline / Gantt</a>
+      <a class="navlink" href="#doc-raid" data-nav>4. RAID Log</a>
+      <a class="navlink" href="#doc-raci" data-nav>5. RACI Matrix</a>
+      <a class="navlink" href="#doc-sprint" data-nav>6. Sprint Plan</a>
+      <a class="navlink" href="#doc-status" data-nav>7. Status Report</a>
+      <a class="navlink" href="#doc-budget" data-nav>8. Budget &amp; Burn</a>
+    </div>
+  </nav>
+
+  <main id="mainContent">
+  <!-- ============================================================ WELCOME ============================================================ -->
+  <section class="page-section" id="welcome" data-title="Welcome" data-search="project manager field guide AI solution architect accelerator direct evaluate approve">
+    <div class="section-kicker">Field Guide</div>
+    <h1>The Project Manager Field Guide</h1>
+    <p class="section-lede">You are training to become an <strong>AI Solution Architect</strong>. You will not spend your career hand-building project plans, WBS trees, or status decks — AI will draft most of them in seconds. Your job is to <strong>direct, evaluate, and approve</strong> what the AI produces. This guide teaches the roughly 20% of project management discipline that makes that judgment possible, then shows what "good" looks like by building a complete, realistic delivery package for one example initiative end to end.</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>Read the Foundations</h3><p class="muted" style="font-size:.86rem">Thirteen short concepts — the iron triangle, WBS, critical path, RAID, RACI, velocity, status reporting — that let you evaluate an AI-generated plan instead of rubber-stamping it.</p></div>
+      <div class="card"><h3>Study the Documents</h3><p class="muted" style="font-size:.86rem">Eight real, fully-built deliverables for one initiative: <strong>CareSignal AI</strong>, a readmission-risk and discharge-coordination platform for a regional health network.</p></div>
+      <div class="card"><h3>Search, download, ask</h3><p class="muted" style="font-size:.86rem">Every section is searchable, every document is downloadable as a styled HTML file (with a print/PDF view), tabular documents export to CSV, and the <strong>Ask the guide</strong> assistant answers from this content offline.</p></div>
+    </div>
+    <div class="callout info">
+      <div class="co-label">How this guide is organized</div>
+      Use the left navigation or the search box to jump anywhere. Each of the eight documents opens with a document-control strip (version, owner, status, date) exactly as it would appear in a real delivery, and closes with a Prepared / Reviewed / Approved sign-off block. Use the toolbar above each document to <strong>download the styled HTML</strong>, <strong>save as PDF</strong>, or (where the document is tabular) <strong>export to CSV</strong>.
+    </div>
+  </section>
+
+  <!-- ============================================================ INITIATIVE CONTEXT ============================================================ -->
+  <section class="page-section" id="initiative" data-title="The example initiative" data-search="CareSignal AI Crestwood Regional Health Network readmission risk discharge coordination initiative overview problem statement HRRP">
+    <div class="section-kicker">Working example</div>
+    <h2>The example initiative: CareSignal AI</h2>
+    <p class="section-lede">Every document in this guide is built against one concrete, believable initiative so you can see how each PM concept plays out in practice — not as an abstract template, but as a real plan an AI Solution Architect would have to sign off on.</p>
+    <div class="card">
+      <div class="grid grid-2">
+        <div>
+          <h4>The organization</h4>
+          <p><strong>Crestwood Regional Health Network</strong> is a nonprofit system of 6 acute-care hospitals and 40 outpatient clinics across the Midwest United States, roughly 1.1M annual patient encounters and $2.1B in annual revenue.</p>
+          <h4>The problem</h4>
+          <p>Crestwood's 30-day all-cause readmission rate runs <strong>16.8%</strong> against a CMS-benchmarked target of <strong>13.5%</strong>, driven largely by incomplete discharge coordination and care-transition plans built ad hoc by nurses under time pressure. The gap costs the network roughly <strong>$9.4M/year</strong> in Hospital Readmissions Reduction Program (HRRP) penalties — before counting the human cost of avoidable returns to the hospital.</p>
+        </div>
+        <div>
+          <h4>The initiative</h4>
+          <p><strong>CareSignal AI</strong> — a readmission-risk scoring model integrated into Epic that flags high-risk patients 24&ndash;48 hours before discharge, auto-drafts an individualized transition-of-care plan for nurse and care-coordinator review, and routes the patient to a care coordinator with a scheduled follow-up.</p>
+          <h4>Scope</h4>
+          <p>A 9-month build (September 2026 &ndash; May 2027) culminating in a 2-hospital pilot, then network-wide rollout. Sponsor: Chief Clinical Officer. Business owner: VP of Care Coordination.</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-4">
+      <div class="kpi-tile"><div class="kpi-label">30-Day Readmission Rate</div><div class="kpi-value">16.8%</div><div class="kpi-delta" style="color:var(--cherry)">vs. CMS target 13.5%</div><div class="kpi-target">Target: &le;13.5% within 2 quarters of full rollout</div></div>
+      <div class="kpi-tile"><div class="kpi-label">HRRP Penalty Exposure</div><div class="kpi-value">$9.4M/yr</div><div class="kpi-delta" style="color:var(--cherry)">Recurring, annual</div><div class="kpi-target">Target: reduce materially within FY28</div></div>
+      <div class="kpi-tile"><div class="kpi-label">Discharge Plan Time</div><div class="kpi-value">47 min</div><div class="kpi-delta" style="color:var(--cherry)">Manual, per patient</div><div class="kpi-target">Target: &lt;15 min with AI draft + nurse review</div></div>
+      <div class="kpi-tile"><div class="kpi-label">Care Coordinator Caseload</div><div class="kpi-value">38 pts</div><div class="kpi-delta" style="color:var(--amber)">Per coordinator, current</div><div class="kpi-target">Target: sustainable at scale, flat headcount</div></div>
+    </div>
+    <div class="callout key">
+      <div class="co-label">Why this example</div>
+      Healthcare care-coordination puts every core PM tension in one place: a hard regulatory clock (CMS reporting), a clinical-safety gate that cannot be traded away (bias audit, clinician sign-off), a legacy system of record (Epic) that sets the integration critical path, and a governance question every architect will meet again — how much should the AI be allowed to recommend before a human must decide?
+    </div>
+  </section>
+
+  <!-- ============================================================ FOUNDATIONS ============================================================ -->
+  <section class="page-section" id="f-why" data-title="Why project management exists" data-search="why project management exists purpose iron triangle AI solution architect role plan drift">
+    <div class="section-kicker">Foundations 1 / 13</div>
+    <h2>Why project management exists</h2>
+    <p>Project management exists to close the gap between <em>what was promised</em> and <em>what actually gets delivered, on what date, for what cost</em>. Left unmanaged, that gap produces initiatives that quietly slip a quarter at a time, budgets that are "mostly fine" until they aren't, and go-live dates nobody can defend when the steering committee asks why.</p>
+    <p>As an AI Solution Architect, generative AI will draft your charter, your WBS, your Gantt chart, and your status report in seconds. That collapses the <em>writing</em> cost of project management to nearly zero — and raises the <em>judgment</em> cost to nearly everything. You are no longer graded on how fast you can build a project plan. You are graded on whether you can look at an AI-generated plan and know, specifically, whether the critical path is real, whether the RAID log has owners, and whether the RAG status on the dashboard is backed by numbers or by optimism.</p>
+    <div class="callout tip">
+      <div class="co-label">The 20% that matters</div>
+      You do not need to become a full-time project manager. You need the ~20% of the discipline that lets you <strong>direct</strong> the AI ("build the WBS to 100% of scope, mark the critical path, and put a two-week buffer before the pilot gate"), <strong>evaluate</strong> its output ("this RAID row has no owner — reject it"), and <strong>approve</strong> what gets baselined. That 20% is what the rest of this Foundations section teaches.
+    </div>
+  </section>
+
+  <section class="page-section" id="f-triangle" data-title="The scope schedule cost triangle" data-search="iron triangle scope schedule cost quality fixed constraint tradeoff CareSignal AI">
+    <h2>The scope / schedule / cost triangle</h2>
+    <p>Every project is bounded by three levers — <span class="def-term">scope</span>, <span class="def-term">schedule</span>, and <span class="def-term">cost</span> — with <span class="def-term">quality</span> sitting at the center, constrained by all three. Push on one corner and at least one other corner moves. A plan that promises to expand scope, hold the date, <em>and</em> hold the budget is not an aggressive plan — it is an unfunded promise.</p>
+    <div class="grid grid-2">
+      <div class="card"><h3>The discipline</h3><p class="muted">Name, in writing, which corner of the triangle is fixed and which corners are the flex variables the steering committee will trade against. A plan that treats all four dimensions as fixed simultaneously has not made a decision — it has deferred one to the first missed date.</p></div>
+      <div class="card"><h3>CareSignal AI's fixed corner</h3><p class="muted">For CareSignal AI, <strong>scope and quality are fixed</strong> — the bias audit, clinical validation gate, and HIPAA compliance requirements are non-negotiable given the patient-safety and regulatory stakes. <strong>Schedule and cost are the flex variables</strong> the Steering Committee trades against a slip, exactly as it does in the Status Report's Decisions Needed.</p></div>
+    </div>
+    <div class="callout warn"><div class="co-label">Reviewer's flag</div>If an AI-generated plan doesn't say which corner is fixed, it hasn't made a trade-off decision — it has hidden one. Ask for it explicitly before approving the charter.</div>
+  </section>
+
+  <section class="page-section" id="f-wbs" data-title="Work Breakdown Structure" data-search="work breakdown structure WBS 100 percent rule work packages decomposition">
+    <h2>Work Breakdown Structure (WBS)</h2>
+    <p>A <span class="def-term">Work Breakdown Structure</span> decomposes the total scope of a project into discrete, ownable work packages. The <span class="def-term">100% rule</span> is what makes it a control tool rather than a wish list: the work packages at any level must sum to exactly 100% of the scope defined one level up — no gaps, no overlaps, no "miscellaneous" bucket absorbing the difference.</p>
+    <div class="callout key"><div class="co-label">Review habit</div>When an AI hands you a WBS, add up the percentages before you read a single work package description. If they don't sum to 100%, the decomposition is incomplete or double-counted — send it back before you look at anything else. See <a href="#doc-wbs">the CareSignal AI WBS</a> for a package structure that sums correctly.</div>
+  </section>
+
+  <section class="page-section" id="f-criticalpath" data-title="Critical path" data-search="critical path longest sequence dependency float buffer slack schedule risk">
+    <h2>Critical path</h2>
+    <p>The <span class="def-term">critical path</span> is the longest sequence of dependent tasks from project start to project finish. It determines the earliest possible finish date — and it is the only sequence in the schedule with <strong>zero float</strong>: a one-day slip anywhere on it is a one-day slip to the whole project. Every other task has some slack to absorb a bad day without moving the finish date.</p>
+    <div class="grid grid-2">
+      <div class="card"><h3>Why it matters to an architect</h3><p class="muted">An AI-generated Gantt chart that doesn't name its critical path is decoration, not a schedule. If you can't say which task, delayed by one day, delays the whole program, you cannot manage the schedule — you can only watch it.</p></div>
+      <div class="card"><h3>CareSignal AI's critical path</h3><p class="muted">Charter Approved &rarr; Discovery Complete &rarr; Integration Env Ready &rarr; Risk Model v1 Trained &rarr; Clinical Validation Gate &rarr; Pilot Go-Live &rarr; Pilot Review Gate &rarr; Rollout Complete. Named and held in <a href="#doc-timeline">the Milestone Timeline</a>.</p></div>
+    </div>
+    <div class="callout tip"><div class="co-label">Buffer, not optimism</div>A healthy critical path carries an explicit schedule buffer at its riskiest handoff — for CareSignal AI, a 2-week buffer sits between the Clinical Validation Gate and Pilot Go-Live, absorbing exactly the kind of integration delay logged as RISK-02 in the RAID Log.</div>
+  </section>
+
+  <section class="page-section" id="f-milestones" data-title="Milestones and gates" data-search="milestones gates exit criteria zero duration decision point go no go">
+    <h2>Milestones &amp; gates</h2>
+    <p>A <span class="def-term">milestone</span> is a zero-duration marker of a significant event — "Discovery Complete," "Model Trained." A <span class="def-term">gate</span> is a milestone with teeth: a decision point with written <span class="def-term">exit criteria</span> that must be met before work is authorized to continue. The difference matters. A milestone without exit criteria is a date on a slide; a gate is a control.</p>
+    <div class="callout warn"><div class="co-label">Common AI-generation failure</div>AI-drafted timelines routinely produce milestone <em>dates</em> with no exit criteria attached. "Clinical Validation Gate — Feb 26" is a date. "Clinical Validation Gate — PASSES only if fraud-score demographic disparity is below threshold and Compliance signs off" is a gate. Reject the former.</div>
+  </section>
+
+  <section class="page-section" id="f-raid" data-title="RAID" data-search="RAID risks assumptions issues dependencies log owner likelihood impact">
+    <h2>RAID</h2>
+    <p><span class="def-term">RAID</span> is a single log covering four distinct categories that AI-generated plans routinely blur together: a <span class="def-term">Risk</span> is something that <em>might</em> happen and would hurt if it did; an <span class="def-term">Assumption</span> is something taken as true without proof, which becomes a risk the moment it's questioned; an <span class="def-term">Issue</span> is a risk that has already happened and now needs active management; a <span class="def-term">Dependency</span> is an external factor the plan needs but does not control.</p>
+    <div class="callout key"><div class="co-label">The non-negotiable rule</div>Every RAID row needs exactly one named owner and a date — not "the team," not "TBD." A risk with no owner is a risk nobody is managing, no matter how well it's described. See the fully-owned example in <a href="#doc-raid">the CareSignal AI RAID Log</a>.</div>
+  </section>
+
+  <section class="page-section" id="f-raci" data-title="RACI" data-search="RACI responsible accountable consulted informed exactly one accountable per activity">
+    <h2>RACI</h2>
+    <p>A <span class="def-term">RACI matrix</span> assigns one of four roles to every stakeholder against every activity: <span class="def-term">Responsible</span> (does the work), <span class="def-term">Accountable</span> (owns the outcome and answers for it — exactly one per activity), <span class="def-term">Consulted</span> (gives input beforehand, two-way), <span class="def-term">Informed</span> (told afterward, one-way).</p>
+    <div class="grid grid-2">
+      <div class="card"><h3>The rule that gets violated most</h3><p class="muted">Exactly <strong>one</strong> Accountable per row. Zero means no one owns the outcome; two or more means a decision has no tiebreaker and will stall in a disagreement. This is the single most common defect in an AI-generated RACI matrix.</p></div>
+      <div class="card"><h3>Why it isn't the org chart</h3><p class="muted">The Accountable owner changes by activity — a Compliance Officer may be Accountable for the bias-audit gate while a Data Science Lead is only Consulted, even though the Data Science Lead outranks no one on the org chart for that decision.</p></div>
+    </div>
+  </section>
+
+  <section class="page-section" id="f-agile" data-title="Agile vs waterfall vs hybrid" data-search="agile waterfall hybrid methodology sprint iteration phase gate when to use">
+    <h2>Agile vs. waterfall vs. hybrid</h2>
+    <p><span class="def-term">Waterfall</span> sequences phases with formal gates between them — well suited to work with a hard regulatory or clinical-safety gate that cannot be iterated past. <span class="def-term">Agile</span> delivers in short, timeboxed increments with continuous feedback — well suited to uncertain, discovery-heavy work like model development. Most real AI initiatives are <span class="def-term">hybrid</span>: waterfall-style phase gates for irreversible, safety-critical decisions, with agile sprints inside the phases that build toward them.</p>
+    <div class="callout info"><div class="co-label">CareSignal AI's shape</div>The program runs as ten waterfall-style WBS phases with hard exit gates (Clinical Validation, Pilot Review) — but the Risk Model and Transition Generator phases inside that structure are built in two-week sprints, tracked with a burndown. See <a href="#doc-sprint">Sprint 8</a> for the agile layer inside the phase-gated shell.</div>
+  </section>
+
+  <section class="page-section" id="f-velocity" data-title="Velocity and burndown" data-search="velocity burndown sprint points committed capacity trailing average ideal line">
+    <h2>Velocity &amp; burndown</h2>
+    <p><span class="def-term">Velocity</span> is the average amount of work (in story points) a team completes per sprint, measured over several sprints — never trust a single sprint's number. A <span class="def-term">burndown chart</span> plots remaining work against time within one sprint: an <em>ideal</em> line assuming steady progress, against the <em>actual</em> line the team is tracking. A team should commit to no more than its trailing velocity, plus a small stretch buffer it is not accountable for delivering.</p>
+    <div class="callout tip"><div class="co-label">Reading a burndown</div>Actual consistently above ideal isn't automatically bad news — it can mean the estimate was wrong, a dependency slipped, or scope crept mid-sprint. What matters is whether the gap is diagnosed, not just charted. See <a href="#doc-sprint">Sprint 8's burndown</a>, which closes 4 points short and states why.</div>
+  </section>
+
+  <section class="page-section" id="f-statusreporting" data-title="Status reporting" data-search="status reporting RAG red amber green SPI CPI earned value baseline decisions needed">
+    <h2>Status reporting</h2>
+    <p>A status report exists to answer one question honestly: <em>are we still going to hit the date, the budget, and the scope we promised?</em> <span class="def-term">RAG status</span> (Red/Amber/Green) is only useful when it's derived from numbers — Schedule Performance Index (SPI), Cost Performance Index (CPI), open high-severity risk count — not from how confident the reporting manager feels that week.</p>
+    <div class="callout warn"><div class="co-label">Red flag</div>A status report with no "Decisions Needed" section is not a status report — it's a newsletter. If the schedule or budget is at risk, the report must name the specific decision the sponsor has to make, and by when. See <a href="#doc-status">the CareSignal AI Status Report</a> for both decisions currently open.</div>
+  </section>
+
+  <section class="page-section" id="f-goodbad" data-title="Good vs bad plans" data-search="good bad plans examples vague single point estimate no owner no exit criteria">
+    <h2>Good vs. bad plans</h2>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th style="width:8%">#</th><th>Bad — vague, unowned, unbuffered</th><th>Good — specific, owned, testable</th></tr></thead>
+        <tbody id="goodBadBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="page-section" id="f-kpis" data-title="PM KPIs" data-search="PM KPIs SPI CPI EAC VAC schedule performance index cost performance index earned value metrics">
+    <h2>PM KPIs</h2>
+    <p>Four numbers tell you more about a project's real health than any status color: <span class="def-term">SPI</span> (Schedule Performance Index, EV/PV — below 1.0 means behind schedule), <span class="def-term">CPI</span> (Cost Performance Index, EV/AC — below 1.0 means over budget for the work actually done), <span class="def-term">EAC</span> (Estimate at Completion — what the project will actually cost, forecast from current performance), and <span class="def-term">VAC</span> (Variance at Completion — BAC minus EAC, the projected overrun or underrun in dollars).</p>
+    <div class="grid grid-4">
+      <div class="kpi-tile"><div class="kpi-label">SPI</div><div class="kpi-value">EV / PV</div><div class="kpi-delta" style="color:var(--berry)">&lt; 1.0 = behind schedule</div><div class="kpi-target">Healthy band: 0.95&ndash;1.05</div></div>
+      <div class="kpi-tile"><div class="kpi-label">CPI</div><div class="kpi-value">EV / AC</div><div class="kpi-delta" style="color:var(--berry)">&lt; 1.0 = over budget</div><div class="kpi-target">Healthy band: 0.95&ndash;1.05</div></div>
+      <div class="kpi-tile"><div class="kpi-label">EAC</div><div class="kpi-value">AC + ETC</div><div class="kpi-delta" style="color:var(--berry)">Forecast total cost</div><div class="kpi-target">Compare against BAC</div></div>
+      <div class="kpi-tile"><div class="kpi-label">VAC</div><div class="kpi-value">BAC &minus; EAC</div><div class="kpi-delta" style="color:var(--berry)">Negative = forecast overrun</div><div class="kpi-target">See <a href="#doc-budget">Budget &amp; Burn</a></div></div>
+    </div>
+  </section>
+
+  <section class="page-section" id="f-lens" data-title="The architect's review lens" data-search="architect review lens checklist evaluating AI generated project plans WBS critical path RAID RACI gates fixed constraint">
+    <h2>The architect's review lens</h2>
+    <p class="section-lede">Nine questions to run against any AI-generated project plan before you approve it. If a plan fails more than one, it goes back with specific, cited feedback — not a vague "make it more realistic."</p>
+    <div class="card">
+      <div id="reviewLensBody"></div>
+    </div>
+    <div class="callout key"><div class="co-label">How this guide models it</div>Every document that follows was built and reviewed against this exact lens. Documents 2, 3, 4, and 5 (WBS, Timeline, RAID, RACI) exist specifically to make lens items 2, 3, 5, and 7 checkable.</div>
+  </section>
+
+  <!-- ============================================================ DOC 1: CHARTER ============================================================ -->
+  <section class="page-section" id="doc-charter" data-title="Project Charter" data-search="project charter sponsor scope boundaries objectives success criteria authority CareSignal AI">
+    <div class="section-kicker">Document 1 of 8</div>
+    <h2>Project Charter</h2>
+    <p class="section-lede">The document that authorizes CareSignal AI to exist: sponsor, objectives, scope boundaries, success criteria, and the Project Manager's authority.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('charter')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('charter')">Save as PDF</button>
+    </div>
+    <div id="docBody-charter"></div>
+  </section>
+
+  <!-- ============================================================ DOC 2: WBS ============================================================ -->
+  <section class="page-section" id="doc-wbs" data-title="Work Breakdown Structure" data-search="work breakdown structure WBS work packages 100 percent owner deliverables tree">
+    <div class="section-kicker">Document 2 of 8</div>
+    <h2>Work Breakdown Structure</h2>
+    <p class="section-lede">Ten work packages, each owned, each with named deliverables, summing to exactly 100% of program scope.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('wbs')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('wbs')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('wbs')">Export CSV</button>
+    </div>
+    <div id="docBody-wbs"></div>
+  </section>
+
+  <!-- ============================================================ DOC 3: TIMELINE ============================================================ -->
+  <section class="page-section" id="doc-timeline" data-title="Milestone Timeline and Gantt" data-search="milestone timeline gantt chart critical path dependency network sequence dates">
+    <div class="section-kicker">Document 3 of 8</div>
+    <h2>Milestone Timeline / Gantt</h2>
+    <p class="section-lede">Ten phases across nine months, ten milestones, and a named, protected critical path from charter to rollout.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('timeline')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('timeline')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('timeline')">Export CSV</button>
+    </div>
+    <div id="docBody-timeline"></div>
+  </section>
+
+  <!-- ============================================================ DOC 4: RAID ============================================================ -->
+  <section class="page-section" id="doc-raid" data-title="RAID Log" data-search="RAID log risks assumptions issues dependencies owner likelihood impact heatmap">
+    <div class="section-kicker">Document 4 of 8</div>
+    <h2>RAID Log</h2>
+    <p class="section-lede">Five risks, four assumptions, two issues, and three dependencies — each with exactly one owner and a working date.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('raid')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('raid')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('raid')">Export CSV</button>
+    </div>
+    <div id="docBody-raid"></div>
+  </section>
+
+  <!-- ============================================================ DOC 5: RACI ============================================================ -->
+  <section class="page-section" id="doc-raci" data-title="RACI Matrix" data-search="RACI matrix responsible accountable consulted informed grid one accountable per activity">
+    <div class="section-kicker">Document 5 of 8</div>
+    <h2>RACI Matrix</h2>
+    <p class="section-lede">Twelve governance and delivery activities against eight roles — exactly one Accountable owner per row.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('raci')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('raci')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('raci')">Export CSV</button>
+    </div>
+    <div id="docBody-raci"></div>
+  </section>
+
+  <!-- ============================================================ DOC 6: SPRINT ============================================================ -->
+  <section class="page-section" id="doc-sprint" data-title="Sprint Iteration Plan" data-search="sprint plan iteration backlog committed stretch points velocity burndown">
+    <div class="section-kicker">Document 6 of 8</div>
+    <h2>Sprint 8 Iteration Plan</h2>
+    <p class="section-lede">The current two-week increment inside the Risk Model Development phase: estimated, committed, and tracked against a burndown.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('sprint')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('sprint')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('sprint')">Export CSV</button>
+    </div>
+    <div id="docBody-sprint"></div>
+  </section>
+
+  <!-- ============================================================ DOC 7: STATUS ============================================================ -->
+  <section class="page-section" id="doc-status" data-title="Status Report" data-search="status report RAG health SPI CPI decisions needed progress baseline sprint 8">
+    <div class="section-kicker">Document 7 of 8</div>
+    <h2>Status Report — Sprint 8</h2>
+    <p class="section-lede">RAG health against baseline, earned-value KPIs, and two decisions the Steering Committee needs to make now.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('status')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('status')">Save as PDF</button>
+    </div>
+    <div id="docBody-status"></div>
+  </section>
+
+  <!-- ============================================================ DOC 8: BUDGET ============================================================ -->
+  <section class="page-section" id="doc-budget" data-title="Budget and Burn" data-search="budget burn planned actual forecast EAC VAC earned value management BAC">
+    <div class="section-kicker">Document 8 of 8</div>
+    <h2>Budget &amp; Burn</h2>
+    <p class="section-lede">Planned vs. actual spend by phase, a monthly burn chart, and a forecast to complete using earned value management.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('budget')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('budget')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('budget')">Export CSV</button>
+    </div>
+    <div id="docBody-budget"></div>
+  </section>
+
+  </main>
+</div>
+
+<footer id="pagefoot">
+  Colaberry Enterprise AI Leadership Accelerator &middot; Project Manager Field Guide &middot; Generated by Claude Code &middot; <span id="footDate"></span>
+</footer>
+
+<button id="askFab" onclick="toggleAsk()">Ask the guide</button>
+<div id="askPanel">
+  <div id="askHead">
+    <div><div class="ah-t">Ask the guide</div><div class="ah-s">Answers come from this document only — works offline</div></div>
+    <button id="askClose" onclick="toggleAsk()">&times;</button>
+  </div>
+  <div id="askBody">
+    <div class="ask-welcome">Try a question, or tap a suggestion:</div>
+    <div style="margin-top:8px">
+      <span class="ask-suggest" onclick="askSuggested(this)">What's the critical path?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">Who is accountable for the bias audit?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What is the budget variance?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What decisions are needed right now?</span>
+    </div>
+  </div>
+  <form id="askForm" onsubmit="return handleAsk(event)">
+    <input id="askInput" type="text" placeholder="Ask about the triangle, WBS, RAID, RACI, velocity..." autocomplete="off">
+    <button id="askSend" type="submit">Ask</button>
+  </form>
+</div>
+
+<script id="deepdive-metadata" type="application/json">
+{
+  "guide_type": "Project Manager Field Guide",
+  "curriculum_type": "deep_dive",
+  "week": 3,
+  "discipline": "Project Manager",
+  "student_id": "abdinur2468",
+  "project_id": "caresignal-ai-readmission-risk-discharge-coordination",
+  "repository": "colaberry-enterprise-ai-leadership-accelerator",
+  "generated_by": "Claude Code",
+  "generated_date": "2026-08-18",
+  "version": "1.0.0",
+  "build_number": "1"
+}
+</script>
+
+<script>
+/* ==================================================================================================
+   DATA LAYER — CareSignal AI (Crestwood Regional Health Network)
+   ================================================================================================== */
+
+const WBS = [
+  {id:'1.0',label:'Project Initiation & Governance',pct:4,owner:'AI Solution Architect (PM)',deliverables:['Signed charter','Steering committee established','RAID log and RACI baselined']},
+  {id:'2.0',label:'Clinical & Data Discovery',pct:8,owner:'Michael Torres, Clinical Informatics Lead',deliverables:['3 years of historical EHR data profiled','SDOH data-gap assessment','Readmission driver analysis']},
+  {id:'3.0',label:'Data Engineering & EHR/FHIR Integration',pct:16,owner:'Angela Brooks, Integration Lead',deliverables:['Epic FHIR sandbox access','Discharge-summary feed pipeline','Feature store for the risk model']},
+  {id:'4.0',label:'Readmission Risk Model Development (ML)',pct:18,owner:'Dr. Naomi Reyes, Data Science Lead',deliverables:['Candidate model trained (XGBoost)','SHAP explainability layer','Model registry (Azure ML)']},
+  {id:'5.0',label:'Care Transition Plan Generator (GenAI)',pct:13,owner:'Dr. Naomi Reyes, Data Science Lead',deliverables:['Prompt-template library','Nurse-review draft UI','Guardrails against unsafe recommendations']},
+  {id:'6.0',label:'Clinical Validation & Bias Audit',pct:9,owner:'James Whitfield, Compliance & Privacy Officer',deliverables:['Demographic disparity test suite','Clinical AI Governance Board review','Go/no-go gate decision']},
+  {id:'7.0',label:'Care Coordinator Workflow & UX',pct:10,owner:'AI Solution Architect (PM)',deliverables:['Risk-flag review UI','Care-coordinator routing logic','Follow-up scheduling integration']},
+  {id:'8.0',label:'Change Management & Clinician Training',pct:7,owner:'Sofia Delgado, Change Management Lead',deliverables:['Clinician training curriculum','Alert-fatigue mitigation plan','Go-live communications']},
+  {id:'9.0',label:'Pilot Deployment (2 Hospitals)',pct:8,owner:'AI Solution Architect (PM)',deliverables:['Pilot go-live at 2 sites','Hypercare support model','Pilot results review gate']},
+  {id:'10.0',label:'Network-Wide Rollout & Hypercare',pct:7,owner:'Karen Ubah, VP Care Coordination',deliverables:['Phased rollout to remaining 4 hospitals','30-day hypercare per site','Benefits realization tracking']}
+];
+
+const MONTHS = ['Sep 26','Oct 26','Nov 26','Dec 26','Jan 27','Feb 27','Mar 27','Apr 27','May 27'];
+
+const GANTT = [
+  {id:'1.0',label:'1.0 Initiation & Governance',start:0.0,end:0.6,critical:true},
+  {id:'2.0',label:'2.0 Clinical & Data Discovery',start:0.6,end:1.6,critical:true},
+  {id:'3.0',label:'3.0 EHR/FHIR Integration',start:1.6,end:3.2,critical:true},
+  {id:'4.0',label:'4.0 Risk Model Development',start:3.0,end:4.6,critical:true},
+  {id:'5.0',label:'5.0 Transition Plan Generator',start:4.3,end:5.8,critical:false},
+  {id:'6.0',label:'6.0 Clinical Validation & Bias Audit (Gate)',start:4.6,end:5.9,critical:true},
+  {id:'7.0',label:'7.0 Coordinator UX Design',start:5.0,end:6.6,critical:false},
+  {id:'8.0',label:'8.0 Change Mgmt & Training',start:5.6,end:6.6,critical:false},
+  {id:'9.0',label:'9.0 Pilot Deployment (Gate)',start:6.6,end:7.9,critical:true},
+  {id:'10.0',label:'10.0 Rollout & Hypercare',start:7.9,end:8.9,critical:true}
+];
+
+const MILESTONES = [
+  {id:'M0',label:'M0 Charter Approved',at:0.0,date:'2026-09-04',critical:true},
+  {id:'M1',label:'M1 Discovery Complete',at:1.6,date:'2026-10-16',critical:true},
+  {id:'M2',label:'M2 Integration Env Ready',at:3.2,date:'2026-11-27',critical:true},
+  {id:'M3',label:'M3 Risk Model v1 Trained',at:4.6,date:'2027-01-15',critical:true},
+  {id:'M4',label:'M4 Transition Generator Alpha',at:5.8,date:'2027-02-05',critical:false},
+  {id:'M5',label:'M5 Clinical Validation Gate PASSED',at:5.9,date:'2027-02-26',critical:true},
+  {id:'M6',label:'M6 Coordinator UX + Training Ready',at:6.6,date:'2027-03-19',critical:false},
+  {id:'M7',label:'M7 Pilot Go-Live',at:6.6,date:'2027-04-02',critical:true},
+  {id:'M8',label:'M8 Pilot Review Gate',at:7.9,date:'2027-04-30',critical:true},
+  {id:'M9',label:'M9 Network Rollout Complete',at:8.9,date:'2027-05-28',critical:true}
+];
+
+const DEP_NODES = [
+  {id:'n1',label:'1.0 Initiation',x:60,y:150},
+  {id:'n2',label:'2.0 Discovery',x:200,y:150},
+  {id:'n3',label:'3.0 Integration',x:340,y:150},
+  {id:'n4',label:'4.0 Risk Model',x:480,y:85},
+  {id:'n5',label:'5.0 Transition Gen',x:480,y:215},
+  {id:'n6',label:'6.0 Validation Gate',x:620,y:150},
+  {id:'n7',label:'7.0 Coordinator UX',x:620,y:255},
+  {id:'n8',label:'8.0 Change Mgmt',x:760,y:255},
+  {id:'n9',label:'9.0 Pilot Deployment',x:900,y:150},
+  {id:'n10',label:'10.0 Rollout',x:1040,y:150}
+];
+const DEP_EDGES = [
+  {from:'n1',to:'n2',critical:true},{from:'n2',to:'n3',critical:true},{from:'n3',to:'n4',critical:true},
+  {from:'n3',to:'n5',critical:false},{from:'n4',to:'n6',critical:true},{from:'n5',to:'n6',critical:false},
+  {from:'n3',to:'n7',critical:false},{from:'n7',to:'n8',critical:false},{from:'n6',to:'n9',critical:true},
+  {from:'n8',to:'n9',critical:false},{from:'n9',to:'n10',critical:true}
+];
+
+const RAID = [
+  {id:'RISK-01',type:'Risk',desc:'Readmission risk model exhibits demographic bias (race, insurance type) in risk scores.',owner:'Dr. Naomi Reyes, Data Science Lead',likelihood:3,impact:5,severity:'High',status:'Open',raised:'2026-09-10',target:'2027-02-26',mitigation:'Mandatory bias-audit gate (WBS 6.0) with disparity threshold enforced before go-live.'},
+  {id:'RISK-02',type:'Risk',desc:'Epic FHIR integration delayed by vendor statement-of-work turnaround.',owner:'Angela Brooks, Integration Lead',likelihood:4,impact:4,severity:'High',status:'Open — partially realized (2-wk slip)',raised:'2026-09-15',target:'2026-11-27',mitigation:'Contractor option escalated to Steering Committee — see Status Report, Decision 1.'},
+  {id:'RISK-03',type:'Risk',desc:'Clinician "alert fatigue" causes override or disregard of risk flags.',owner:'Sofia Delgado, Change Mgmt Lead',likelihood:3,impact:3,severity:'Medium',status:'Open',raised:'2026-09-20',target:'2027-03-19',mitigation:'Flag volume capped per shift; override reason codes tracked and reviewed monthly.'},
+  {id:'RISK-04',type:'Risk',desc:'Cloud inference cost exceeds budget once scored at full network volume.',owner:'AI Solution Architect (PM)',likelihood:2,impact:3,severity:'Medium',status:'Open',raised:'2026-09-22',target:'2027-05-28',mitigation:'Cost-per-score fitness function gates rollout to the next hospital cohort.'},
+  {id:'RISK-05',type:'Risk',desc:'PHI exposure via model logging or telemetry pipeline.',owner:'James Whitfield, Compliance & Privacy Officer',likelihood:2,impact:5,severity:'High',status:'Open',raised:'2026-09-10',target:'2027-02-26',mitigation:'PHI redaction enforced at the logging boundary; audited under WBS 6.0.'},
+  {id:'ASSUMP-01',type:'Assumption',desc:'Epic sandbox access granted by November 2026.',owner:'Angela Brooks, Integration Lead',severity:'—',status:'Realized late (Nov 27) — converted to RISK-02',raised:'2026-09-04',target:'2026-11-27',mitigation:'Superseded by RISK-02 once the date slipped.'},
+  {id:'ASSUMP-02',type:'Assumption',desc:'CMS 30-day readmission measure definition remains stable through the program.',owner:'Michael Torres, Clinical Informatics Lead',severity:'—',status:'Holding',raised:'2026-09-04',target:'2027-05-28',mitigation:'Quarterly check against CMS rule updates.'},
+  {id:'ASSUMP-03',type:'Assumption',desc:'Care coordinators are available at 20% time allocation for UAT.',owner:'Karen Ubah, VP Care Coordination',severity:'—',status:'At risk — see ISSUE-02',raised:'2026-09-10',target:'2027-03-19',mitigation:'Backfill plan requested; tracked as ISSUE-02.'},
+  {id:'ASSUMP-04',type:'Assumption',desc:'Three years of historical EHR data is sufficient to train the risk model.',owner:'Dr. Naomi Reyes, Data Science Lead',severity:'—',status:'Holding',raised:'2026-09-04',target:'2027-01-15',mitigation:'Backtest against a held-out fourth year once available.'},
+  {id:'ISSUE-01',type:'Issue',desc:'Historical data is missing social-determinants-of-health (SDOH) fields for 22% of patients.',owner:'Michael Torres, Clinical Informatics Lead',severity:'Medium',status:'Open',raised:'2026-10-05',target:'2026-11-27',mitigation:'Proxy features derived from ZIP-level SDOH indices pending direct capture.'},
+  {id:'ISSUE-02',type:'Issue',desc:'Two care coordinator FTEs are vacant, threatening UAT capacity for the pilot.',owner:'Karen Ubah, VP Care Coordination',severity:'High',status:'Open',raised:'2026-11-01',target:'2027-02-06',mitigation:'Hiring status due to Steering Committee by Feb 6, 2027 — see Status Report, Decision 2.'},
+  {id:'DEP-01',type:'Dependency',desc:'Epic FHIR API access from Epic Systems (external vendor).',owner:'Angela Brooks, Integration Lead',severity:'—',status:'Received — 2 weeks late',raised:'2026-09-04',target:'2026-11-13',mitigation:'n/a'},
+  {id:'DEP-02',type:'Dependency',desc:'Clinical AI Governance Board review slot for the bias-audit gate.',owner:'AI Solution Architect (PM)',severity:'—',status:'Scheduled',raised:'2026-09-10',target:'2027-02-26',mitigation:'n/a'},
+  {id:'DEP-03',type:'Dependency',desc:'Azure HIPAA-eligible cloud tenant provisioning.',owner:'AI Solution Architect (PM)',severity:'—',status:'Complete',raised:'2026-09-04',target:'2026-10-16',mitigation:'n/a'}
+];
+
+const RACI_ROLES = ['Sponsor (CCO)','AI Solution Architect (PM)','Data Science Lead','Clinical Informatics Lead','Integration Lead','Change Mgmt Lead','Compliance & Privacy Officer','VP Care Coordination'];
+const RACI_ACTIVITIES = [
+  {name:'Charter & Business Case Approval', letters:['A','R','C','C','I','I','C','I']},
+  {name:'Clinical & Data Discovery', letters:['I','A','R','R','C','I','C','C']},
+  {name:'EHR / FHIR Integration Build', letters:['I','R','C','I','A','I','C','I']},
+  {name:'Risk Model Development & Training', letters:['I','C','A','R','I','I','I','I']},
+  {name:'Transition Plan Generator Build', letters:['I','A','R','C','I','I','C','I']},
+  {name:'Clinical Validation & Bias Audit (Gate)', letters:['I','C','R','R','I','I','A','I']},
+  {name:'Care Coordinator Workflow & UX', letters:['I','A','I','C','I','C','I','R']},
+  {name:'Clinician & Coordinator Training', letters:['I','I','I','C','I','A','I','R']},
+  {name:'Pilot Go-Live Readiness Decision (Gate)', letters:['A','R','I','C','I','I','C','C']},
+  {name:'Pilot Results Review (Gate)', letters:['A','R','R','C','I','I','C','C']},
+  {name:'Network-Wide Rollout Decision', letters:['A','R','I','C','I','I','C','C']},
+  {name:'Budget & Change Control Approval', letters:['A','R','I','I','I','I','C','I']}
+];
+
+const SPRINT_ITEMS = [
+  {id:'CS-081',title:'Integrate FHIR discharge-summary feed into feature store',pts:8,type:'Committed'},
+  {id:'CS-082',title:'Build readmission risk feature pipeline (SDOH proxy fields)',pts:5,type:'Committed'},
+  {id:'CS-083',title:'Train candidate risk model v0.9 (XGBoost)',pts:8,type:'Committed'},
+  {id:'CS-084',title:'Implement model explainability layer (SHAP)',pts:5,type:'Committed'},
+  {id:'CS-085',title:'Draft transition-of-care plan prompt templates',pts:3,type:'Committed'},
+  {id:'CS-086',title:'Define bias-audit test plan with Compliance',pts:3,type:'Committed'},
+  {id:'CS-087',title:'Build clinician review UI mock for risk flags',pts:5,type:'Stretch'},
+  {id:'CS-088',title:'Set up MLOps model registry (Azure ML)',pts:5,type:'Stretch'}
+];
+const BURNDOWN_DAYS = ['D0','D1','D2','D3','D4','D5','D6','D7','D8','D9','D10'];
+const BURNDOWN_IDEAL = [32,28.8,25.6,22.4,19.2,16,12.8,9.6,6.4,3.2,0];
+const BURNDOWN_ACTUAL = [32,30,29,25,24,20,17,15,11,7,4];
+
+const BUDGET_PHASES = [
+  {id:'1.0',label:'Initiation & Governance',planned:57,actual:55,forecast:55},
+  {id:'2.0',label:'Clinical & Data Discovery',planned:114,actual:118,forecast:118},
+  {id:'3.0',label:'EHR/FHIR Integration',planned:227,actual:245,forecast:245},
+  {id:'4.0',label:'Risk Model Development',planned:256,actual:74,forecast:268},
+  {id:'5.0',label:'Transition Plan Generator',planned:185,actual:8,forecast:190},
+  {id:'6.0',label:'Clinical Validation & Bias Audit',planned:128,actual:0,forecast:135},
+  {id:'7.0',label:'Coordinator UX',planned:142,actual:0,forecast:142},
+  {id:'8.0',label:'Change Mgmt & Training',planned:99,actual:0,forecast:99},
+  {id:'9.0',label:'Pilot Deployment',planned:114,actual:0,forecast:116},
+  {id:'10.0',label:'Rollout & Hypercare',planned:98,actual:0,forecast:98}
+];
+const BUDGET_PLANNED_CUM = [60,180,340,460,540,700,920,1180,1420];
+const BUDGET_ACTFC_CUM = [55,150,290,410,500,660,900,1200,1466];
+const BUDGET_SPLIT = 5;
+const EVM = {BAC:1420,PV:540,EV:483,AC:500,SPI:0.89,CPI:0.97,ETC:966,EAC:1466,VAC:-46,pct:34};
+
+const RAG_DONUT = [
+  {label:'On Track / Complete',value:3,color:'var(--leaf)'},
+  {label:'At Risk (Amber)',value:2,color:'var(--amber)'},
+  {label:'Not Yet Started',value:5,color:'var(--muted)'}
+];
+
+const GOOD_BAD = [
+  ["“The project should go live sometime in spring.”","“Pilot Go-Live is April 2, 2027, gated on the Clinical Validation Gate passing Feb 26, 2027 — see the Milestone Timeline.”"],
+  ["“The team will handle risks as they come up.”","“RISK-02 (Epic integration delay) is owned by Angela Brooks, likelihood 4/5, impact 4/5, with a named mitigation and target date — see the RAID Log.”"],
+  ["“Everyone is responsible for the bias audit passing.”","“James Whitfield, Compliance & Privacy Officer, is Accountable for the Clinical Validation & Bias Audit gate — exactly one owner — see the RACI Matrix.”"],
+  ["“The model development phase will take about a fifth of the budget.”","“WBS 4.0 Risk Model Development is budgeted at $256K (18% of the $1.42M BAC), forecast to $268K — see Budget & Burn.”"],
+  ["“We're on track.”","“SPI 0.89, CPI 0.97, EAC $1.466M against a $1.42M BAC — AMBER on schedule and cost, with two decisions the Steering Committee must make by Jan 30, 2027 — see the Status Report.”"]
+];
+
+const REVIEW_LENS = [
+  ["WBS sums to 100%","Do the work packages sum to exactly 100% of scope, with the 100% rule holding at every level?"],
+  ["Critical path is named","Is the longest, zero-float sequence of dependent tasks explicitly identified — not just implied by a Gantt chart?"],
+  ["Estimates carry buffer","Do schedule and cost estimates carry a stated range or buffer, not a single confident number?"],
+  ["Every RAID row has one owner","Does every risk, assumption, issue, and dependency have exactly one named owner and a date?"],
+  ["Every RACI row has one Accountable","Is there exactly one Accountable per activity — never zero, never two?"],
+  ["Gates have exit criteria","Does every gate state what must be true to pass, not just a date on the calendar?"],
+  ["The fixed constraint is stated","Does the plan say explicitly which corner of the scope/schedule/cost triangle is fixed and which are negotiable?"],
+  ["RAG is backed by numbers","Is Red/Amber/Green status derived from SPI, CPI, or a defined threshold — not from how the reporting manager feels?"],
+  ["Decisions Needed are explicit","Does the status report name the specific decision the sponsor must make, with options and a date — not just a progress narrative?"]
+];
+
+/* ==================================================================================================
+   RENDER HELPERS
+   ================================================================================================== */
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ragBadge(s){ const cls = s==='Green'?'badge-status-done': s==='Amber'?'badge-status-progress':'badge-hi'; return `<span class="badge ${cls}">${esc(s.toUpperCase())}</span>`; }
+function levelBadge(l){ const cls = l==='High'?'badge-hi':l==='Medium'?'badge-med':l==='Low'?'badge-lo':'badge-status-notstarted'; return `<span class="badge ${cls}">${esc(l)}</span>`; }
+function raciLetter(l){ const cls = l==='A'?'raci-A':l==='R'?'raci-R':l==='C'?'raci-C':'raci-I'; return `<span class="${cls}">${l}</span>`; }
+function kpiTile(label,value,target,deltaText,good){
+  const c = good? 'var(--leaf)':'var(--cherry)';
+  return `<div class="kpi-tile"><div class="kpi-label">${esc(label)}</div><div class="kpi-value">${esc(value)}</div><div class="kpi-delta" style="color:${c}">${esc(deltaText)}</div><div class="kpi-target">${target}</div></div>`;
+}
+function svgWrap(inner,w,h){ return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;height:auto;display:block;margin:0 auto;">${inner}</svg>`; }
+function legend(items){
+  return `<div class="legend-row">${items.map(i=>`<span><span class="legend-swatch" style="background:${i[1]}"></span>${esc(i[0])}</span>`).join('')}</div>`;
+}
+function wrap2Lines(label,maxChars){
+  const words = label.split(' ');
+  let l1='', l2='';
+  words.forEach(w=>{ if((l1+' '+w).trim().length<=maxChars && !l2) l1=(l1?l1+' ':'')+w; else l2=(l2?l2+' ':'')+w; });
+  return [l1,l2];
+}
+
+/* ---------------- WBS tree ---------------- */
+function renderWbsTree(items,w,h){
+  const rootW=230, rootH=54, rootX=w/2-rootW/2, rootY=8;
+  const n=items.length;
+  const boxW=Math.floor((w-40-(n-1)*10)/n);
+  const boxH=70, rowY=rootY+rootH+56;
+  let s = `<line x1="${w/2}" y1="${rootY+rootH}" x2="${w/2}" y2="${rootY+rootH+28}" stroke="var(--berry)" stroke-width="1.5"/>`;
+  s += `<line x1="20" y1="${rootY+rootH+28}" x2="${w-20}" y2="${rootY+rootH+28}" stroke="var(--berry)" stroke-width="1.5"/>`;
+  items.forEach((it,i)=>{
+    const x = 20+i*(boxW+10), cx = x+boxW/2;
+    const [l1,l2] = wrap2Lines(it.label,20);
+    s += `<line x1="${cx}" y1="${rootY+rootH+28}" x2="${cx}" y2="${rowY}" stroke="var(--berry)" stroke-width="1.5"/>`;
+    s += `<rect x="${x}" y="${rowY}" width="${boxW}" height="${boxH}" rx="8" fill="var(--berry)" fill-opacity="0.10" stroke="var(--berry)" stroke-width="1.3"/>`;
+    s += `<text x="${cx}" y="${rowY+18}" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--berry)">${esc(it.id)}</text>`;
+    s += `<text x="${cx}" y="${rowY+32}" text-anchor="middle" font-size="7.7" fill="var(--text)">${esc(l1)}</text>`;
+    s += `<text x="${cx}" y="${rowY+43}" text-anchor="middle" font-size="7.7" fill="var(--text)">${esc(l2)}</text>`;
+    s += `<text x="${cx}" y="${rowY+61}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--cherry)">${it.pct}%</text>`;
+  });
+  const root = `<rect x="${rootX}" y="${rootY}" width="${rootW}" height="${rootH}" rx="8" fill="var(--cherry)" fill-opacity="0.10" stroke="var(--cherry)" stroke-width="1.5"/><text x="${w/2}" y="${rootY+23}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--cherry)">CareSignal AI Program</text><text x="${w/2}" y="${rootY+40}" text-anchor="middle" font-size="10" fill="var(--text)">100% of Scope</text>`;
+  return svgWrap(root+s, w, rowY+boxH+14);
+}
+
+/* ---------------- Gantt ---------------- */
+function renderGantt(phases,milestones,months,w){
+  const left=200,right=20,barsTop=54,rowH=28,gap=8;
+  const chartW=w-left-right, monthW=chartW/months.length;
+  const totalH = barsTop + phases.length*(rowH+gap) + 10;
+  let grid='',bars='',mile='',axis='';
+  for(let i=0;i<=months.length;i++){ const x=left+i*monthW; grid+=`<line x1="${x.toFixed(1)}" y1="${barsTop-18}" x2="${x.toFixed(1)}" y2="${totalH-6}" stroke="var(--border)" stroke-width="1"/>`; }
+  months.forEach((m,i)=>{ axis+=`<text x="${(left+i*monthW+monthW/2).toFixed(1)}" y="14" text-anchor="middle" font-size="9" fill="var(--muted)">${esc(m)}</text>`; });
+  phases.forEach((p,i)=>{
+    const y=barsTop+i*(rowH+gap);
+    const x1=left+p.start*monthW, x2=left+p.end*monthW;
+    const color = p.critical?'var(--cherry)':'var(--berry)';
+    bars+=`<text x="${left-10}" y="${(y+rowH/2+3.5).toFixed(1)}" text-anchor="end" font-size="9.2" fill="var(--text)">${esc(p.label)}</text>`;
+    bars+=`<rect x="${x1.toFixed(1)}" y="${y}" width="${(x2-x1).toFixed(1)}" height="${rowH}" rx="4" fill="${color}" fill-opacity="${p.critical?0.85:0.55}" stroke="${color}" stroke-width="1"/>`;
+  });
+  milestones.forEach(m=>{
+    const x=left+m.at*monthW, y=34, c=m.critical?'var(--cherry)':'var(--amber)';
+    mile+=`<path d="M${x.toFixed(1)} ${y-6} L${(x+6).toFixed(1)} ${y} L${x.toFixed(1)} ${y+6} L${(x-6).toFixed(1)} ${y} Z" fill="${c}"/>`;
+  });
+  return svgWrap(`${grid}${bars}${mile}${axis}`, w, totalH);
+}
+
+/* ---------------- Dependency network ---------------- */
+function renderDependencyNetwork(nodes,edges,w,h){
+  const map={}; nodes.forEach(n=>map[n.id]=n);
+  const defs=`<defs><marker id="arrC" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--cherry)"/></marker><marker id="arrN" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--muted)"/></marker></defs>`;
+  let lines='';
+  edges.forEach(e=>{
+    const a=map[e.from], b=map[e.to];
+    const color = e.critical?'var(--cherry)':'var(--muted)';
+    const marker = e.critical?'url(#arrC)':'url(#arrN)';
+    const dx = b.x>a.x? -52:52, dxa = b.x>a.x? 52:-52;
+    lines += `<line x1="${a.x+dxa}" y1="${a.y}" x2="${b.x+dx}" y2="${b.y}" stroke="${color}" stroke-width="${e.critical?2.1:1.2}" marker-end="${marker}"/>`;
+  });
+  let boxes='';
+  nodes.forEach(n=>{
+    const [l1,l2] = wrap2Lines(n.label,15);
+    boxes += `<rect x="${n.x-52}" y="${n.y-24}" width="104" height="48" rx="8" fill="var(--surface)" stroke="var(--berry)" stroke-width="1.3"/>`;
+    boxes += `<text x="${n.x}" y="${n.y-3}" text-anchor="middle" font-size="9" fill="var(--text)">${esc(l1)}</text>`;
+    boxes += `<text x="${n.x}" y="${n.y+10}" text-anchor="middle" font-size="9" fill="var(--text)">${esc(l2)}</text>`;
+  });
+  return svgWrap(`${defs}${lines}${boxes}`,w,h);
+}
+
+/* ---------------- Risk likelihood x impact heatmap ---------------- */
+function renderRiskHeatmap(risks,w,h){
+  const pad=44, botPad=34;
+  const gridW=w-pad-16, gridH=h-16-botPad;
+  const cellW=gridW/5, cellH=gridH/5;
+  let cells='', dots='', axis='';
+  for(let l=1;l<=5;l++){ for(let im=1;im<=5;im++){
+    const score=l*im;
+    const color = score>=15?'rgba(251,40,50,.16)':score>=8?'rgba(232,146,12,.16)':'rgba(91,166,60,.14)';
+    const x=pad+(l-1)*cellW, y=16+gridH-(im)*cellH;
+    cells += `<rect x="${x}" y="${y}" width="${cellW-2}" height="${cellH-2}" fill="${color}"/>`;
+  }}
+  for(let i=1;i<=5;i++){
+    axis += `<text x="${pad+(i-1)*cellW+cellW/2}" y="${16+gridH+16}" text-anchor="middle" font-size="9" fill="var(--muted)">${i}</text>`;
+    axis += `<text x="${pad-8}" y="${16+gridH-(i)*cellH+cellH/2+3}" text-anchor="end" font-size="9" fill="var(--muted)">${i}</text>`;
+  }
+  axis += `<text x="${pad+2.5*cellW}" y="${h}" text-anchor="middle" font-size="10" fill="var(--text)" font-weight="700">Likelihood &#8594;</text>`;
+  axis += `<text x="12" y="${16+gridH/2}" text-anchor="middle" font-size="10" fill="var(--text)" font-weight="700" transform="rotate(-90 12 ${16+gridH/2})">Impact &#8594;</text>`;
+  risks.forEach(r=>{
+    const cx=pad+(r.likelihood-1)*cellW+cellW/2, cy=16+gridH-(r.impact)*cellH+cellH/2;
+    dots += `<circle cx="${cx}" cy="${cy}" r="12" fill="var(--berry)" stroke="var(--surface)" stroke-width="1.5"/><text x="${cx}" y="${cy+3}" text-anchor="middle" font-size="8" fill="#fff" font-weight="700">${r.id.replace('RISK-','')}</text>`;
+  });
+  return svgWrap(`${cells}${dots}${axis}`, w, h);
+}
+
+/* ---------------- Burndown & Budget line charts ---------------- */
+function renderBurndown(days,ideal,actual,w,h){
+  const padL=36,padR=16,padT=14,padB=26;
+  const plotW=w-padL-padR, plotH=h-padT-padB;
+  const maxVal=Math.max(...ideal,...actual)*1.1;
+  const stepX=plotW/(days.length-1);
+  const yOf=v=>padT+plotH-(v/maxVal)*plotH, xOf=i=>padL+i*stepX;
+  const idealPath=ideal.map((v,i)=>(i===0?'M':'L')+xOf(i).toFixed(1)+' '+yOf(v).toFixed(1)).join(' ');
+  const actualPath=actual.map((v,i)=>(i===0?'M':'L')+xOf(i).toFixed(1)+' '+yOf(v).toFixed(1)).join(' ');
+  let grid='';
+  for(let g=0;g<=4;g++){ const gy=padT+plotH-(g/4)*plotH; grid+=`<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${padL+plotW}" y2="${gy.toFixed(1)}" stroke="var(--border)"/><text x="${padL-6}" y="${(gy+3).toFixed(1)}" font-size="8" text-anchor="end" fill="var(--muted)">${Math.round(maxVal*g/4)}</text>`; }
+  const labels=days.map((d,i)=>`<text x="${xOf(i).toFixed(1)}" y="${(padT+plotH+15).toFixed(1)}" font-size="8" text-anchor="middle" fill="var(--text)">${esc(d)}</text>`).join('');
+  const dots=actual.map((v,i)=>`<circle cx="${xOf(i).toFixed(1)}" cy="${yOf(v).toFixed(1)}" r="2.6" fill="var(--cherry)"/>`).join('');
+  return svgWrap(`${grid}<path d="${idealPath}" fill="none" stroke="var(--berry)" stroke-width="2" stroke-dasharray="5,4"/><path d="${actualPath}" fill="none" stroke="var(--cherry)" stroke-width="2.2"/>${dots}${labels}`,w,h) + legend([['Ideal burndown (points remaining)','var(--berry)'],['Actual remaining','var(--cherry)']]);
+}
+function renderBudgetChart(months,planned,actualForecast,splitIndex,w,h){
+  const padL=54,padR=20,padT=16,padB=28;
+  const plotW=w-padL-padR, plotH=h-padT-padB;
+  const maxVal=Math.max(...planned,...actualForecast)*1.08;
+  const stepX=plotW/(months.length-1);
+  const yOf=v=>padT+plotH-(v/maxVal)*plotH, xOf=i=>padL+i*stepX;
+  const plannedPath=planned.map((v,i)=>(i===0?'M':'L')+xOf(i).toFixed(1)+' '+yOf(v).toFixed(1)).join(' ');
+  const solidPts=actualForecast.slice(0,splitIndex);
+  const solidPath=solidPts.map((v,i)=>(i===0?'M':'L')+xOf(i).toFixed(1)+' '+yOf(v).toFixed(1)).join(' ');
+  const dashPts=actualForecast.slice(splitIndex-1);
+  const dashPath=dashPts.map((v,i)=>(i===0?'M':'L')+xOf(i+splitIndex-1).toFixed(1)+' '+yOf(v).toFixed(1)).join(' ');
+  let grid='';
+  for(let g=0;g<=4;g++){ const gy=padT+plotH-(g/4)*plotH; grid+=`<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${padL+plotW}" y2="${gy.toFixed(1)}" stroke="var(--border)"/><text x="${padL-6}" y="${(gy+3).toFixed(1)}" font-size="8" text-anchor="end" fill="var(--muted)">$${Math.round(maxVal*g/4)}K</text>`; }
+  const labels=months.map((m,i)=>`<text x="${xOf(i).toFixed(1)}" y="${(padT+plotH+16).toFixed(1)}" font-size="8.3" text-anchor="middle" fill="var(--text)">${esc(m)}</text>`).join('');
+  const dots=actualForecast.map((v,i)=>`<circle cx="${xOf(i).toFixed(1)}" cy="${yOf(v).toFixed(1)}" r="2.8" fill="${i<splitIndex?'var(--cherry)':'var(--surface)'}" stroke="var(--cherry)" stroke-width="1.4"/>`).join('');
+  return svgWrap(`${grid}<path d="${plannedPath}" fill="none" stroke="var(--berry)" stroke-width="2"/><path d="${solidPath}" fill="none" stroke="var(--cherry)" stroke-width="2.2"/><path d="${dashPath}" fill="none" stroke="var(--cherry)" stroke-width="2.2" stroke-dasharray="5,4"/>${dots}${labels}`, w, h) + legend([['Planned (PV baseline)','var(--berry)'],['Actual to date','var(--cherry)'],['Forecast (EAC)','var(--cherry)']]);
+}
+function renderDonut(data,w,h){
+  const cx=w*0.32, cy=h/2, r=Math.min(w,h)/2-14, ir=r*0.58;
+  const total = data.reduce((s,d)=>s+d.value,0);
+  let angle=-Math.PI/2, paths='';
+  data.forEach(d=>{
+    const frac=d.value/total, a1=angle, a2=angle+frac*Math.PI*2;
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1), x2=cx+r*Math.cos(a2), y2=cy+r*Math.sin(a2);
+    const ix1=cx+ir*Math.cos(a2), iy1=cy+ir*Math.sin(a2), ix2=cx+ir*Math.cos(a1), iy2=cy+ir*Math.sin(a1);
+    const large = frac>0.5?1:0;
+    paths += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${ix1.toFixed(1)} ${iy1.toFixed(1)} A${ir} ${ir} 0 ${large} 0 ${ix2.toFixed(1)} ${iy2.toFixed(1)} Z" fill="${d.color}"></path>`;
+    angle=a2;
+  });
+  const legendHtml = data.map(d=>`<div style="margin-bottom:6px"><span class="legend-dot" style="background:${d.color}"></span>${esc(d.label)} <span class="mono" style="color:var(--muted)">(${d.value})</span></div>`).join('');
+  return `<div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center">
+    <svg viewBox="0 0 ${w} ${h}" width="${w*0.62}" style="max-width:280px">${paths}
+      <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="19" font-weight="700" fill="var(--text)">${total}</text>
+      <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="8.5" fill="var(--muted)">milestones</text>
+    </svg>
+    <div style="font-size:.82rem">${legendHtml}</div>
+  </div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT METADATA
+   ================================================================================================== */
+const DOC_META = {
+  charter:  {code:'CSAI-CHTR-01', title:'Project Charter — CareSignal AI', version:'1.0', status:'Approved', owner:'Dr. Elena Vasquez, Chief Clinical Officer (Sponsor)', date:'2026-09-02'},
+  wbs:      {code:'CSAI-WBS-01',  title:'Work Breakdown Structure — CareSignal AI', version:'1.1', status:'Baselined', owner:'AI Solution Architect (Project Management)', date:'2026-09-10'},
+  timeline: {code:'CSAI-TML-01',  title:'Milestone Timeline & Critical Path — CareSignal AI', version:'1.2', status:'Baselined', owner:'AI Solution Architect (Project Management)', date:'2026-09-10'},
+  raid:     {code:'CSAI-RAID-01', title:'RAID Log — CareSignal AI', version:'1.6', status:'Living Document', owner:'AI Solution Architect (Project Management)', date:'2027-01-16'},
+  raci:     {code:'CSAI-RACI-01', title:'RACI Matrix — CareSignal AI', version:'1.0', status:'Approved', owner:'AI Solution Architect (Project Management)', date:'2026-09-12'},
+  sprint:   {code:'CSAI-SPR-08',  title:'Sprint 8 Iteration Plan — CareSignal AI', version:'1.0', status:'In Progress', owner:'AI Solution Architect (Project Management)', date:'2027-01-05'},
+  status:   {code:'CSAI-STAT-08', title:'Status Report — Sprint 8 — CareSignal AI', version:'1.0', status:'Published', owner:'AI Solution Architect (Project Management)', date:'2027-01-16'},
+  budget:   {code:'CSAI-BUD-01',  title:'Budget & Burn Report — CareSignal AI', version:'1.0', status:'Published', owner:'AI Solution Architect (Project Management)', date:'2027-01-16'}
+};
+
+/* ==================================================================================================
+   DOCUMENT 1 — PROJECT CHARTER
+   ================================================================================================== */
+function body_charter(){
+  return `
+  <h3>1. Executive Summary</h3>
+  <p>Crestwood Regional Health Network's 30-day all-cause readmission rate (16.8%) exceeds the CMS-benchmarked target (13.5%), costing the network an estimated <strong>$9.4M/year</strong> in HRRP penalties. <strong>CareSignal AI</strong> is chartered to build and deploy an AI-assisted readmission-risk scoring and discharge-coordination platform, integrated into Epic, reducing avoidable readmissions while keeping every discharge decision under clinician and care-coordinator control.</p>
+
+  <h3>2. Sponsor &amp; Governance</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Role</th><th>Name</th><th>Responsibility</th></tr></thead><tbody>
+  <tr><td>Executive Sponsor</td><td>Dr. Elena Vasquez, Chief Clinical Officer</td><td>Owns the business case; final authority on scope, budget, and go/no-go at every gate.</td></tr>
+  <tr><td>Business Owner</td><td>Karen Ubah, VP Care Coordination</td><td>Owns the readmission-rate outcome and the care-coordinator operating model.</td></tr>
+  <tr><td>Project Manager</td><td>AI Solution Architect (Project Management)</td><td>Owns the plan, schedule, budget, RAID log, and status reporting — see Section 5, Authority.</td></tr>
+  <tr><td>Clinical Governance</td><td>Clinical AI Governance Board (chaired by CMIO)</td><td>Reviews and approves the bias-audit gate before any patient-facing deployment.</td></tr>
+  </tbody></table></div>
+
+  <h3>3. Objectives</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Objective</th><th>Measure</th><th>Target</th></tr></thead><tbody>
+  <tr><td>Reduce avoidable 30-day readmissions</td><td>Network-wide 30-day all-cause readmission rate</td><td>16.8% &rarr; &le;13.5% within 2 quarters of full rollout</td></tr>
+  <tr><td>Cut discharge-planning time</td><td>Average nurse time to complete a transition-of-care plan</td><td>47 min &rarr; &lt;15 min (AI draft + nurse review)</td></tr>
+  <tr><td>Keep care coordinators sustainable at scale</td><td>Active caseload per coordinator</td><td>Flat headcount as patient volume routed through CareSignal AI grows</td></tr>
+  <tr><td>Ship without a clinical-safety or bias incident</td><td>Demographic disparity in risk scores; PHI handling audit</td><td>Zero — enforced at the Clinical Validation Gate, non-negotiable</td></tr>
+  </tbody></table></div>
+
+  <h3>4. Scope Boundaries</h3>
+  <div class="grid grid-2">
+    <div class="card"><h4 class="text-leaf">In scope</h4><ul>
+      <li>Readmission-risk scoring model integrated with Epic via FHIR</li>
+      <li>AI-drafted, nurse-reviewed transition-of-care plans</li>
+      <li>Care-coordinator routing and follow-up scheduling</li>
+      <li>2-hospital pilot, then phased rollout to all 6 hospitals</li>
+    </ul></div>
+    <div class="card"><h4 class="text-cherry">Out of scope (this charter)</h4><ul>
+      <li>Outpatient clinic workflows (40 clinics) — candidate for a future phase</li>
+      <li>Automated discharge orders or medication changes — clinician sign-off is always required</li>
+      <li>Payer-side claims automation or utilization-management workflows</li>
+      <li>Replacing Epic's system-of-record functions</li>
+    </ul></div>
+  </div>
+
+  <h3>5. The Fixed Constraint &amp; PM Authority</h3>
+  <div class="callout key"><div class="co-label">Scope/schedule/cost triangle — the fixed corner</div><strong>Scope and quality are fixed</strong> for CareSignal AI: the bias-audit and clinical-validation gates cannot be shortened or skipped. <strong>Schedule and cost are the flex variables</strong> the Steering Committee trades against a slip. This authority is delegated explicitly below.</div>
+  <p>The Project Manager (AI Solution Architect role) is authorized to: approve changes affecting schedule or cost within a <strong>±10% / ±$50K</strong> tolerance without escalation; approve non-clinical scope trade-offs within the same tolerance; and require Steering Committee approval for anything that touches the bias-audit gate, PHI handling, or exceeds the stated tolerance.</p>
+
+  <h3>6. Success Criteria</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Criterion</th><th>Verification</th></tr></thead><tbody>
+  <tr><td>Pilot go-live at 2 hospitals by April 2, 2027</td><td>Pilot Go-Live milestone (M7), Milestone Timeline</td></tr>
+  <tr><td>Bias audit passes with zero unresolved high-severity findings</td><td>Clinical AI Governance Board sign-off, RAID Log RISK-01/RISK-05 closed</td></tr>
+  <tr><td>Readmission rate trending toward 13.5% within 2 quarters of full rollout</td><td>Monthly benefits-realization tracking, WBS 10.0</td></tr>
+  <tr><td>Program delivered within approved tolerance of the $1.42M baseline</td><td>Budget &amp; Burn report, VAC within Steering Committee-approved range</td></tr>
+  </tbody></table></div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 2 — WORK BREAKDOWN STRUCTURE
+   ================================================================================================== */
+function body_wbs(){
+  const total = WBS.reduce((s,w)=>s+w.pct,0);
+  const rows = WBS.map(w=>`<tr id="wbs-${w.id.replace('.','-')}"><td class="mono">${w.id}</td><td>${esc(w.label)}</td><td class="num">${w.pct}%</td><td>${esc(w.owner)}</td><td>${w.deliverables.map(esc).join('; ')}</td></tr>`).join('');
+  return `
+  <p>The 100% rule, applied: every work package below is owned by exactly one person and the percentages sum to <strong class="${total===100?'text-leaf':'text-cherry'}">${total}%</strong> of total program scope.</p>
+  <div class="diagram-frame">${renderWbsTree(WBS,1180,230)}</div>
+  <div class="diagram-caption">WBS tree — CareSignal AI Program decomposed into 10 owned work packages.</div>
+  <h3 style="margin-top:22px">Work Package Register</h3>
+  <div class="table-wrap"><table class="data-table" id="wbsTable"><thead><tr><th>WBS ID</th><th>Work Package</th><th>% of Scope</th><th>Owner</th><th>Key Deliverables</th></tr></thead><tbody>
+  ${rows}
+  <tr style="font-weight:700;background:var(--surface-alt)"><td colspan="2">Total</td><td class="num">${total}%</td><td colspan="2">—</td></tr>
+  </tbody></table></div>
+  <div class="callout tip"><div class="co-label">Review habit applied</div>WBS 4.0 (Risk Model, 18%) and WBS 3.0 (Integration, 16%) are the two largest packages — unsurprising for an ML program gated on a legacy EHR integration. If an AI-generated WBS put "Documentation" or "Project Management" at 15%+, that would be a signal the real work wasn't decomposed.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 3 — MILESTONE TIMELINE / GANTT
+   ================================================================================================== */
+function body_timeline(){
+  const rows = MILESTONES.map(m=>`<tr><td class="mono">${m.id}</td><td>${esc(m.label.replace(m.id+' ',''))}</td><td class="mono">${m.date}</td><td>${m.critical? '<span class="badge badge-hi">CRITICAL PATH</span>' : '<span class="badge badge-status-notstarted">FLOAT AVAILABLE</span>'}</td></tr>`).join('');
+  return `
+  <p>Ten work-package phases across nine months (September 2026 &ndash; May 2027), with ten milestones and a 2-week schedule buffer carried between the Clinical Validation Gate and Pilot Go-Live.</p>
+  <div class="diagram-frame">${renderGantt(GANTT,MILESTONES,MONTHS,1180)}</div>
+  <div class="legend-row"><span><span class="legend-swatch" style="background:var(--cherry)"></span>On the critical path (zero float)</span><span><span class="legend-swatch" style="background:var(--berry)"></span>Has float</span><span>&#9670; Milestone</span></div>
+  <div class="diagram-caption">Gantt — phase bars and milestone gates, September 2026 &ndash; May 2027.</div>
+
+  <div class="callout key"><div class="co-label">The named critical path</div>Charter Approved (M0) &rarr; Discovery Complete (M1) &rarr; Integration Env Ready (M2) &rarr; Risk Model v1 Trained (M3) &rarr; Clinical Validation Gate PASSED (M5) &rarr; Pilot Go-Live (M7) &rarr; Pilot Review Gate (M8) &rarr; Network Rollout Complete (M9). A one-week slip anywhere on this chain is a one-week slip to network rollout. M4 (Transition Generator Alpha) and M6 (Coordinator UX + Training Ready) carry float and are not on this path.</div>
+
+  <h3 style="margin-top:10px">Dependency Network</h3>
+  <div class="diagram-frame">${renderDependencyNetwork(DEP_NODES,DEP_EDGES,1180,300)}</div>
+  <div class="legend-row"><span><span class="legend-swatch" style="background:var(--cherry)"></span>Critical dependency</span><span><span class="legend-swatch" style="background:var(--muted)"></span>Non-critical dependency (float)</span></div>
+  <div class="diagram-caption">Dependency network — WBS 5.0 (Transition Generator) and WBS 7.0/8.0 (Coordinator UX, Change Mgmt) run in parallel with float, merging back into Pilot Deployment.</div>
+
+  <h3 style="margin-top:22px">Milestone Register</h3>
+  <div class="table-wrap"><table class="data-table" id="timelineTable"><thead><tr><th>ID</th><th>Milestone</th><th>Date</th><th>Schedule Status</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="callout warn"><div class="co-label">Exit criteria, not just a date</div>M5 (Clinical Validation Gate) passes only if: (a) demographic disparity in risk scores is below the Governance Board's threshold, and (b) Compliance signs off on PHI handling in the logging pipeline. See RAID Log RISK-01 and RISK-05.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 4 — RAID LOG
+   ================================================================================================== */
+function body_raid(){
+  const risks = RAID.filter(r=>r.type==='Risk');
+  const counts = {Risk:0,Assumption:0,Issue:0,Dependency:0};
+  RAID.forEach(r=>counts[r.type]++);
+  const rows = RAID.map(r=>`<tr><td class="mono">${r.id}</td><td>${esc(r.type)}</td><td>${esc(r.desc)}</td><td>${esc(r.owner)}</td><td>${r.severity && r.severity!=='—' ? levelBadge(r.severity) : '—'}</td><td>${esc(r.status)}</td><td class="mono">${r.raised}</td><td class="mono">${r.target}</td><td>${esc(r.mitigation)}</td></tr>`).join('');
+  return `
+  <div class="grid grid-4">
+    ${kpiTile('Open Risks',counts.Risk,'Target: &le;3 open at any time','1 High severity',false)}
+    ${kpiTile('Assumptions Tracked',counts.Assumption,'Reviewed at every gate','1 converted to a risk',true)}
+    ${kpiTile('Open Issues',counts.Issue,'Target: 0 unowned','Both owned, both dated',true)}
+    ${kpiTile('Dependencies',counts.Dependency,'External, not controlled by the team','1 of 3 realized late',true)}
+  </div>
+  <h3 style="margin-top:18px">Risk Likelihood &times; Impact</h3>
+  <div class="diagram-frame">${renderRiskHeatmap(risks,560,340)}</div>
+  <div class="diagram-caption">RISK-01 (model bias) and RISK-05 (PHI exposure) sit in the high-severity zone — both gated by WBS 6.0 before go-live.</div>
+  <h3 style="margin-top:22px">Full RAID Register</h3>
+  <div class="table-wrap"><table class="data-table" id="raidTable"><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Owner</th><th>Severity</th><th>Status</th><th>Raised</th><th>Target</th><th>Mitigation</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="callout key"><div class="co-label">Every row, one owner</div>No row in this log reads "the team" or "TBD" in the Owner column — the non-negotiable rule from the RAID Foundations section, applied.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 5 — RACI MATRIX
+   ================================================================================================== */
+function body_raci(){
+  const head = RACI_ROLES.map(r=>`<th>${esc(r)}</th>`).join('');
+  const rows = RACI_ACTIVITIES.map(a=>{
+    const cells = a.letters.map(l=>`<td class="raci-cell">${raciLetter(l)}</td>`).join('');
+    const aCount = a.letters.filter(l=>l==='A').length;
+    return `<tr><td>${esc(a.name)}</td>${cells}<td class="mono">${aCount===1?'<span class="text-leaf">1</span>':'<span class="text-cherry">'+aCount+'</span>'}</td></tr>`;
+  }).join('');
+  return `
+  <p>Twelve governance and delivery activities against eight roles. The rightmost column is a self-check column, not part of the matrix itself: it counts the Accountable letters per row and should read <strong class="text-leaf">1</strong> every time.</p>
+  <div class="table-wrap"><table class="data-table" id="raciTable"><thead><tr><th>Activity</th>${head}<th># Accountable</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="chip-row">
+    <span class="chip"><span class="raci-A">A</span> = Accountable (owns the outcome, exactly one)</span>
+    <span class="chip"><span class="raci-R">R</span> = Responsible (does the work)</span>
+    <span class="chip"><span class="raci-C">C</span> = Consulted (two-way input)</span>
+    <span class="chip"><span class="raci-I">I</span> = Informed (one-way, after the fact)</span>
+  </div>
+  <div class="callout key"><div class="co-label">Notice the Accountable owner changes by row</div>Data Science Lead is Accountable for Risk Model Development but only Consulted on the Clinical Validation gate, where Compliance &amp; Privacy Officer is Accountable — the org chart doesn't decide this, the activity does.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 6 — SPRINT 8 ITERATION PLAN
+   ================================================================================================== */
+function body_sprint(){
+  const committed = SPRINT_ITEMS.filter(i=>i.type==='Committed').reduce((s,i)=>s+i.pts,0);
+  const stretch = SPRINT_ITEMS.filter(i=>i.type==='Stretch').reduce((s,i)=>s+i.pts,0);
+  const rows = SPRINT_ITEMS.map(i=>`<tr><td class="mono">${i.id}</td><td>${esc(i.title)}</td><td class="num">${i.pts}</td><td>${i.type==='Committed'?'<span class="badge badge-status-done">COMMITTED</span>':'<span class="badge badge-status-progress">STRETCH</span>'}</td></tr>`).join('');
+  return `
+  <p><strong>Sprint 8</strong> runs January 5&ndash;16, 2027, inside WBS 4.0 (Risk Model Development) and WBS 5.0 (Transition Plan Generator). Sprint goal: train and explain a candidate readmission-risk model, and hand off a bias-audit test plan to Compliance ahead of the M5 gate.</p>
+  <div class="grid grid-4">
+    ${kpiTile('Committed Points',committed,'&le; trailing velocity (31.3)','6 stories',true)}
+    ${kpiTile('Stretch Points',stretch,'Not counted toward commitment','2 stories',true)}
+    ${kpiTile('Team Capacity',committed+stretch,'Committed + stretch','34 pts',true)}
+    ${kpiTile('Trailing Velocity',31.3,'Avg. of Sprints 5&ndash;7 (30, 33, 31)','Basis for commitment',true)}
+  </div>
+  <h3 style="margin-top:18px">Sprint Backlog</h3>
+  <div class="table-wrap"><table class="data-table" id="sprintTable"><thead><tr><th>ID</th><th>Story</th><th>Points</th><th>Commitment</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <h3 style="margin-top:22px">Burndown — Sprint 8</h3>
+  <div class="diagram-frame">${renderBurndown(BURNDOWN_DAYS,BURNDOWN_IDEAL,BURNDOWN_ACTUAL,760,300)}</div>
+  <div class="diagram-caption">Actual burndown closes Day 10 with 4 points remaining — CS-088 (MLOps model registry, stretch) spills into Sprint 9.</div>
+  <div class="callout tip"><div class="co-label">Diagnosed, not just charted</div>The 4-point spill is attributable to CS-081 (FHIR feed integration) running 1.5 days over — the same Epic integration friction logged as RISK-02. This is why velocity should never be judged from one sprint alone.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 7 — STATUS REPORT
+   ================================================================================================== */
+function body_status(){
+  return `
+  <div class="grid grid-4">
+    ${kpiTile('% Complete',EVM.pct+'%','Baseline plan: ~38% by Jan 16','4 pts behind plan',false)}
+    ${kpiTile('SPI',EVM.SPI,'Healthy band: 0.95–1.05','Behind schedule',false)}
+    ${kpiTile('CPI',EVM.CPI,'Healthy band: 0.95–1.05','Slightly over budget',false)}
+    ${kpiTile('Open High-Severity Risks',2,'Target: &le;1','RISK-01, RISK-05',false)}
+  </div>
+  <h3 style="margin-top:18px">Overall Health: <span class="text-amber">AMBER</span></h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Dimension</th><th>RAG</th><th>Basis</th></tr></thead><tbody>
+  <tr><td>Scope</td><td>${ragBadge('Green')}</td><td>No unapproved scope change since charter baseline.</td></tr>
+  <tr><td>Schedule</td><td>${ragBadge('Amber')}</td><td>SPI 0.89 — Epic integration (RISK-02) slipped 2 weeks, absorbed by schedule buffer but the buffer is now spent.</td></tr>
+  <tr><td>Cost</td><td>${ragBadge('Amber')}</td><td>CPI 0.97 — forecast EAC $1.466M vs. $1.42M BAC, a $46K (3.2%) unfavorable variance.</td></tr>
+  <tr><td>Risk</td><td>${ragBadge('Amber')}</td><td>5 open risks, 2 High severity (RISK-01 model bias, RISK-05 PHI exposure), both gated at M5.</td></tr>
+  </tbody></table></div>
+
+  <h3 style="margin-top:22px">Milestone Health</h3>
+  <div class="diagram-frame">${renderDonut(RAG_DONUT,420,220)}</div>
+  <div class="diagram-caption">3 milestones on track or complete, 2 at risk (M3, M5), 5 not yet started.</div>
+
+  <h3 style="margin-top:22px">Progress Since Last Report</h3>
+  <ul>
+    <li>M2 (Integration Env Ready) completed Nov 27, 2026 — 2 weeks late against the Nov 13 baseline (RISK-02 realized).</li>
+    <li>Sprint 8 delivered the candidate risk model (v0.9) and its SHAP explainability layer; 4 points spilled to Sprint 9.</li>
+    <li>Bias-audit test plan drafted with Compliance ahead of the M5 gate on Feb 26, 2027.</li>
+  </ul>
+
+  <h3 style="margin-top:22px" class="text-cherry">Decisions Needed</h3>
+  <div class="callout key">
+    <div class="co-label">Decision 1 — due January 30, 2027</div>
+    Approve one option to protect the April 2 Pilot Go-Live date against the realized 2-week integration slip: <strong>(a)</strong> extend Pilot Go-Live to April 16 at no added cost, or <strong>(b)</strong> fund a 6-week FHIR integration contractor (~$45K) to hold the April 2 date. <strong>Recommendation:</strong> option (b) — each month of delay reaching the 13.5% readmission target costs Crestwood roughly $780K in continued HRRP exposure, which outweighs the $45K contractor cost.
+  </div>
+  <div class="callout warn">
+    <div class="co-label">Decision 2 — due February 6, 2027</div>
+    Confirm the backfill plan for 2 vacant care-coordinator FTEs (ISSUE-02) before Pilot UAT begins in March 2027. VP Care Coordination to report hiring status to the Steering Committee.
+  </div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 8 — BUDGET & BURN
+   ================================================================================================== */
+function body_budget(){
+  const rows = BUDGET_PHASES.map(p=>{
+    const varDollar = p.planned - p.forecast;
+    const varPct = ((varDollar/p.planned)*100).toFixed(1);
+    const cls = varDollar<0 ? 'text-cherry' : varDollar>0 ? 'text-leaf' : '';
+    return `<tr><td class="mono">${p.id}</td><td>${esc(p.label)}</td><td class="num">$${p.planned}K</td><td class="num">$${p.actual}K</td><td class="num">$${p.forecast}K</td><td class="num ${cls}">${varDollar>=0?'+':''}$${varDollar}K</td><td class="num ${cls}">${varDollar>=0?'+':''}${varPct}%</td></tr>`;
+  }).join('');
+  return `
+  <div class="grid grid-4">
+    ${kpiTile('BAC (Budget at Completion)','$'+EVM.BAC+'K','Approved baseline','Fixed, per Charter',true)}
+    ${kpiTile('AC (Actual Cost to Date)','$'+EVM.AC+'K','As of Jan 16, 2027','CPI 0.97',false)}
+    ${kpiTile('EAC (Estimate at Completion)','$'+EVM.EAC+'K','Forecast total cost','AC + ETC ($'+EVM.ETC+'K)',false)}
+    ${kpiTile('VAC (Variance at Completion)','&minus;$'+Math.abs(EVM.VAC)+'K','BAC &minus; EAC','&minus;3.2% (unfavorable)',false)}
+  </div>
+  <h3 style="margin-top:18px">Earned Value Summary — as of January 16, 2027</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Metric</th><th>Formula</th><th>Value</th></tr></thead><tbody>
+  <tr><td>Planned Value (PV)</td><td class="mono">Baseline % planned &times; BAC</td><td class="num">$${EVM.PV}K</td></tr>
+  <tr><td>Earned Value (EV)</td><td class="mono">% complete &times; BAC</td><td class="num">$${EVM.EV}K</td></tr>
+  <tr><td>Actual Cost (AC)</td><td class="mono">Actual spend to date</td><td class="num">$${EVM.AC}K</td></tr>
+  <tr><td>SPI</td><td class="mono">EV / PV</td><td class="num">${EVM.SPI}</td></tr>
+  <tr><td>CPI</td><td class="mono">EV / AC</td><td class="num">${EVM.CPI}</td></tr>
+  <tr><td>ETC (Estimate to Complete)</td><td class="mono">(BAC &minus; EV) / CPI</td><td class="num">$${EVM.ETC}K</td></tr>
+  <tr><td>EAC</td><td class="mono">AC + ETC</td><td class="num">$${EVM.EAC}K</td></tr>
+  <tr><td>VAC</td><td class="mono">BAC &minus; EAC</td><td class="num text-cherry">&minus;$${Math.abs(EVM.VAC)}K</td></tr>
+  </tbody></table></div>
+
+  <h3 style="margin-top:22px">Monthly Burn — Planned vs. Actual vs. Forecast</h3>
+  <div class="diagram-frame">${renderBudgetChart(MONTHS,BUDGET_PLANNED_CUM,BUDGET_ACTFC_CUM,BUDGET_SPLIT,760,320)}</div>
+  <div class="diagram-caption">Solid red through January (actual); dashed red February&ndash;May (forecast to complete).</div>
+
+  <h3 style="margin-top:22px">Budget by Work Package</h3>
+  <div class="table-wrap"><table class="data-table" id="budgetTable"><thead><tr><th>WBS</th><th>Phase</th><th>Planned</th><th>Actual to Date</th><th>Forecast (EAC)</th><th>Variance</th><th>Variance %</th></tr></thead><tbody>
+  ${rows}
+  <tr style="font-weight:700;background:var(--surface-alt)"><td colspan="2">Total</td><td class="num">$${EVM.BAC}K</td><td class="num">$${EVM.AC}K</td><td class="num">$${EVM.EAC}K</td><td class="num text-cherry">&minus;$${Math.abs(EVM.VAC)}K</td><td class="num text-cherry">&minus;3.2%</td></tr>
+  </tbody></table></div>
+  <div class="callout warn"><div class="co-label">Where the overrun lives</div>WBS 3.0 (EHR/FHIR Integration) is $18K over its planned $227K — the direct cost of RISK-02's realized delay. WBS 4.0 (Risk Model) is forecast $12K over as schedule pressure compresses into cost pressure. Both are named in the Status Report's Decisions Needed.</div>`;
+}
+
+const DOC_BODY_FN = {charter:body_charter, wbs:body_wbs, timeline:body_timeline, raid:body_raid, raci:body_raci, sprint:body_sprint, status:body_status, budget:body_budget};
+
+/* ==================================================================================================
+   COVER / CONTROL STRIP / SIGN-OFF / FOOTER
+   ================================================================================================== */
+function docControlStrip(key){
+  const m = DOC_META[key];
+  return `<div class="doc-control-strip">
+    <div><span class="dcs-label">Document</span>${m.code}</div>
+    <div><span class="dcs-label">Version</span>${m.version}</div>
+    <div><span class="dcs-label">Status</span>${m.status}</div>
+    <div><span class="dcs-label">Date</span>${m.date}</div>
+  </div>`;
+}
+function signoffBlock(){
+  return `<div class="signoff">
+    <div><div class="so-role">Prepared by</div><div class="so-name">AI Solution Architect (Project Management)</div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Reviewed by</div><div class="so-name">Dr. Priya Nandakumar, Chief Medical Information Officer</div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Approved by</div><div class="so-name">Dr. Elena Vasquez, Chief Clinical Officer (Sponsor)</div><div class="so-line">Signature / Date</div></div>
+  </div>`;
+}
+function coverBlock(key){
+  const m = DOC_META[key];
+  return `<div style="background:var(--berry);color:#fff;border-radius:var(--radius);padding:34px 30px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;opacity:.8;margin-bottom:8px">Crestwood Regional Health Network &middot; CareSignal AI Initiative</div>
+      <div style="font-size:1.6rem;font-weight:700;">${m.title}</div>
+      <div style="font-size:.85rem;opacity:.85;margin-top:6px">Colaberry Enterprise AI Leadership Accelerator &middot; Project Manager Field Guide</div>
+    </div>
+    <img src="${logoSrc()}" alt="Colaberry" style="height:44px;background:#fff;padding:6px 10px;border-radius:8px;">
+  </div>`;
+}
+function footBlock(key){
+  const m = DOC_META[key];
+  return `<div style="margin-top:26px;padding-top:14px;border-top:1px solid var(--border);font-size:.74rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <span>${m.code} &middot; v${m.version} &middot; ${m.status}</span>
+    <span>Colaberry Enterprise AI Leadership Accelerator &mdash; Project Manager Field Guide</span>
+  </div>`;
+}
+function logoSrc(){ const el=document.querySelector('#topbar .brand img'); return el?el.src:''; }
+
+/* ==================================================================================================
+   RENDER INTO PAGE
+   ================================================================================================== */
+function renderInPage(){
+  Object.keys(DOC_BODY_FN).forEach(key=>{
+    const el = document.getElementById('docBody-'+key);
+    if(!el) return;
+    el.innerHTML = docControlStrip(key) + DOC_BODY_FN[key]() + signoffBlock() + footBlock(key);
+  });
+  document.getElementById('goodBadBody').innerHTML = GOOD_BAD.map((g,i)=>`<tr><td class="mono">${i+1}</td><td>${g[0]}</td><td>${g[1]}</td></tr>`).join('');
+  document.getElementById('reviewLensBody').innerHTML = REVIEW_LENS.map((r,i)=>`<div class="lens-item"><div class="lens-num">${i+1}</div><div><strong>${esc(r[0])}</strong><div class="muted">${esc(r[1])}</div></div></div>`).join('');
+}
+
+/* ==================================================================================================
+   STANDALONE DOCUMENT GENERATION (download / print)
+   ================================================================================================== */
+function standaloneHtml(key){
+  const m = DOC_META[key];
+  const styleTag = document.querySelector('style').outerHTML;
+  const body = `<div style="max-width:900px;margin:34px auto;padding:0 20px 60px;">
+    ${coverBlock(key)}
+    ${docControlStrip(key)}
+    ${DOC_BODY_FN[key]()}
+    ${signoffBlock()}
+    ${footBlock(key)}
+  </div>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>${m.title}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  ${styleTag}
+  <style>body{background:#fff;padding:0;} @media print{body{background:#fff;}}</style>
+  </head><body>${body}</body></html>`;
+}
+function downloadDoc(key){
+  const html = standaloneHtml(key);
+  const blob = new Blob([html],{type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'CareSignalAI_' + DOC_META[key].code + '.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function printDoc(key){
+  const html = standaloneHtml(key);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Please allow pop-ups to save as PDF.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  w.onload = function(){ setTimeout(()=>{ w.focus(); w.print(); }, 350); };
+}
+
+/* ---------------- CSV export ---------------- */
+function csvCell(v){ const s=String(v==null?'':v).replace(/"/g,'""'); return /[",\n]/.test(s)? '"'+s+'"' : s; }
+function toCSV(rows){ return rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); }
+function downloadCSVBlob(filename, rows){
+  const csv = toCSV(rows);
+  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function downloadCSV(kind){
+  if(kind==='wbs'){
+    downloadCSVBlob('CareSignalAI_WBS.csv',[
+      ['WBS ID','Work Package','% of Scope','Owner','Key Deliverables'],
+      ...WBS.map(w=>[w.id,w.label,w.pct+'%',w.owner,w.deliverables.join('; ')])
+    ]);
+  } else if(kind==='timeline'){
+    downloadCSVBlob('CareSignalAI_MilestoneTimeline.csv',[
+      ['ID','Milestone','Date','Critical Path'],
+      ...MILESTONES.map(m=>[m.id,m.label.replace(m.id+' ',''),m.date,m.critical?'Yes':'No — has float'])
+    ]);
+  } else if(kind==='raid'){
+    downloadCSVBlob('CareSignalAI_RAIDLog.csv',[
+      ['ID','Type','Description','Owner','Severity','Status','Raised','Target','Mitigation'],
+      ...RAID.map(r=>[r.id,r.type,r.desc,r.owner,r.severity||'—',r.status,r.raised,r.target,r.mitigation])
+    ]);
+  } else if(kind==='raci'){
+    downloadCSVBlob('CareSignalAI_RACIMatrix.csv',[
+      ['Activity',...RACI_ROLES],
+      ...RACI_ACTIVITIES.map(a=>[a.name,...a.letters])
+    ]);
+  } else if(kind==='sprint'){
+    downloadCSVBlob('CareSignalAI_Sprint8Backlog.csv',[
+      ['ID','Story','Points','Commitment'],
+      ...SPRINT_ITEMS.map(i=>[i.id,i.title,i.pts,i.type])
+    ]);
+  } else if(kind==='budget'){
+    downloadCSVBlob('CareSignalAI_BudgetBurn.csv',[
+      ['WBS','Phase','Planned ($K)','Actual to Date ($K)','Forecast EAC ($K)','Variance ($K)','Variance %'],
+      ...BUDGET_PHASES.map(p=>{
+        const v=p.planned-p.forecast; const pct=((v/p.planned)*100).toFixed(1);
+        return [p.id,p.label,p.planned,p.actual,p.forecast,v,pct+'%'];
+      })
+    ]);
+  }
+}
+
+/* ==================================================================================================
+   SEARCH
+   ================================================================================================== */
+let SEARCH_INDEX = [];
+function buildSearchIndex(){
+  document.querySelectorAll('section.page-section').forEach(sec=>{
+    const title = sec.getAttribute('data-title') || sec.id;
+    const extra = sec.getAttribute('data-search') || '';
+    const text = (sec.innerText || '').slice(0,4000);
+    SEARCH_INDEX.push({id:sec.id, title, text:(title+' '+extra+' '+text).toLowerCase(), snippet:(sec.querySelector('.section-lede, p')||{}).innerText || ''});
+  });
+}
+function runSearch(q){
+  q = q.trim().toLowerCase();
+  const box = document.getElementById('searchResults');
+  if(!q){ box.style.display='none'; box.innerHTML=''; return; }
+  const terms = q.split(/\s+/).filter(Boolean);
+  const scored = SEARCH_INDEX.map(item=>{
+    let score=0;
+    terms.forEach(t=>{ if(item.title.toLowerCase().includes(t)) score+=5; const c=(item.text.match(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'))||[]).length; score+=c; });
+    return {item,score};
+  }).filter(s=>s.score>0).sort((a,b)=>b.score-a.score).slice(0,8);
+  if(!scored.length){ box.innerHTML = '<div class="res-empty">No matches. Try a different term, or ask the guide.</div>'; box.style.display='block'; return; }
+  box.innerHTML = scored.map(s=>`<div class="res-item" onclick="jumpTo('${s.item.id}')"><div class="rk">Field Guide</div><div class="rt">${s.item.title}</div><div class="rs">${(s.item.snippet||'').slice(0,110)}</div></div>`).join('');
+  box.style.display='block';
+}
+function jumpTo(id){
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchInput').value='';
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderInPage();
+  buildSearchIndex();
+  document.getElementById('searchInput').addEventListener('input', e=>runSearch(e.target.value));
+  document.addEventListener('click', e=>{
+    if(!e.target.closest('.searchwrap')) document.getElementById('searchResults').style.display='none';
+  });
+  document.getElementById('footDate').textContent = 'Generated ' + new Date('2026-08-18').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) + ' · v1.0.0';
+  setupNavHighlight();
+});
+
+/* ---------------- Nav active-state on scroll ---------------- */
+function setupNavHighlight(){
+  const links = Array.from(document.querySelectorAll('#sidenav a.navlink'));
+  const sections = links.map(l=>document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  function onScroll(){
+    let current = sections[0];
+    const y = window.scrollY + 90;
+    sections.forEach(s=>{ if(s.offsetTop <= y) current = s; });
+    links.forEach(l=>l.classList.toggle('active', current && l.getAttribute('href')==='#'+current.id));
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+}
+
+/* ---------------- Theme toggle ---------------- */
+function currentTheme(){
+  const attr = document.documentElement.getAttribute('data-theme');
+  if(attr) return attr;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const next = currentTheme()==='dark' ? 'light':'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeToggle').textContent = next==='dark' ? 'Light mode' : 'Dark mode';
+});
+(function initThemeLabel(){
+  document.getElementById('themeToggle').textContent = currentTheme()==='dark' ? 'Light mode' : 'Dark mode';
+})();
+
+/* ==================================================================================================
+   ASK THE GUIDE (offline keyword-matched FAQ)
+   ================================================================================================== */
+const FAQ = [
+  {q:"What is the scope schedule cost triangle?",kw:["triangle","scope","schedule","cost","quality","iron triangle","fixed constraint"],a:"Every project is bounded by scope, schedule, and cost, with quality at the center. For CareSignal AI, scope and quality are fixed — the bias audit and clinical validation gates cannot be traded away. Schedule and cost are the flex variables the Steering Committee trades against a slip.",link:'#f-triangle'},
+  {q:"What is a WBS and the 100% rule?",kw:["wbs","work breakdown structure","100 percent rule","decomposition"],a:"A Work Breakdown Structure decomposes total scope into ownable work packages. The 100% rule means the packages at any level must sum to exactly 100% of the scope one level up — CareSignal AI's 10 packages sum to exactly 100%.",link:'#doc-wbs'},
+  {q:"What is the critical path for CareSignal AI?",kw:["critical path","longest sequence","zero float"],a:"Charter Approved → Discovery Complete → Integration Env Ready → Risk Model v1 Trained → Clinical Validation Gate PASSED → Pilot Go-Live → Pilot Review Gate → Network Rollout Complete. A one-week slip anywhere on this chain slips the whole program.",link:'#doc-timeline'},
+  {q:"What is float or slack?",kw:["float","slack","buffer"],a:"Float is the amount a task can slip without delaying the project finish date. Tasks on the critical path have zero float. WBS 5.0 (Transition Generator), 7.0 (Coordinator UX), and 8.0 (Change Management) all carry float in this schedule.",link:'#f-criticalpath'},
+  {q:"What is the difference between a milestone and a gate?",kw:["milestone","gate","exit criteria","difference"],a:"A milestone is a zero-duration marker of an event. A gate is a milestone with written exit criteria that must be met before work continues — the Clinical Validation Gate (M5) passes only if bias-audit thresholds are met and Compliance signs off.",link:'#f-milestones'},
+  {q:"What is RAID?",kw:["raid","risks","assumptions","issues","dependencies"],a:"RAID is a single log covering Risks (might happen), Assumptions (taken as true, unproven), Issues (a risk that already happened), and Dependencies (external, uncontrolled factors). Every row needs exactly one named owner and a date.",link:'#doc-raid'},
+  {q:"Who is accountable for the bias audit?",kw:["bias audit","accountable","compliance","james whitfield"],a:"James Whitfield, Compliance & Privacy Officer, is Accountable for the Clinical Validation & Bias Audit gate (WBS 6.0) — one owner, per the RACI Matrix. Data Science and Clinical Informatics are Consulted, not Accountable, on this gate.",link:'#doc-raci'},
+  {q:"What is RACI?",kw:["raci","responsible","accountable","consulted","informed"],a:"RACI assigns Responsible, Accountable, Consulted, or Informed to every stakeholder against every activity. Exactly one Accountable per activity — zero means no owner, two or more means no tiebreaker.",link:'#f-raci'},
+  {q:"What is the difference between agile, waterfall, and hybrid?",kw:["agile","waterfall","hybrid","methodology"],a:"Waterfall sequences phases with formal gates — good for safety-critical, hard-gated work. Agile delivers in short iterations with continuous feedback — good for uncertain, discovery-heavy work. CareSignal AI is hybrid: ten waterfall-style phase gates, with agile sprints (like Sprint 8) inside the phases that build toward them.",link:'#f-agile'},
+  {q:"What is velocity?",kw:["velocity","story points","trailing average"],a:"Velocity is the average story points a team completes per sprint, measured over several sprints. Sprint 8 committed 32 points against a trailing velocity of 31.3 (Sprints 5–7: 30, 33, 31).",link:'#doc-sprint'},
+  {q:"What happened in Sprint 8's burndown?",kw:["burndown","sprint 8","spill","points remaining"],a:"Sprint 8's actual burndown closes Day 10 with 4 points remaining — CS-088 (MLOps model registry, a stretch item) spilled into Sprint 9, attributable to the same Epic integration friction as RISK-02.",link:'#doc-sprint'},
+  {q:"What is the current RAG status?",kw:["rag","red amber green","overall health","status"],a:"Overall health is AMBER as of the Sprint 8 status report: Scope Green, Schedule Amber (SPI 0.89), Cost Amber (CPI 0.97), Risk Amber (2 open High-severity risks).",link:'#doc-status'},
+  {q:"What decisions are needed right now?",kw:["decisions needed","decision 1","decision 2","steering committee"],a:"Decision 1 (due Jan 30, 2027): extend Pilot Go-Live to Apr 16, or fund a ~$45K contractor to hold Apr 2. Decision 2 (due Feb 6, 2027): confirm the backfill plan for 2 vacant care-coordinator FTEs before Pilot UAT.",link:'#doc-status'},
+  {q:"What is SPI and CPI?",kw:["spi","cpi","schedule performance index","cost performance index"],a:"SPI = EV/PV; below 1.0 means behind schedule. CPI = EV/AC; below 1.0 means over budget for the work actually completed. CareSignal AI is at SPI 0.89 and CPI 0.97 as of Jan 16, 2027.",link:'#f-kpis'},
+  {q:"What is the budget variance?",kw:["budget variance","eac","vac","overrun","over budget"],a:"BAC is $1.42M. Forecast EAC is $1.466M — a VAC of −$46K, a 3.2% unfavorable variance, driven mainly by the EHR/FHIR Integration phase (WBS 3.0) running $18K over its planned $227K.",link:'#doc-budget'},
+  {q:"What is EAC and how is it calculated?",kw:["eac","estimate at completion","etc"],a:"EAC (Estimate at Completion) = Actual Cost (AC) + Estimate to Complete (ETC), where ETC = (BAC − EV) / CPI. For CareSignal AI: AC $500K + ETC $966K = EAC $1,466K.",link:'#doc-budget'},
+  {q:"Who is the executive sponsor?",kw:["sponsor","executive sponsor","cco","chief clinical officer"],a:"Dr. Elena Vasquez, Chief Clinical Officer, is the Executive Sponsor. Karen Ubah, VP of Care Coordination, is the Business Owner accountable for the readmission-rate outcome.",link:'#doc-charter'},
+  {q:"What is the readmission rate target?",kw:["readmission rate","30-day","target","cms"],a:"Crestwood's current 30-day all-cause readmission rate is 16.8%. CareSignal AI targets ≤13.5% (the CMS benchmark) within 2 quarters of full network rollout.",link:'#initiative'},
+  {q:"What is the HRRP penalty exposure?",kw:["hrrp","penalty","penalties","9.4m"],a:"Crestwood currently faces roughly $9.4M/year in Hospital Readmissions Reduction Program penalties, driven by the readmission-rate gap CareSignal AI is chartered to close.",link:'#initiative'},
+  {q:"What happens at the Clinical Validation Gate?",kw:["clinical validation gate","m5","bias","exit criteria"],a:"M5 passes only if demographic disparity in risk scores is below the Clinical AI Governance Board's threshold, and Compliance signs off on PHI handling in the logging pipeline (RISK-01 and RISK-05).",link:'#doc-timeline'},
+  {q:"How many hospitals are in the pilot?",kw:["pilot","hospitals","how many","2 hospitals"],a:"The pilot deploys CareSignal AI at 2 of Crestwood's 6 hospitals (Pilot Go-Live, M7, April 2, 2027), then rolls out to the remaining 4 hospitals after the Pilot Review Gate (M8).",link:'#doc-timeline'},
+  {q:"What is a good vs bad project plan?",kw:["good plan","bad plan","vague","specific"],a:"A bad plan uses vague language with no owner or number attached (\"the team will handle risks as they come up\"). A good plan is specific, owned, and testable (\"RISK-02 is owned by Angela Brooks, likelihood 4/5, with a named mitigation\"). See the Good vs. Bad Plans table.",link:'#f-goodbad'},
+  {q:"What does an AI Solution Architect check when reviewing an AI-generated plan?",kw:["review lens","checklist","evaluate","review ai plan"],a:"Nine checks: WBS sums to 100%, critical path named, estimates carry buffer, every RAID row has one owner, every RACI row has exactly one Accountable, gates have exit criteria, the fixed constraint is stated, RAG is backed by numbers, and Decisions Needed are explicit.",link:'#f-lens'},
+  {q:"How do I download a document?",kw:["download","export","save"],a:"Every document has a toolbar above it: 'Download HTML' saves a fully styled, standalone copy; 'Save as PDF' opens a print-ready view; tabular documents (WBS, RAID, RACI, Sprint, Budget) also offer 'Export CSV.'",link:'#doc-charter'},
+  {q:"Can I export to CSV?",kw:["csv","excel","spreadsheet export"],a:"Yes — the WBS, RAID Log, RACI Matrix, Sprint Backlog, and Budget & Burn documents each have an Export CSV button in their toolbar, ready to open in Excel.",link:'#doc-raid'},
+  {q:"What company is this example about?",kw:["crestwood","caresignal","company","health network","hospital"],a:"Crestwood Regional Health Network — a nonprofit system of 6 acute-care hospitals and 40 outpatient clinics across the Midwest US, $2.1B annual revenue, building CareSignal AI, an AI-assisted readmission-risk and discharge-coordination platform.",link:'#initiative'},
+  {q:"What is a dependency in project management?",kw:["dependency","external factor","not controlled"],a:"A Dependency is an external factor the plan needs but does not control — for CareSignal AI, Epic FHIR API access (from Epic Systems) is DEP-01, received 2 weeks late, which is why RISK-02 exists.",link:'#doc-raid'},
+  {q:"What is an assumption vs a risk?",kw:["assumption vs risk","difference assumption risk"],a:"An assumption is taken as true without proof; the moment you question it, it becomes a risk. ASSUMP-01 (Epic sandbox access by November) was realized late and was converted directly into RISK-02.",link:'#f-raid'}
+];
+function toggleAsk(){ document.getElementById('askPanel').classList.toggle('open'); if(document.getElementById('askPanel').classList.contains('open')) document.getElementById('askInput').focus(); }
+function scoreFaq(query){
+  const q = query.toLowerCase();
+  let best=null, bestScore=0;
+  FAQ.forEach(f=>{
+    let score=0;
+    if(q.includes(f.q.toLowerCase().replace('?',''))) score+=6;
+    f.kw.forEach(k=>{ if(q.includes(k)) score+=3; });
+    const qWords = f.q.toLowerCase().replace(/[?']/g,'').split(/\s+/);
+    qWords.forEach(w=>{ if(w.length>3 && q.includes(w)) score+=1; });
+    if(score>bestScore){ bestScore=score; best=f; }
+  });
+  return bestScore>0 ? best : null;
+}
+function pushAsk(question, answerHtml){
+  const body = document.getElementById('askBody');
+  const qd = document.createElement('div'); qd.className='aq'; qd.textContent=question;
+  const ad = document.createElement('div'); ad.className='aa'; ad.innerHTML=answerHtml;
+  body.appendChild(qd); body.appendChild(ad);
+  body.scrollTop = body.scrollHeight;
+}
+function handleAsk(e){
+  e.preventDefault();
+  const input = document.getElementById('askInput');
+  const q = input.value.trim();
+  if(!q) return false;
+  const match = scoreFaq(q);
+  if(match){
+    pushAsk(q, esc(match.a) + `<br><a class="aa-link" href="${match.link}" onclick="toggleAsk()">Jump to this section &rarr;</a>`);
+  } else {
+    pushAsk(q, `I couldn't find a confident match in the guide for that. Try the search box above, or ask about: the triangle, WBS, critical path, RAID, RACI, velocity, status reporting, SPI/CPI, or budget variance.`);
+  }
+  input.value='';
+  return false;
+}
+function askSuggested(el){
+  document.getElementById('askInput').value = el.textContent;
+  document.getElementById('askForm').dispatchEvent(new Event('submit',{cancelable:true}));
+}
+</script>
+</body>
+</html>

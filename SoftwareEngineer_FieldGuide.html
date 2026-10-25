@@ -1,0 +1,1499 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Engineer Field Guide — Colaberry Enterprise AI Leadership Accelerator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================= COLABERRY DESIGN TOKENS ============================= */
+:root{
+  --cherry:#FB2832; --berry:#367895; --leaf:#5BA63C; --amber:#E8920C;
+  --text:#1A1A1A; --muted:#6B6B6B; --border:#E4E4E3; --surface:#FFFFFF; --surface-alt:#F8F8F7;
+  --font-body:'Roboto',system-ui,-apple-system,Arial,sans-serif;
+  --font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(26,26,26,.06),0 4px 14px rgba(26,26,26,.06);
+}
+:root[data-theme="dark"]{
+  --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+  --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+    --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-body);color:var(--text);background:var(--surface-alt);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:var(--font-body);color:var(--berry);font-weight:700;line-height:1.25;margin:0 0 .5em;}
+h1{font-size:1.9rem;} h2{font-size:1.45rem;margin-top:0;} h3{font-size:1.15rem;} h4{font-size:1rem;color:var(--text);}
+p{margin:.4em 0 .9em;}
+a{color:var(--berry);}
+code,.mono{font-family:var(--font-mono);}
+.muted{color:var(--muted);}
+.text-cherry{color:var(--cherry);} .text-leaf{color:var(--leaf);} .text-amber{color:var(--amber);} .text-berry{color:var(--berry);}
+ul,ol{padding-left:20px;}
+li{margin-bottom:3px;}
+
+/* ---------- Layout shell ---------- */
+#topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;box-shadow:var(--shadow);}
+#topbar .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+#topbar .brand img{height:38px;display:block;}
+#topbar .brand .titles{min-width:0;}
+#topbar .brand .titles .t1{font-weight:700;font-size:1rem;color:var(--berry);white-space:nowrap;}
+#topbar .brand .titles .t2{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+#topbar .searchwrap{flex:1;max-width:520px;position:relative;}
+#searchInput{width:100%;padding:10px 14px 10px 38px;border-radius:999px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;}
+#searchInput:focus{border-color:var(--berry);box-shadow:0 0 0 3px rgba(54,120,149,.15);}
+.searchicon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.95rem;}
+#searchResults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);max-height:420px;overflow:auto;display:none;z-index:60;}
+#searchResults .res-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;}
+#searchResults .res-item:last-child{border-bottom:none;}
+#searchResults .res-item:hover{background:var(--surface-alt);}
+#searchResults .res-item .rk{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--berry);font-weight:700;}
+#searchResults .res-item .rt{font-weight:500;}
+#searchResults .res-item .rs{font-size:.8rem;color:var(--muted);}
+#searchResults .res-empty{padding:14px;color:var(--muted);font-size:.85rem;}
+#topbar .actions{display:flex;align-items:center;gap:8px;}
+.iconbtn{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:.78rem;cursor:pointer;font-family:var(--font-body);white-space:nowrap;}
+.iconbtn:hover{border-color:var(--berry);}
+
+#shell{display:flex;align-items:flex-start;max-width:1500px;margin:0 auto;}
+#sidenav{width:270px;flex:none;position:sticky;top:59px;height:calc(100vh - 59px);overflow-y:auto;padding:18px 10px 60px 18px;border-right:1px solid var(--border);}
+#sidenav .navgroup{margin-bottom:18px;}
+#sidenav .navgroup-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;padding:0 10px;margin-bottom:6px;}
+#sidenav a.navlink{display:block;padding:7px 10px;border-radius:8px;color:var(--text);text-decoration:none;font-size:.86rem;border-left:3px solid transparent;}
+#sidenav a.navlink:hover{background:var(--surface-alt);}
+#sidenav a.navlink.active{background:var(--surface-alt);border-left-color:var(--cherry);color:var(--berry);font-weight:500;}
+
+main{flex:1;min-width:0;padding:26px 34px 100px;}
+section.page-section{max-width:1150px;margin:0 auto 64px;scroll-margin-top:72px;}
+section.page-section:first-of-type{margin-top:6px;}
+.section-kicker{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--cherry);font-weight:700;margin-bottom:6px;}
+.section-lede{font-size:1.02rem;color:var(--muted);max-width:800px;}
+hr.rule{border:none;border-top:1px solid var(--border);margin:28px 0;}
+
+/* ---------- Cards / callouts ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px;}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+.callout{border-radius:var(--radius);padding:14px 16px;margin:16px 0;border:1px solid var(--border);border-left:4px solid var(--berry);background:var(--surface);}
+.callout .co-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:4px;}
+.callout.tip{border-left-color:var(--leaf);} .callout.tip .co-label{color:var(--leaf);}
+.callout.warn{border-left-color:var(--amber);} .callout.warn .co-label{color:var(--amber);}
+.callout.key{border-left-color:var(--cherry);} .callout.key .co-label{color:var(--cherry);}
+.callout.info{border-left-color:var(--berry);} .callout.info .co-label{color:var(--berry);}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.68rem;font-weight:700;font-family:var(--font-mono);letter-spacing:.02em;white-space:nowrap;}
+.badge-hi{background:rgba(251,40,50,.12);color:var(--cherry);}
+.badge-med{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-lo{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-status-done{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-status-progress{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-status-notstarted{background:rgba(107,107,107,.16);color:var(--muted);}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table.data-table{width:100%;border-collapse:collapse;font-size:.84rem;background:var(--surface);}
+table.data-table thead th{background:var(--berry);color:#fff;text-align:left;padding:10px 12px;font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;}
+table.data-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.data-table tbody tr:nth-child(even){background:var(--surface-alt);}
+table.data-table td.mono, table.data-table th.mono{font-family:var(--font-mono);}
+table.data-table td.num{font-family:var(--font-mono);text-align:right;}
+
+/* ---------- Doc toolbar / control strip ---------- */
+.doc-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 20px;}
+.btn{font-family:var(--font-body);font-size:.82rem;font-weight:500;border-radius:8px;padding:9px 15px;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--cherry);color:#fff;}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--berry);color:var(--berry);}
+.btn-ghost{background:var(--surface-alt);color:var(--text);border-color:var(--border);}
+
+.doc-control-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;font-family:var(--font-mono);font-size:.76rem;}
+.doc-control-strip div{padding:10px 14px;border-right:1px solid var(--border);background:var(--surface);}
+.doc-control-strip div:last-child{border-right:none;}
+.doc-control-strip .dcs-label{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.62rem;margin-bottom:3px;}
+@media(max-width:800px){.doc-control-strip{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- KPI tiles ---------- */
+.kpi-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);}
+.kpi-tile .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+.kpi-tile .kpi-value{font-family:var(--font-mono);font-size:1.9rem;font-weight:700;color:var(--berry);margin:4px 0 2px;}
+.kpi-tile .kpi-delta{font-size:.78rem;font-family:var(--font-mono);}
+.kpi-tile .kpi-target{font-size:.72rem;color:var(--muted);margin-top:4px;}
+
+/* ---------- Sign-off block ---------- */
+.signoff{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:22px;}
+.signoff div{padding:16px;border-right:1px solid var(--border);background:var(--surface);}
+.signoff div:last-child{border-right:none;}
+.signoff .so-role{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
+.signoff .so-name{font-weight:600;margin:8px 0 26px;}
+.signoff .so-line{border-top:1px solid var(--border);padding-top:6px;font-size:.72rem;color:var(--muted);}
+@media(max-width:800px){.signoff{grid-template-columns:1fr;}}
+
+/* ---------- Diagram / chart frames ---------- */
+.diagram-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;overflow-x:auto;box-shadow:var(--shadow);}
+.diagram-caption{font-size:.78rem;color:var(--muted);margin-top:8px;text-align:center;}
+svg text{font-family:var(--font-body);}
+svg .mono-t{font-family:var(--font-mono);}
+.legend-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:.78rem;color:var(--muted);justify-content:center;}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;}
+.legend-swatch{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+/* ---------- Foundations chips / definitions ---------- */
+.def-term{font-weight:700;color:var(--berry);}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.chip{background:var(--surface-alt);border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:.78rem;font-family:var(--font-mono);}
+.lens-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.lens-item:last-child{border-bottom:none;}
+.lens-num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--berry);color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* ---------- Code blocks ---------- */
+.codeblock{background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:var(--font-mono);font-size:.78rem;overflow-x:auto;white-space:pre;line-height:1.55;}
+.codeblock .kw{color:var(--berry);} .codeblock .tp{color:var(--leaf);} .codeblock .cm{color:var(--muted);font-style:italic;}
+
+/* ---------- Footer ---------- */
+#pagefoot{border-top:1px solid var(--border);padding:26px 34px;text-align:center;color:var(--muted);font-size:.78rem;background:var(--surface);}
+
+[id]{scroll-margin-top:70px;}
+
+/* ---------- Ask assistant ---------- */
+#askFab{position:fixed;bottom:22px;right:22px;z-index:80;background:var(--cherry);color:#fff;border:none;border-radius:999px;padding:14px 20px;font-family:var(--font-body);font-weight:700;font-size:.86rem;cursor:pointer;box-shadow:0 6px 20px rgba(251,40,50,.35);display:flex;align-items:center;gap:8px;}
+#askPanel{position:fixed;bottom:88px;right:22px;width:390px;max-width:92vw;max-height:70vh;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);z-index:80;display:none;flex-direction:column;overflow:hidden;}
+#askPanel.open{display:flex;}
+#askHead{background:var(--berry);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+#askHead .ah-t{font-weight:700;font-size:.92rem;}
+#askHead .ah-s{font-size:.72rem;opacity:.85;}
+#askClose{background:transparent;border:none;color:#fff;font-size:1.1rem;cursor:pointer;}
+#askBody{flex:1;overflow-y:auto;padding:14px 16px;font-size:.86rem;}
+#askBody .aq{background:var(--surface-alt);border-radius:10px 10px 2px 10px;padding:9px 12px;margin:8px 0 8px auto;max-width:88%;}
+#askBody .aa{background:rgba(54,120,149,.09);border-radius:10px 10px 10px 2px;padding:9px 12px;margin:8px auto 8px 0;max-width:92%;}
+#askBody .aa .aa-link{display:inline-block;margin-top:6px;font-size:.76rem;font-weight:700;}
+#askBody .ask-welcome{color:var(--muted);font-size:.82rem;}
+#askForm{display:flex;border-top:1px solid var(--border);}
+#askInput{flex:1;border:none;padding:12px 14px;font-family:var(--font-body);font-size:.85rem;outline:none;background:var(--surface);color:var(--text);}
+#askSend{background:var(--cherry);color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:700;}
+.ask-suggest{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:.72rem;margin:3px 4px 0 0;cursor:pointer;}
+.ask-suggest:hover{border-color:var(--berry);color:var(--berry);}
+
+/* ---------- Print (whole guide) ---------- */
+@media print{
+  #topbar,#sidenav,#askFab,#askPanel,.doc-toolbar,#pagefoot{display:none!important;}
+  main{padding:0;} body{background:#fff;}
+  section.page-section{max-width:100%;margin:0 0 24px;page-break-after:always;}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">
+    <img src="data:image/png;base64,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" alt="Colaberry">
+    <div class="titles">
+      <div class="t1">Software Engineer Field Guide</div>
+      <div class="t2">Colaberry Enterprise AI Leadership Accelerator</div>
+    </div>
+  </div>
+  <div class="searchwrap">
+    <span class="searchicon">&#128269;</span>
+    <input id="searchInput" type="text" placeholder="Search the guide — try &quot;interfaces&quot;, &quot;testing pyramid&quot;, &quot;branching&quot;..." autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+  <div class="actions">
+    <button class="iconbtn" id="themeToggle" title="Toggle dark mode">Dark mode</button>
+    <button class="iconbtn" onclick="document.getElementById('askFab').click()">Ask the guide</button>
+  </div>
+</div>
+
+<div id="shell">
+  <nav id="sidenav">
+    <div class="navgroup">
+      <div class="navgroup-title">Start here</div>
+      <a class="navlink" href="#welcome" data-nav>Welcome &amp; how to use this guide</a>
+      <a class="navlink" href="#initiative" data-nav>The example initiative: KitchenPulse</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Foundations — the 20%</div>
+      <a class="navlink" href="#f-why" data-nav>Why software engineering exists</a>
+      <a class="navlink" href="#f-tdd" data-nav>Technical design documents</a>
+      <a class="navlink" href="#f-modularity" data-nav>Modularity &amp; separation of concerns</a>
+      <a class="navlink" href="#f-interfaces" data-nav>Interfaces &amp; contracts</a>
+      <a class="navlink" href="#f-cleancode" data-nav>Clean code &amp; naming</a>
+      <a class="navlink" href="#f-vcs" data-nav>Version control: branching &amp; review</a>
+      <a class="navlink" href="#f-pyramid" data-nav>The testing pyramid</a>
+      <a class="navlink" href="#f-techdebt" data-nav>Technical debt</a>
+      <a class="navlink" href="#f-solid" data-nav>DRY &amp; SOLID (lightly)</a>
+      <a class="navlink" href="#f-errorhandling" data-nav>Error handling</a>
+      <a class="navlink" href="#f-goodbad" data-nav>Good vs. bad code</a>
+      <a class="navlink" href="#f-kpis" data-nav>Engineering KPIs</a>
+      <a class="navlink" href="#f-lens" data-nav>The architect's review lens</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Documents — KitchenPulse</div>
+      <a class="navlink" href="#doc-tdd" data-nav>1. Technical Design Document</a>
+      <a class="navlink" href="#doc-modules" data-nav>2. Module / Component Design</a>
+      <a class="navlink" href="#doc-standards" data-nav>3. Coding Standards &amp; Naming</a>
+      <a class="navlink" href="#doc-checklist" data-nav>4. Code Review Checklist</a>
+      <a class="navlink" href="#doc-testplan" data-nav>5. Unit &amp; Integration Test Plan</a>
+      <a class="navlink" href="#doc-branching" data-nav>6. Branching &amp; PR Workflow</a>
+      <a class="navlink" href="#doc-dod" data-nav>7. Definition of Done</a>
+    </div>
+  </nav>
+
+  <main id="mainContent">
+  <!-- ============================================================ WELCOME ============================================================ -->
+  <section class="page-section" id="welcome" data-title="Welcome" data-search="software engineer field guide AI solution architect accelerator direct evaluate approve AI generated code">
+    <div class="section-kicker">Field Guide</div>
+    <h1>The Software Engineer Field Guide</h1>
+    <p class="section-lede">You are training to become an <strong>AI Solution Architect</strong>. You will not spend your career hand-writing every service, model, and test — AI will draft most of that code in seconds. Your job is to <strong>direct, evaluate, and approve</strong> what the AI produces. This guide teaches the roughly 20% of software engineering discipline that makes that judgment possible, then shows what "good" looks like by building a complete, realistic engineering package for one example feature end to end.</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>Read the Foundations</h3><p class="muted" style="font-size:.86rem">Thirteen short concepts — technical design, modularity, interfaces, clean code, version control, the testing pyramid, technical debt, SOLID, and error handling — that let you evaluate AI-generated code instead of rubber-stamping it.</p></div>
+      <div class="card"><h3>Study the Documents</h3><p class="muted" style="font-size:.86rem">Seven real, fully-built engineering deliverables for one feature: <strong>KitchenPulse</strong>, an AI-assisted order-prioritization and kitchen-display system for a 34-location restaurant chain.</p></div>
+      <div class="card"><h3>Search, download, ask</h3><p class="muted" style="font-size:.86rem">Every section is searchable, every document is downloadable as a styled HTML file (with a print/PDF view), tabular documents export to CSV, and the <strong>Ask the guide</strong> assistant answers from this content offline.</p></div>
+    </div>
+    <div class="callout info">
+      <div class="co-label">How this guide is organized</div>
+      Use the left navigation or the search box to jump anywhere. Each of the seven documents opens with a document-control strip (version, owner, status, date) exactly as it would appear in a real repository, and closes with a Prepared / Reviewed / Approved sign-off block. Use the toolbar above each document to <strong>download the styled HTML</strong>, <strong>save as PDF</strong>, or (where the document is tabular) <strong>export to CSV</strong>.
+    </div>
+  </section>
+
+  <!-- ============================================================ INITIATIVE CONTEXT ============================================================ -->
+  <section class="page-section" id="initiative" data-title="The example initiative" data-search="KitchenPulse Trestle Restaurant Group Copper Kettle Kitchen order prioritization kitchen display system initiative overview problem statement SLA">
+    <div class="section-kicker">Working example</div>
+    <h2>The example initiative: KitchenPulse</h2>
+    <p class="section-lede">Every document in this guide is built against one concrete, believable feature so you can see how each engineering concept plays out in practice — not as an abstract template, but as real code and real documents an AI Solution Architect would have to review and sign off on.</p>
+    <div class="card">
+      <div class="grid grid-2">
+        <div>
+          <h4>The organization</h4>
+          <p><strong>Trestle Restaurant Group</strong> operates <strong>Copper Kettle Kitchen</strong>, a 34-location fast-casual chain across Washington, Oregon, and Idaho, serving roughly 2.4M orders per year across dine-in, online, and third-party delivery channels.</p>
+          <h4>The problem</h4>
+          <p>During peak hours (11:30am&ndash;1:30pm and 5:30&ndash;7:30pm), the average ticket-to-serve time runs <strong>14.2 minutes</strong> against a <strong>9-minute</strong> service-level target, with <strong>31%</strong> of tickets missing that target entirely. The expo station manually re-sequences tickets by eye across grill, fry, and salad stations — hot items sit under heat lamps going soggy while cold items get rushed and assembled wrong. Remakes from missed timing cost the chain an estimated <strong>$740K/year</strong> in food waste.</p>
+        </div>
+        <div>
+          <h4>The initiative</h4>
+          <p><strong>KitchenPulse</strong> &mdash; an AI-assisted Kitchen Display &amp; Order Prioritization System. It ingests orders from the POS (Toast), the in-house ordering app, and delivery aggregators (DoorDash, UberEats); predicts per-item prep time with a trained model; computes a dynamic priority score per station so items finish together; and pushes live-reprioritized queues to Kitchen Display Screens, with expo override.</p>
+          <h4>Scope</h4>
+          <p>A 4-month build (September&ndash;December 2026), piloted at 3 locations, then rolled out to all 34. Sponsor: VP of Restaurant Operations. Business owner: Director of Culinary Operations.</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-4">
+      <div class="kpi-tile"><div class="kpi-label">Ticket-to-Serve Time</div><div class="kpi-value">14.2 min</div><div class="kpi-delta" style="color:var(--cherry)">vs. 9-min SLA target</div><div class="kpi-target">Target: &le;9 min at peak within 2 months of full rollout</div></div>
+      <div class="kpi-tile"><div class="kpi-label">SLA Miss Rate</div><div class="kpi-value">31%</div><div class="kpi-delta" style="color:var(--cherry)">Tickets over 9 minutes</div><div class="kpi-target">Target: &lt;10%</div></div>
+      <div class="kpi-tile"><div class="kpi-label">Remake / Waste Cost</div><div class="kpi-value">$740K/yr</div><div class="kpi-delta" style="color:var(--cherry)">From missed timing</div><div class="kpi-target">Target: reduce materially within FY27</div></div>
+      <div class="kpi-tile"><div class="kpi-label">Peak Order Volume</div><div class="kpi-value">180/hr</div><div class="kpi-delta" style="color:var(--amber)">Flagship location, peak</div><div class="kpi-target">System must sustain at full 34-store scale</div></div>
+    </div>
+    <div class="callout key">
+      <div class="co-label">Why this example</div>
+      A kitchen display system puts every core software-engineering tension in one place: a real-time system with hard latency requirements, an ML component whose failures must degrade gracefully, multiple untrusted external integrations (POS, delivery webhooks), and a UI (the KDS screen) that kitchen staff depend on every single ticket, every shift — exactly the kind of system an AI will draft quickly and an architect must review carefully before it touches a live kitchen.
+    </div>
+  </section>
+
+  <!-- ============================================================ FOUNDATIONS ============================================================ -->
+  <section class="page-section" id="f-why" data-title="Why software engineering exists" data-search="why software engineering exists purpose deterministic probabilistic AI solution architect direct evaluate approve">
+    <div class="section-kicker">Foundations 1 / 13</div>
+    <h2>Why software engineering exists</h2>
+    <p>LLMs are probabilistic. A kitchen running on a probabilistic system — one that is usually right — is a kitchen that occasionally sends a well-done burger to the fryer queue and nobody notices until the ticket times out. Software engineering exists to wrap probabilistic reasoning in deterministic, testable, reviewable structure: the same input produces the same output, every time, and when it doesn't, there is a defined way to find out why.</p>
+    <p>As an AI Solution Architect, generative AI will draft KitchenPulse's services, its tests, and its pull requests in seconds. That collapses the <em>writing</em> cost of software engineering to nearly zero — and raises the <em>judgment</em> cost to nearly everything. You are no longer graded on how fast you can write a service. You are graded on whether you can look at AI-generated code and know, specifically, whether the interface is honest, whether the failure path is handled, and whether the tests actually assert behavior or just execute lines.</p>
+    <div class="callout tip">
+      <div class="co-label">The 20% that matters</div>
+      You do not need to become a full-time software engineer. You need the ~20% of the discipline that lets you <strong>direct</strong> the AI ("build PrepTimePredictionEngine with an explicit timeout and a documented fallback"), <strong>evaluate</strong> its output ("this catch block swallows the error silently — reject it"), and <strong>approve</strong> what gets merged. That 20% is what the rest of this Foundations section teaches.
+    </div>
+  </section>
+
+  <section class="page-section" id="f-tdd" data-title="Technical design documents" data-search="technical design document TDD context approach tradeoffs risks before code">
+    <h2>Technical design documents</h2>
+    <p>A <span class="def-term">Technical Design Document (TDD)</span> is written before the first line of implementation code, not after. It states the problem, the chosen approach, the alternatives considered and rejected (with reasons), the module breakdown, the data model, and the risks — so that disagreement happens on a page, cheaply, instead of in a 2,000-line pull request, expensively.</p>
+    <div class="grid grid-2">
+      <div class="card"><h3>Why it matters to an architect</h3><p class="muted">An AI can generate a working KDS service in minutes. It cannot tell you, unprompted, why a WebSocket push model was chosen over polling, or what happens when the prep-time model is unavailable at 12:15pm on a Saturday. That reasoning has to be captured somewhere a human can review it before code ships.</p></div>
+      <div class="card"><h3>KitchenPulse's TDD</h3><p class="muted">See <a href="#doc-tdd">Document 1</a> for the full design: chosen approach (event-driven, WebSocket push), two rejected alternatives, a 7-module breakdown, an ERD, and a sequence diagram for the order-to-served flow.</p></div>
+    </div>
+    <div class="callout warn"><div class="co-label">Reviewer's flag</div>If an AI hands you code with no design document behind it, the design decisions are hidden inside the implementation, not reviewable as decisions. Ask for the TDD first, especially for anything touching real-time delivery to hardware in a live kitchen.</div>
+  </section>
+
+  <section class="page-section" id="f-modularity" data-title="Modularity and separation of concerns" data-search="modularity separation of concerns single responsibility module boundaries circular dependencies">
+    <h2>Modularity &amp; separation of concerns</h2>
+    <p><span class="def-term">Modularity</span> means each unit of code does one job and exposes a narrow, explicit way for other units to ask it to do that job. <span class="def-term">Separation of concerns</span> is the discipline that keeps those jobs from blurring together — a module named <code>orderIngestionService.ts</code> should not also decide kitchen-station priority; a module named <code>priorityQueueEngine.ts</code> should not also format a WebSocket payload.</p>
+    <div class="callout key"><div class="co-label">Review habit</div>When an AI hands you a service, ask what its <em>one</em> responsibility is, in a single sentence. If the answer needs "and," the module is doing two jobs and should be two modules. See <a href="#doc-modules">the KitchenPulse Module Design</a> for seven modules, each with exactly one stated responsibility.</div>
+  </section>
+
+  <section class="page-section" id="f-interfaces" data-title="Interfaces and contracts" data-search="interfaces contracts inputs outputs errors typed API signature Zod runtime validation">
+    <h2>Interfaces &amp; contracts</h2>
+    <p>An <span class="def-term">interface</span> is the typed shape a module exposes to the rest of the system. A <span class="def-term">contract</span> is the interface plus the rules that govern it: what inputs are valid, what output is guaranteed, and what errors can be thrown and under what conditions. A function signature without documented errors is half a contract — it tells the caller what success looks like and leaves failure to be discovered in production.</p>
+    <div class="grid grid-2">
+      <div class="card"><h3>Why it matters to an architect</h3><p class="muted">AI-generated code routinely gets the happy-path signature right and leaves the error contract implicit. <code>predict(item, stationState)</code> tells you nothing about what happens when the model registry is down — <code>predict(item, stationState): Promise&lt;PrepTimeEstimate&gt;</code> throwing a named <code>ModelUnavailableError</code> does.</p></div>
+      <div class="card"><h3>KitchenPulse's contracts</h3><p class="muted">Every one of the seven modules in <a href="#doc-modules">Document 2</a> lists its inputs, its output type, and every named error it can throw — the contract an AI Solution Architect signs off on before the module ships.</p></div>
+    </div>
+  </section>
+
+  <section class="page-section" id="f-cleancode" data-title="Clean code and naming" data-search="clean code naming conventions intent revealing names readability">
+    <h2>Clean code &amp; naming</h2>
+    <p>Code is read far more often than it is written. <span class="def-term">Clean code</span> optimizes for the reader, not the writer: names that reveal intent (<code>waitSeconds</code>, not <code>x</code>), functions short enough to hold in working memory, and structure that doesn't require reading three other files to understand what a line does.</p>
+    <div class="callout tip"><div class="co-label">The naming test</div>If you have to open a function's body to know what it does, the name has failed. <code>computePriorityScore(waitSeconds, stationLoad, slaBudgetSeconds)</code> passes; <code>calc(x, y, z)</code> does not. See <a href="#doc-standards">Coding Standards</a> for KitchenPulse's full naming convention table.</div>
+  </section>
+
+  <section class="page-section" id="f-vcs" data-title="Version control branching and code review" data-search="version control git branching code review pull request main protected trunk based">
+    <h2>Version control: branching &amp; code review</h2>
+    <p><span class="def-term">Version control</span> is the record of every change and why it was made. <span class="def-term">Branching</span> isolates in-progress work from the deployable <code>main</code> branch; <span class="def-term">code review</span> is the gate that catches what the author couldn't see in their own diff — and, increasingly, what an AI generated but didn't fully justify.</p>
+    <div class="callout key"><div class="co-label">The non-negotiable rule</div><code>main</code> is protected. Every change reaches it through a pull request, reviewed by a human, passing CI. No branch skips this because the author (human or AI) was confident. See <a href="#doc-branching">the KitchenPulse Branching &amp; PR Workflow</a> for the full trunk-based model in use.</div>
+  </section>
+
+  <section class="page-section" id="f-pyramid" data-title="The testing pyramid" data-search="testing pyramid unit integration end to end e2e distribution 70 20 10">
+    <h2>The testing pyramid</h2>
+    <p>The <span class="def-term">testing pyramid</span> describes the healthy shape of a test suite: many fast, cheap <span class="def-term">unit tests</span> at the base (~70%), fewer <span class="def-term">integration tests</span> touching real dependencies in the middle (~20%), and a thin layer of slow, expensive <span class="def-term">end-to-end tests</span> at the top (~10%). A suite that inverts this — more browser tests than unit tests — is a process violation: it's slow to run and painful to diagnose when it's red.</p>
+    <div class="callout warn"><div class="co-label">Common AI-generation failure</div>AI often over-produces end-to-end-style tests because they read as more "impressive," and under-produces the boundary and failure-path unit tests that actually catch defects cheaply. See <a href="#doc-testplan">the KitchenPulse Test Plan</a> for a suite that holds the 70/20/10 shape.</div>
+  </section>
+
+  <section class="page-section" id="f-techdebt" data-title="Technical debt" data-search="technical debt shortcut interest grandfathered refactor when to touch">
+    <h2>Technical debt</h2>
+    <p><span class="def-term">Technical debt</span> is a shortcut taken deliberately (or accidentally) that makes future change more expensive — like a 900-line service that should have been split into three modules. Debt itself isn't always wrong; taking it on <em>without naming it</em> is. A healthy team logs the debt, states the interest it's accruing, and pays it down when the file is touched again.</p>
+    <div class="callout tip"><div class="co-label">The rule this repo uses</div>Existing oversize files are grandfathered until touched; each subsequent modification to that file is an opportunity to extract and split — the exact rule KitchenPulse's <a href="#doc-standards">Coding Standards</a> apply to its own codebase.</div>
+  </section>
+
+  <section class="page-section" id="f-solid" data-title="DRY and SOLID lightly" data-search="DRY dont repeat yourself SOLID single responsibility open closed liskov interface segregation dependency inversion">
+    <h2>DRY &amp; SOLID (lightly)</h2>
+    <p><span class="def-term">DRY</span> (Don't Repeat Yourself) says duplicated logic should be lifted into one place — but only once it has appeared three times; two occurrences can be coincidence, not a pattern worth abstracting. <span class="def-term">SOLID</span> is five lightweight design habits: <strong>S</strong>ingle Responsibility (one reason to change), <strong>O</strong>pen/Closed (extend without rewriting), <strong>L</strong>iskov Substitution (a subtype must honor its parent's contract), <strong>I</strong>nterface Segregation (small, focused interfaces beat one giant one), and <strong>D</strong>ependency Inversion (depend on an abstraction, not a concrete implementation).</p>
+    <div class="grid grid-2">
+      <div class="card"><h3>Where it shows up in KitchenPulse</h3><p class="muted"><code>PrepTimePredictionEngine</code> depends on a <code>ModelClient</code> interface, not directly on the Azure ML SDK (Dependency Inversion) — so swapping model hosting later doesn't touch the six modules that call it.</p></div>
+      <div class="card"><h3>The trap to avoid</h3><p class="muted">SOLID is a set of habits, not a checklist to satisfy on every function. An AI that wraps a single 10-line utility in three abstraction layers "for SOLID" has made the code harder to read, not more principled.</p></div>
+    </div>
+  </section>
+
+  <section class="page-section" id="f-errorhandling" data-title="Error handling and failure-first design" data-search="error handling failure first design timeout retry circuit breaker fallback dead letter silent catch">
+    <h2>Error handling &amp; failure-first design</h2>
+    <p>Design the failure path before the happy path. Every external boundary — a model inference call, a POS webhook, a WebSocket push to a kitchen screen — needs an explicit <span class="def-term">timeout</span>, a documented <span class="def-term">retry</span> strategy, and a defined <span class="def-term">fallback</span> or fail-fast behavior. A silent <code>catch (e) {}</code> is not error handling; it's a decision to lose information, made invisibly.</p>
+    <div class="callout warn"><div class="co-label">Forbidden pattern</div>Catching an error and continuing without logging its class and context. When KitchenPulse's model-inference call times out, the code must say so — <code>error_class: "TimeoutError"</code>, not silence, and not a generic <code>Error</code> swallowed and forgotten. See <a href="#doc-checklist">the Code Review Checklist</a>, Idempotency &amp; Failure-First section.</div>
+  </section>
+
+  <section class="page-section" id="f-goodbad" data-title="Good vs bad code" data-search="good bad code examples vague untyped silent catch specific typed">
+    <h2>Good vs. bad code</h2>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th style="width:8%">#</th><th>Bad — vague, untyped, unowned failure path</th><th>Good — specific, typed, tested</th></tr></thead>
+        <tbody id="goodBadBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="page-section" id="f-kpis" data-title="Engineering KPIs" data-search="engineering KPIs coverage PR cycle time defect trend mean time to recovery deployment frequency">
+    <h2>Engineering KPIs</h2>
+    <p>Four numbers tell you more about an engineering team's real health than a burndown chart alone: <span class="def-term">test coverage</span> (is behavior actually asserted, not just executed), <span class="def-term">PR cycle time</span> (time from open to merge — a proxy for review friction and PR size discipline), <span class="def-term">defect trend</span> (issues found in review or production over time), and <span class="def-term">deployment frequency</span> (how often working code actually reaches users).</p>
+    <div class="grid grid-4">
+      <div class="kpi-tile"><div class="kpi-label">Test Coverage</div><div class="kpi-value">% asserted</div><div class="kpi-delta" style="color:var(--berry)">Target: &ge;80% in services/</div><div class="kpi-target">See <a href="#doc-testplan">Test Plan</a></div></div>
+      <div class="kpi-tile"><div class="kpi-label">PR Cycle Time</div><div class="kpi-value">Open &rarr; Merge</div><div class="kpi-delta" style="color:var(--berry)">Target: &le;2 days</div><div class="kpi-target">See <a href="#doc-branching">Branching &amp; PR</a></div></div>
+      <div class="kpi-tile"><div class="kpi-label">Defect Trend</div><div class="kpi-value">Per sprint</div><div class="kpi-delta" style="color:var(--berry)">Trending down = healthy</div><div class="kpi-target">See <a href="#doc-dod">Definition of Done</a></div></div>
+      <div class="kpi-tile"><div class="kpi-label">Deploy Frequency</div><div class="kpi-value">Per merge to main</div><div class="kpi-delta" style="color:var(--berry)">Small, frequent &gt; big, rare</div><div class="kpi-target">Trunk-based, protected main</div></div>
+    </div>
+  </section>
+
+  <section class="page-section" id="f-lens" data-title="The architect's review lens" data-search="architect review lens checklist evaluating AI generated code contracts tests error handling modularity">
+    <h2>The architect's review lens</h2>
+    <p class="section-lede">Nine questions to run against any AI-generated code or design before you approve it. If a change fails more than one, it goes back with specific, cited feedback — not a vague "make it more robust."</p>
+    <div class="card">
+      <div id="reviewLensBody"></div>
+    </div>
+    <div class="callout key"><div class="co-label">How this guide models it</div>Every document that follows was built and reviewed against this exact lens. Documents 2, 3, 4, and 5 (Module Design, Coding Standards, Code Review Checklist, Test Plan) exist specifically to make lens items 2, 4, 6, and 7 checkable.</div>
+  </section>
+
+
+  <!-- ============================================================ DOC 1: TDD ============================================================ -->
+  <section class="page-section" id="doc-tdd" data-title="Technical Design Document" data-search="technical design document TDD context approach module breakdown data model sequence risks tradeoffs KitchenPulse">
+    <div class="section-kicker">Document 1 of 7</div>
+    <h2>Technical Design Document</h2>
+    <p class="section-lede">The design that authorizes KitchenPulse to be built: context, chosen approach vs. rejected alternatives, module breakdown, data model, main-flow sequence, and named risks.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('tdd')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('tdd')">Save as PDF</button>
+    </div>
+    <div id="docBody-tdd"></div>
+  </section>
+
+  <!-- ============================================================ DOC 2: MODULE DESIGN ============================================================ -->
+  <section class="page-section" id="doc-modules" data-title="Module and Component Design" data-search="module component design API signatures single responsibility inputs outputs errors contract KitchenPulse">
+    <div class="section-kicker">Document 2 of 7</div>
+    <h2>Module / Component Design</h2>
+    <p class="section-lede">Seven modules, each with one stated responsibility and a typed interface: inputs, outputs, and every named error it can throw.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('modules')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('modules')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('modules')">Export CSV</button>
+    </div>
+    <div id="docBody-modules"></div>
+  </section>
+
+  <!-- ============================================================ DOC 3: CODING STANDARDS ============================================================ -->
+  <section class="page-section" id="doc-standards" data-title="Coding Standards and Naming Conventions" data-search="coding standards naming conventions house style file size function size comment policy error handling KitchenPulse">
+    <div class="section-kicker">Document 3 of 7</div>
+    <h2>Coding Standards &amp; Naming Conventions</h2>
+    <p class="section-lede">The house style AI and humans must follow when writing KitchenPulse code — naming, size limits, comment policy, and error-handling rules.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('standards')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('standards')">Save as PDF</button>
+    </div>
+    <div id="docBody-standards"></div>
+  </section>
+
+  <!-- ============================================================ DOC 4: CODE REVIEW CHECKLIST ============================================================ -->
+  <section class="page-section" id="doc-checklist" data-title="Code Review Checklist" data-search="code review checklist gate pull request correctness contracts tests idempotency security observability style KitchenPulse">
+    <div class="section-kicker">Document 4 of 7</div>
+    <h2>Code Review Checklist</h2>
+    <p class="section-lede">The concrete gate every KitchenPulse pull request passes — 23 checks across 6 categories, from correctness to observability.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('checklist')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('checklist')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('checklist')">Export CSV</button>
+    </div>
+    <div id="docBody-checklist"></div>
+  </section>
+
+  <!-- ============================================================ DOC 5: TEST PLAN ============================================================ -->
+  <section class="page-section" id="doc-testplan" data-title="Unit and Integration Test Plan" data-search="unit integration test plan testing pyramid coverage happy path failure boundary idempotency KitchenPulse">
+    <div class="section-kicker">Document 5 of 7</div>
+    <h2>Unit &amp; Integration Test Plan</h2>
+    <p class="section-lede">Eighteen representative test cases mapped to the testing pyramid, including failure and boundary cases, against a 90-test suite holding a 70/20/10 shape.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('testplan')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('testplan')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('testplan')">Export CSV</button>
+    </div>
+    <div id="docBody-testplan"></div>
+  </section>
+
+  <!-- ============================================================ DOC 6: BRANCHING & PR WORKFLOW ============================================================ -->
+  <section class="page-section" id="doc-branching" data-title="Branching and Pull Request Workflow" data-search="branching pull request workflow branch naming PR size review merge rules trunk based KitchenPulse">
+    <div class="section-kicker">Document 6 of 7</div>
+    <h2>Branching &amp; Pull-Request Workflow</h2>
+    <p class="section-lede">Trunk-based development against a protected main: branch naming, PR size limits, review and merge rules, and cycle-time trend.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('branching')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('branching')">Save as PDF</button>
+    </div>
+    <div id="docBody-branching"></div>
+  </section>
+
+  <!-- ============================================================ DOC 7: DEFINITION OF DONE ============================================================ -->
+  <section class="page-section" id="doc-dod" data-title="Definition of Done" data-search="definition of done DoD objective bar shippable verification evidence KitchenPulse">
+    <div class="section-kicker">Document 7 of 7</div>
+    <h2>Definition of Done</h2>
+    <p class="section-lede">The objective bar that says a KitchenPulse change is truly shippable — ten criteria, each with required verification evidence.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('dod')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('dod')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('dod')">Export CSV</button>
+    </div>
+    <div id="docBody-dod"></div>
+  </section>
+
+
+  </main>
+</div>
+
+<footer id="pagefoot">
+  Colaberry Enterprise AI Leadership Accelerator &middot; Software Engineer Field Guide &middot; Generated by Claude Code &middot; <span id="footDate"></span>
+</footer>
+
+<button id="askFab" onclick="toggleAsk()">Ask the guide</button>
+<div id="askPanel">
+  <div id="askHead">
+    <div><div class="ah-t">Ask the guide</div><div class="ah-s">Answers come from this document only — works offline</div></div>
+    <button id="askClose" onclick="toggleAsk()">&times;</button>
+  </div>
+  <div id="askBody">
+    <div class="ask-welcome">Try a question, or tap a suggestion:</div>
+    <div style="margin-top:8px">
+      <span class="ask-suggest" onclick="askSuggested(this)">What is the testing pyramid?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What happens when the prep-time model is unavailable?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What is the branch naming convention?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What's on the Definition of Done?</span>
+    </div>
+  </div>
+  <form id="askForm" onsubmit="return handleAsk(event)">
+    <input id="askInput" type="text" placeholder="Ask about interfaces, SOLID, the testing pyramid, branching..." autocomplete="off">
+    <button id="askSend" type="submit">Ask</button>
+  </form>
+</div>
+
+<script id="deepdive-metadata" type="application/json">
+{
+  "guide_type": "Software Engineer Field Guide",
+  "curriculum_type": "deep_dive",
+  "week": 4,
+  "discipline": "Software Engineer",
+  "student_id": "abdinur2468",
+  "project_id": "kitchenpulse-order-prioritization-kds",
+  "repository": "colaberry-enterprise-ai-leadership-accelerator",
+  "generated_by": "Claude Code",
+  "generated_date": "2026-08-19",
+  "version": "1.0.0",
+  "build_number": "1"
+}
+</script>
+
+<script>
+/* ==================================================================================================
+   DATA LAYER — KitchenPulse (Trestle Restaurant Group / Copper Kettle Kitchen)
+   ================================================================================================== */
+
+const MODULES = [
+  {id:'ingestion', name:'OrderIngestionService', resp:'Normalizes raw orders from the POS, the in-house app, and delivery aggregators into one canonical OrderCommand shape.',
+   sig:'ingest(rawOrder: RawChannelOrder, channel: ChannelType): Promise&lt;OrderCommand&gt;',
+   inputs:'RawChannelOrder (union of Toast/App/DoorDash/UberEats payload shapes), ChannelType', outputs:'OrderCommand — canonical, validated, station-agnostic order',
+   errors:'MalformedOrderError, UnsupportedChannelError'},
+  {id:'predict', name:'PrepTimePredictionEngine', resp:'Wraps the trained prep-time model; given an item and current station state, returns a predicted prep time with a confidence interval.',
+   sig:'predict(item: OrderItemInput, stationState: StationSnapshot): Promise&lt;PrepTimeEstimate&gt;',
+   inputs:'OrderItemInput (menu_item_id, modifiers, qty), StationSnapshot (queue depth, active cook count)', outputs:'PrepTimeEstimate — predictedSeconds, confidence, modelVersion',
+   errors:'ModelUnavailableError, InvalidFeatureVectorError'},
+  {id:'assign', name:'StationAssignmentService', resp:'Maps each order item to exactly one kitchen station using the menu-item-to-station routing table.',
+   sig:'assign(item: OrderItem): StationAssignment',
+   inputs:'OrderItem (menu_item_id, order_id)', outputs:'StationAssignment — station_id, routing rule matched',
+   errors:'UnknownMenuItemError, NoStationMappedError'},
+  {id:'queue', name:'PriorityQueueEngine', resp:'Computes a per-ticket, per-station dynamic priority score and maintains the ordered queue, re-scoring on a fixed tick.',
+   sig:'enqueue(ticket: KitchenTicket): void&#10;rescoreAll(): void&#10;peek(stationId: string): KitchenTicket[]',
+   inputs:'KitchenTicket, stationId', outputs:'void (enqueue/rescoreAll); KitchenTicket[] ordered by descending priority (peek)',
+   errors:'StationNotFoundError'},
+  {id:'kds', name:'KDSGatewayService', resp:'WebSocket gateway that pushes prioritized queue state to Kitchen Display Screens and receives bump/recall events back.',
+   sig:'pushQueueState(stationId: string, queue: KitchenTicket[]): void&#10;onBump(handler: (event: BumpEvent) =&gt; void): void',
+   inputs:'stationId, KitchenTicket[], BumpEvent handler', outputs:'void — pushes over an open WebSocket connection per station',
+   errors:'ConnectionLostError'},
+  {id:'override', name:'ExpoOverrideService', resp:'Lets expo or the shift manager manually override priority ranking or recall a bumped ticket, with every override logged.',
+   sig:'override(ticketId: string, newPriority: number, reason: string, actorId: string): Promise&lt;void&gt;&#10;recall(ticketId: string, actorId: string): Promise&lt;void&gt;',
+   inputs:'ticketId, newPriority, reason, actorId', outputs:'void — mutates queue position, always via AuditLogger',
+   errors:'TicketNotFoundError, TicketAlreadyServedError'},
+  {id:'audit', name:'AuditLogger', resp:'Append-only ticket lifecycle event log (created, assigned, queued, bumped, recalled, served) for analytics and compliance.',
+   sig:'record(event: TicketLifecycleEvent): Promise&lt;void&gt;',
+   inputs:'TicketLifecycleEvent (ticket_id, event_type, actor_id, occurred_at)', outputs:'void — durable, append-only write',
+   errors:'PersistenceError'}
+];
+
+const ERD_ENTITIES = [
+  {id:'order', name:'Order', x:20, y:20, fields:[['order_id','PK'],['channel','string'],['placed_at','timestamp'],['status','enum']]},
+  {id:'menuitem', name:'MenuItem', x:20, y:190, fields:[['menu_item_id','PK'],['name','string'],['default_station_id','FK'],['base_prep_seconds','int']]},
+  {id:'orderitem', name:'OrderItem', x:300, y:105, fields:[['item_id','PK'],['order_id','FK'],['menu_item_id','FK'],['station_id','FK'],['qty','int'],['modifiers','json']]},
+  {id:'station', name:'Station', x:600, y:20, fields:[['station_id','PK'],['name','string'],['type','enum'],['active_capacity','int']]},
+  {id:'ticket', name:'KitchenTicket', x:600, y:210, fields:[['ticket_id','PK'],['order_id','FK'],['station_id','FK'],['priority_score','float'],['predicted_ready_at','timestamp'],['status','enum']]},
+  {id:'estimate', name:'PrepTimeEstimate', x:890, y:20, fields:[['estimate_id','PK'],['item_id','FK'],['predicted_seconds','int'],['confidence','float'],['model_version','string']]},
+  {id:'event', name:'TicketEvent', x:890, y:230, fields:[['event_id','PK'],['ticket_id','FK'],['event_type','enum'],['actor_id','string'],['occurred_at','timestamp']]}
+];
+const ERD_RELS = [
+  {from:'order', to:'orderitem', label:'1..*'},
+  {from:'menuitem', to:'orderitem', label:'1..*'},
+  {from:'orderitem', to:'station', label:'*..1'},
+  {from:'orderitem', to:'estimate', label:'1..1'},
+  {from:'order', to:'ticket', label:'1..*'},
+  {from:'station', to:'ticket', label:'1..*'},
+  {from:'ticket', to:'event', label:'1..*'}
+];
+
+const COMP_NODES = [
+  {id:'channels', label:'Channels (POS / Online / 3rd-party)', x:80, y:170, ext:true},
+  {id:'ingestion', label:'OrderIngestion Service', x:260, y:170},
+  {id:'assign', label:'StationAssignment Service', x:440, y:170},
+  {id:'predict', label:'PrepTimePredict Engine', x:440, y:50},
+  {id:'registry', label:'Model Registry (external)', x:440, y:290, ext:true},
+  {id:'queue', label:'PriorityQueue Engine', x:620, y:170},
+  {id:'override', label:'ExpoOverride Service', x:620, y:290},
+  {id:'kds', label:'KDSGateway Service', x:800, y:170},
+  {id:'hardware', label:'KDS Hardware (kitchen)', x:980, y:170, ext:true},
+  {id:'audit', label:'AuditLogger', x:800, y:290},
+  {id:'dw', label:'Analytics Warehouse (external)', x:980, y:290, ext:true}
+];
+const COMP_EDGES = [
+  {from:'channels', to:'ingestion', main:true},
+  {from:'ingestion', to:'assign', main:true},
+  {from:'assign', to:'predict', main:true},
+  {from:'predict', to:'registry', main:false},
+  {from:'assign', to:'queue', main:true},
+  {from:'queue', to:'kds', main:true},
+  {from:'kds', to:'hardware', main:true},
+  {from:'override', to:'queue', main:false},
+  {from:'ingestion', to:'audit', main:false},
+  {from:'assign', to:'audit', main:false},
+  {from:'queue', to:'audit', main:false},
+  {from:'kds', to:'audit', main:false},
+  {from:'audit', to:'dw', main:false}
+];
+
+const SEQ_ACTORS = ['Order Channel','OrderIngestion','StationAssignment','PrepTimePredict','PriorityQueue','KDSGateway','Cook (KDS)','AuditLogger'];
+const SEQ_MESSAGES = [
+  {from:'Order Channel', to:'OrderIngestion', label:'submitOrder(rawOrder)', type:'call'},
+  {from:'OrderIngestion', to:'StationAssignment', label:'assign(item) — per item', type:'call'},
+  {from:'StationAssignment', to:'PrepTimePredict', label:'predict(item, stationState)', type:'call'},
+  {from:'PrepTimePredict', to:'StationAssignment', label:'return PrepTimeEstimate', type:'return'},
+  {from:'StationAssignment', to:'PriorityQueue', label:'enqueue(ticket)', type:'call'},
+  {from:'PriorityQueue', to:'KDSGateway', label:'pushQueueState(stationId, queue)', type:'call'},
+  {from:'KDSGateway', to:'Cook (KDS)', label:'render prioritized ticket', type:'event'},
+  {from:'Cook (KDS)', to:'KDSGateway', label:'bump(itemId) — staff action', type:'event'},
+  {from:'KDSGateway', to:'PriorityQueue', label:'onBump(event)', type:'call'},
+  {from:'PriorityQueue', to:'AuditLogger', label:'record(TicketLifecycleEvent)', type:'call'},
+  {from:'PriorityQueue', to:'KDSGateway', label:'pushQueueState(updated queue)', type:'call'}
+];
+
+const CHECKLIST = [
+  {cat:'Correctness & Logic', item:"Does the change match the linked directive/ticket scope — no unrelated modifications bundled in?"},
+  {cat:'Correctness & Logic', item:"Are edge cases named in the PR description (empty ticket, single-item order, station at zero capacity)?"},
+  {cat:'Correctness & Logic', item:"Does PriorityQueueEngine.rescoreAll() produce a stable order when two tickets tie on score (documented tie-break rule)?"},
+  {cat:'Contracts & Types', item:"Does tsc --noEmit pass with zero errors?"},
+  {cat:'Contracts & Types', item:"Is every inbound HTTP/WebSocket payload validated with a Zod schema before reaching business logic?"},
+  {cat:'Contracts & Types', item:"Are public exported types treated as a contract — renamed only via a coordinated PR touching every consumer?"},
+  {cat:'Contracts & Types', item:"Is any absent, or does every remaining any carry a written justification comment?"},
+  {cat:'Tests', item:"Does new business logic in services/ or intelligence/ ship with at least one happy-path unit test?"},
+  {cat:'Tests', item:"Is there a failure-path test for each external dependency the change touches (model timeout, WebSocket disconnect, Toast API 5xx)?"},
+  {cat:'Tests', item:"Is there a boundary-case test (0-item order, 40-item catering order, station at max capacity)?"},
+  {cat:'Tests', item:"Is there an idempotency test proving the same bump/webhook event applied twice produces the same end state?"},
+  {cat:'Idempotency & Failure-First', item:"Does every side-effecting call (KDS push, audit log write) carry an idempotency key or dedup check?"},
+  {cat:'Idempotency & Failure-First', item:"Does every outbound call (model inference, Toast API, delivery webhook) declare an explicit timeout?"},
+  {cat:'Idempotency & Failure-First', item:"Is the retry policy documented in code (which exceptions retry, max attempts, backoff)?"},
+  {cat:'Idempotency & Failure-First', item:"Is there no bare catch(e){} — every catch logs a stable error_class and either recovers or rethrows?"},
+  {cat:'Security', item:"Is all inbound data (POS payload, delivery-aggregator webhook, expo override request) validated at the trust boundary?"},
+  {cat:'Security', item:"Are secrets (Toast API key, DoorDash webhook secret) absent from the diff and redacted in any log line?"},
+  {cat:'Security', item:"Does the expo override endpoint check the actor's role/permission, not just that they are authenticated?"},
+  {cat:'Observability', item:"Does every log line include correlation_id, event, outcome, and duration_ms in the required JSON shape?"},
+  {cat:'Observability', item:"Is a stable error_class attached to every caught exception (not a generic Error)?"},
+  {cat:'Style & Modularity', item:"Is the changed file under the 500-line hard ceiling (or split, if it was already over)?"},
+  {cat:'Style & Modularity', item:"Does the module still have a single responsibility — no new unrelated exports added to an existing file?"},
+  {cat:'Style & Modularity', item:"Do names reveal intent without needing the function body read to understand them?"}
+];
+
+const TESTS = [
+  {id:'UT-01',tier:'Unit',module:'PrepTimePredictionEngine',kase:'predict() returns a PrepTimeEstimate with predictedSeconds &gt; 0 for a known menu item',type:'Happy path'},
+  {id:'UT-02',tier:'Unit',module:'PrepTimePredictionEngine',kase:'predict() throws ModelUnavailableError when the inference client times out at 3s',type:'Failure path'},
+  {id:'UT-03',tier:'Unit',module:'PrepTimePredictionEngine',kase:'predict() throws InvalidFeatureVectorError for an item missing station-load features',type:'Failure path'},
+  {id:'UT-04',tier:'Unit',module:'PriorityQueueEngine',kase:'enqueue() then peek() returns tickets ordered by descending priority score',type:'Happy path'},
+  {id:'UT-05',tier:'Unit',module:'PriorityQueueEngine',kase:'Two tickets with identical priority score are ordered by earliest placed_at (documented tie-break)',type:'Boundary'},
+  {id:'UT-06',tier:'Unit',module:'PriorityQueueEngine',kase:'peek() on a station with zero queued tickets returns an empty array, not null or an error',type:'Boundary'},
+  {id:'UT-07',tier:'Unit',module:'StationAssignmentService',kase:'assign() throws UnknownMenuItemError for a menu_item_id not present in the routing table',type:'Failure path'},
+  {id:'UT-08',tier:'Unit',module:'OrderIngestionService',kase:'ingest() normalizes a 40-item catering order into 40 canonical OrderItem records',type:'Boundary'},
+  {id:'UT-09',tier:'Unit',module:'ExpoOverrideService',kase:'override() applied twice with the same idempotency key updates priority exactly once',type:'Idempotency'},
+  {id:'UT-10',tier:'Unit',module:'AuditLogger',kase:'record() rejects an event missing a ticket_id at the schema boundary',type:'Failure path'},
+  {id:'IT-01',tier:'Integration',module:'OrderIngestion + StationAssignment',kase:'A DoorDash webhook order flows end-to-end to a fully-assigned KitchenTicket against a seeded test DB',type:'Happy path'},
+  {id:'IT-02',tier:'Integration',module:'KDSGateway + PriorityQueue',kase:'A duplicate bump event (network retry) applied twice does not double-fire the "ticket complete" transition',type:'Idempotency'},
+  {id:'IT-03',tier:'Integration',module:'PrepTimePredict + Model Registry (mock)',kase:'Model Registry returns a 503 — engine falls back to the last-known model version and logs UpstreamUnavailable',type:'Failure path'},
+  {id:'IT-04',tier:'Integration',module:'OrderIngestion (Toast adapter)',kase:'A malformed Toast payload (missing item price) is rejected with 400 before reaching PriorityQueueEngine',type:'Failure path'},
+  {id:'IT-05',tier:'Integration',module:'ExpoOverride + AuditLogger',kase:'An override recorded during a DB connection drop leaves no partial commit — retried write reaches a consistent state',type:'Failure path'},
+  {id:'E2E-01',tier:'End-to-end',module:'Full ticket lifecycle (Playwright, KDS UI)',kase:'Order placed on POS appears on the grill-station KDS screen, prioritized correctly, and bumping all items marks it served',type:'Happy path'},
+  {id:'E2E-02',tier:'End-to-end',module:'Expo override UI',kase:'Expo manually re-prioritizes a ticket from the override panel and the KDS screen reorders within 1 tick',type:'Happy path'},
+  {id:'E2E-03',tier:'End-to-end',module:'KDS reconnect flow',kase:'KDS screen loses WebSocket connection mid-shift and recovers the correct queue state on reconnect, with no duplicate tickets',type:'Boundary'}
+];
+
+const COVERAGE = [
+  {label:'OrderIngestion',value:84,target:80},
+  {label:'PrepTimePredict',value:71,target:80},
+  {label:'StationAssignment',value:92,target:80},
+  {label:'PriorityQueue',value:88,target:80},
+  {label:'KDSGateway',value:65,target:80},
+  {label:'ExpoOverride',value:90,target:80},
+  {label:'AuditLogger',value:95,target:80}
+];
+
+const PYRAMID_DONUT = [
+  {label:'Unit (63 tests)',value:63,color:'var(--leaf)'},
+  {label:'Integration (18 tests)',value:18,color:'var(--berry)'},
+  {label:'End-to-end (9 tests)',value:9,color:'var(--cherry)'}
+];
+
+const PR_WEEKS = ['Wk1','Wk2','Wk3','Wk4','Wk5','Wk6','Wk7','Wk8'];
+const PR_CYCLE_DAYS = [4.2,3.8,3.5,2.9,2.6,2.1,1.9,1.8];
+
+const DEFECT_SPRINTS = ['Spr1','Spr2','Spr3','Spr4','Spr5','Spr6','Spr7','Spr8'];
+const DEFECT_COUNTS = [11,9,8,10,7,5,4,3];
+
+const DOD = [
+  {criterion:"Tests exist and pass at the minimum standard for the change's pyramid tier", verify:'CI test run green; failure-path + boundary case present for new services logic'},
+  {criterion:'tsc --noEmit passes with zero errors', verify:'CI TypeScript check green'},
+  {criterion:'No secrets introduced', verify:'Secret-scan step green; manual diff review of any .env-adjacent file'},
+  {criterion:'Directives updated if the change alters an SOP', verify:'Diff includes the relevant /directives file, or PR description states none needed'},
+  {criterion:'A junior developer can understand the change from the diff + PR description alone', verify:'Reviewer confirms in PR approval comment'},
+  {criterion:'Assumptions logged if any were made', verify:'PR description "Assumptions" section, or explicitly states none'},
+  {criterion:'No unresolved governance boundary crossed', verify:'PR description confirms no Strategic Decision item is implicated, or an escalation ticket is linked'},
+  {criterion:'PROGRESS.md updated with verification evidence', verify:'PROGRESS.md diff present in the same PR, tagged with session ID'},
+  {criterion:'Idempotency proven for any side-effecting change', verify:'Idempotency test in the PR, or PR description states the change has no side effects'},
+  {criterion:'Structured logging present at every new external boundary', verify:'Log line reviewed for correlation_id, event, outcome, duration_ms'}
+];
+
+const GOOD_BAD = [
+  ["“The kitchen display just shows the orders.”","“KDSGatewayService pushes a priority-ordered KitchenTicket[] per station over WebSocket, re-sent on every rescore tick and on reconnect — see the TDD sequence diagram.”"],
+  ["“If the model is down we just... handle it.”","“PrepTimePredictionEngine.predict() throws ModelUnavailableError after a 3s timeout; StationAssignmentService catches it and falls back to MenuItem.base_prep_seconds, logged as error_class UpstreamUnavailable.”"],
+  ["“One big kitchenService.ts file does the ingestion, scoring, and KDS push.”","“Seven modules, each with one responsibility — OrderIngestionService, PriorityQueueEngine, and KDSGatewayService are separate files, each under 300 lines — see Module Design.”"],
+  ["“We test the happy path; the rest works itself out.”","“UT-02 asserts ModelUnavailableError on a 3s timeout; IT-02 asserts a duplicate bump event doesn't double-fire ticket completion — see the Test Plan.”"],
+  ["“Reviewers just check that it runs.”","“Every PR passes 23 checklist items across 6 categories — correctness, contracts, tests, idempotency, security, observability — before merge.”"]
+];
+
+const GOOD_BAD_CODE = [
+  ["function calc(x, y, z) { return x * 0.6 + y * 0.3 + z * 0.1; }","function computePriorityScore(waitSeconds, stationLoad, slaBudgetSeconds) { return waitSeconds * 0.6 + stationLoad * 0.3 + slaBudgetSeconds * 0.1; }"],
+  ["let flag = true;","let isOverSlaBudget = true;"],
+  ["catch (e) {}","catch (e) { logger.error({event:'model_inference_failed', error_class:e.constructor.name, correlation_id}); throw new ModelUnavailableError(e.message); }"],
+  ["function ingest(payload: any) { return payload.items; }","function ingest(payload: unknown): OrderCommand { return RawDoorDashWebhookSchema.parse(payload); }"],
+  ["One 900-line kitchenService.ts handling ingestion, scoring, and KDS push","Split into orderIngestionService.ts, priorityQueueEngine.ts, kdsGatewayService.ts — each under 300 lines"]
+];
+
+const REVIEW_LENS = [
+  ["Every module has one stated responsibility","Can the module's job be said in one sentence without the word 'and'?"],
+  ["Interfaces are typed and errors are named","Does the signature show every error the function can throw, not just its success shape?"],
+  ["External boundaries have a timeout and a fallback","Does every model call, webhook, and WebSocket push declare an explicit timeout and a defined failure behavior?"],
+  ["Tests assert behavior, not just execute lines","Does the test fail if the logic is wrong, or would it pass even with the feature broken?"],
+  ["Failure and boundary cases are covered, not just the happy path","Is there a test for the empty order, the max-size order, and the dependency that's down?"],
+  ["Side effects are idempotent","Does replaying the same event (webhook retry, duplicate bump) leave the system in the same end state?"],
+  ["No silent catches","Does every caught exception log a stable error_class and either recover or rethrow?"],
+  ["Names reveal intent","Would a new engineer understand the variable or function without reading its body?"],
+  ["The PR is reviewable in one sitting","Is the diff under the size limit, scoped to one concern, with a clear description of what changed and why?"]
+];
+
+
+/* ==================================================================================================
+   RENDER HELPERS
+   ================================================================================================== */
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escKeepBr(s){ return esc(s).replace(/&#10;/g,'<br>'); }
+function typeBadge(t){
+  const cls = t==='Happy path' ? 'badge-status-done' : t==='Failure path' ? 'badge-hi' : t==='Boundary' ? 'badge-med' : 'badge-lo';
+  return `<span class="badge ${cls}">${esc(t.toUpperCase())}</span>`;
+}
+function tierBadge(t){
+  const cls = t==='Unit' ? 'badge-status-done' : t==='Integration' ? 'badge-med' : 'badge-hi';
+  return `<span class="badge ${cls}">${esc(t.toUpperCase())}</span>`;
+}
+function kpiTile(label,value,target,deltaText,good){
+  const c = good? 'var(--leaf)':'var(--cherry)';
+  return `<div class="kpi-tile"><div class="kpi-label">${esc(label)}</div><div class="kpi-value">${esc(value)}</div><div class="kpi-delta" style="color:${c}">${esc(deltaText)}</div><div class="kpi-target">${target}</div></div>`;
+}
+function svgWrap(inner,w,h){ return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;height:auto;display:block;margin:0 auto;">${inner}</svg>`; }
+function legend(items){
+  return `<div class="legend-row">${items.map(i=>`<span><span class="legend-swatch" style="background:${i[1]}"></span>${esc(i[0])}</span>`).join('')}</div>`;
+}
+function wrap2Lines(label,maxChars){
+  const words = label.split(' ');
+  let l1='', l2='';
+  words.forEach(w=>{ if((l1+' '+w).trim().length<=maxChars && !l2) l1=(l1?l1+' ':'')+w; else l2=(l2?l2+' ':'')+w; });
+  return [l1,l2];
+}
+function edgePoint(cx,cy,hw,hh,tx,ty){
+  const dx=tx-cx, dy=ty-cy;
+  if(dx===0 && dy===0) return [cx,cy];
+  const sx = dx!==0 ? hw/Math.abs(dx) : Infinity;
+  const sy = dy!==0 ? hh/Math.abs(dy) : Infinity;
+  const s = Math.min(sx,sy);
+  return [cx+dx*s, cy+dy*s];
+}
+
+
+/* ==================================================================================================
+   DIAGRAM & CHART RENDERERS
+   ================================================================================================== */
+
+/* ---------------- Component / C4-style diagram ---------------- */
+function renderComponentDiagram(nodes,edges,w,h){
+  const map={}; nodes.forEach(n=>map[n.id]=n);
+  const bw=126,bh=56, hw=bw/2, hh=bh/2;
+  const defs=`<defs><marker id="arrCC" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--cherry)"/></marker><marker id="arrNC" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--muted)"/></marker></defs>`;
+  let lines='';
+  edges.forEach(e=>{
+    const a=map[e.from], b=map[e.to];
+    const [x1,y1]=edgePoint(a.x,a.y,hw,hh,b.x,b.y);
+    const [x2,y2]=edgePoint(b.x,b.y,hw,hh,a.x,a.y);
+    const color=e.main?'var(--cherry)':'var(--muted)';
+    const marker=e.main?'url(#arrCC)':'url(#arrNC)';
+    lines+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="${e.main?2:1.2}" marker-end="${marker}"/>`;
+  });
+  let boxes='';
+  nodes.forEach(n=>{
+    const [l1,l2]=wrap2Lines(n.label,16);
+    const dash = n.ext? 'stroke-dasharray="4,3"':'';
+    boxes+=`<rect x="${(n.x-hw).toFixed(1)}" y="${(n.y-hh).toFixed(1)}" width="${bw}" height="${bh}" rx="8" fill="var(--surface)" stroke="var(--berry)" stroke-width="1.3" ${dash}/>`;
+    boxes+=`<text x="${n.x}" y="${(n.y-3).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="${n.ext?400:700}" fill="${n.ext?'var(--muted)':'var(--text)'}">${esc(l1)}</text>`;
+    if(l2) boxes+=`<text x="${n.x}" y="${(n.y+10).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="${n.ext?400:700}" fill="${n.ext?'var(--muted)':'var(--text)'}">${esc(l2)}</text>`;
+  });
+  return svgWrap(defs+lines+boxes,w,h);
+}
+
+/* ---------------- Sequence diagram ---------------- */
+function renderSequenceDiagram(actors,messages,w,h){
+  const n=actors.length;
+  const leftPad=90, rightPad=30;
+  const usable=w-leftPad-rightPad;
+  const stepX=usable/(n-1);
+  const xs=actors.map((a,i)=>leftPad+i*stepX);
+  let heads='', lifelines='';
+  actors.forEach((a,i)=>{
+    const x=xs[i];
+    const [l1,l2]=wrap2Lines(a,13);
+    const boxH = l2? 40:26;
+    heads += `<rect x="${(x-54).toFixed(1)}" y="6" width="108" height="${boxH}" rx="6" fill="var(--berry)" fill-opacity="0.12" stroke="var(--berry)" stroke-width="1.2"/>`;
+    heads += `<text x="${x.toFixed(1)}" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="var(--berry)">${esc(l1)}</text>`;
+    if(l2) heads += `<text x="${x.toFixed(1)}" y="32" text-anchor="middle" font-size="9" font-weight="700" fill="var(--berry)">${esc(l2)}</text>`;
+    lifelines += `<line x1="${x.toFixed(1)}" y1="48" x2="${x.toFixed(1)}" y2="${h-14}" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="3,3"/>`;
+  });
+  const defs=`<defs><marker id="arrC2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--cherry)"/></marker><marker id="arrB2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--berry)"/></marker><marker id="arrN2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--muted)"/></marker></defs>`;
+  let msgs='';
+  const rowH=32, startY=70;
+  messages.forEach((m,i)=>{
+    const y=startY+i*rowH;
+    const x1=xs[actors.indexOf(m.from)], x2=xs[actors.indexOf(m.to)];
+    const dashed = m.type!=='call';
+    const color = m.type==='call' ? 'var(--cherry)' : m.type==='event' ? 'var(--berry)' : 'var(--muted)';
+    const marker = m.type==='call' ? 'url(#arrC2)' : m.type==='event' ? 'url(#arrB2)' : 'url(#arrN2)';
+    msgs += `<line x1="${x1.toFixed(1)}" y1="${y}" x2="${x2.toFixed(1)}" y2="${y}" stroke="${color}" stroke-width="1.4" ${dashed?'stroke-dasharray="4,3"':''} marker-end="${marker}"/>`;
+    const mx=(x1+x2)/2;
+    msgs += `<rect x="${(mx-78).toFixed(1)}" y="${y-14}" width="156" height="12" fill="var(--surface)"/>`;
+    msgs += `<text x="${mx.toFixed(1)}" y="${y-4}" text-anchor="middle" font-size="8" font-family="var(--font-mono)" fill="var(--text)">${(i+1)+'. '+esc(m.label)}</text>`;
+  });
+  return svgWrap(defs+heads+lifelines+msgs, w, startY+messages.length*rowH+20);
+}
+
+/* ---------------- ERD ---------------- */
+function renderERD(entities,rels,w,h){
+  const map={};
+  entities.forEach(e=>{ e.h=26+e.fields.length*15+10; e.w=200; map[e.id]=e; });
+  let lines='';
+  rels.forEach(r=>{
+    const a=map[r.from], b=map[r.to];
+    const acx=a.x+a.w/2, acy=a.y+a.h/2, bcx=b.x+b.w/2, bcy=b.y+b.h/2;
+    const [x1,y1]=edgePoint(acx,acy,a.w/2,a.h/2,bcx,bcy);
+    const [x2,y2]=edgePoint(bcx,bcy,b.w/2,b.h/2,acx,acy);
+    const mx=(x1+x2)/2, my=(y1+y2)/2;
+    lines += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="var(--berry)" stroke-width="1.3"/>`;
+    lines += `<rect x="${(mx-16).toFixed(1)}" y="${(my-8).toFixed(1)}" width="32" height="14" fill="var(--surface)"/><text x="${mx.toFixed(1)}" y="${(my+3).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="var(--berry)" font-weight="700">${esc(r.label)}</text>`;
+  });
+  let boxes='';
+  entities.forEach(e=>{
+    boxes += `<rect x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="6" fill="var(--surface)" stroke="var(--berry)" stroke-width="1.4"/>`;
+    boxes += `<rect x="${e.x}" y="${e.y}" width="${e.w}" height="24" rx="6" fill="var(--berry)"/><rect x="${e.x}" y="${e.y+12}" width="${e.w}" height="12" fill="var(--berry)"/>`;
+    boxes += `<text x="${e.x+e.w/2}" y="${e.y+16}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">${esc(e.name)}</text>`;
+    e.fields.forEach((f,i)=>{
+      const fy = e.y+24+16+i*15-3;
+      boxes += `<text x="${e.x+10}" y="${fy}" font-size="8.7" font-family="var(--font-mono)" fill="var(--text)">${esc(f[0])}</text>`;
+      boxes += `<text x="${e.x+e.w-10}" y="${fy}" text-anchor="end" font-size="8" font-family="var(--font-mono)" fill="${f[1]==='PK'?'var(--cherry)':f[1]==='FK'?'var(--berry)':'var(--muted)'}">${esc(f[1])}</text>`;
+    });
+  });
+  return svgWrap(lines+boxes, w, h);
+}
+
+/* ---------------- Git branching / flow diagram ---------------- */
+function renderGitFlow(w,h){
+  const mainY=150;
+  function branch(x1,x2,topY,color,label,pr){
+    const up = topY<mainY;
+    return `<path d="M${x1} ${mainY} C ${x1} ${topY} ${x1+30} ${topY} ${x1+40} ${topY}" fill="none" stroke="${color}" stroke-width="2"/>
+      <line x1="${x1+40}" y1="${topY}" x2="${x2-40}" y2="${topY}" stroke="${color}" stroke-width="2"/>
+      <path d="M${x2-40} ${topY} C ${x2-30} ${topY} ${x2} ${topY} ${x2} ${mainY}" fill="none" stroke="${color}" stroke-width="2"/>
+      <circle cx="${x1}" cy="${mainY}" r="4" fill="var(--berry)"/>
+      <circle cx="${x2}" cy="${mainY}" r="5" fill="${color}"/>
+      <text x="${(x1+x2)/2}" y="${topY + (up?-8:16)}" text-anchor="middle" font-size="8.6" font-family="var(--font-mono)" fill="${color}">${esc(label)}</text>
+      <text x="${x2}" y="${mainY + (up?18:-10)}" text-anchor="middle" font-size="7.6" fill="var(--muted)">${esc(pr)}</text>`;
+  }
+  let s = `<line x1="40" y1="${mainY}" x2="1110" y2="${mainY}" stroke="var(--berry)" stroke-width="2.6"/>`;
+  s += `<text x="40" y="${mainY-58}" font-size="10.5" font-weight="700" fill="var(--berry)">main — protected, every merge auto-deploys to staging</text>`;
+  s += branch(140,380,75,'var(--leaf)','feature/kp-142-priority-scoring','PR #142 — squash-merged');
+  s += branch(430,690,50,'var(--leaf)','feature/kp-156-kds-websocket-gateway','PR #156 — squash-merged');
+  s += branch(760,1000,75,'var(--leaf)','feature/kp-171-expo-override-ui','PR #171 — squash-merged');
+  s += branch(560,660,235,'var(--amber)','hotfix/kp-190-kds-reconnect-loop','PR #190 — expedited review');
+  s += `<circle cx="1080" cy="${mainY}" r="6" fill="var(--cherry)"/><text x="1080" y="${mainY-14}" text-anchor="middle" font-size="9" font-weight="700" fill="var(--cherry)">v2.4.0</text><text x="1080" y="${mainY+22}" text-anchor="middle" font-size="7.6" fill="var(--muted)">tagged &amp; deployed</text>`;
+  return svgWrap(s,w,h);
+}
+
+/* ---------------- Bar chart (coverage) ---------------- */
+function renderBarChart(items,w,h,maxVal,suffix){
+  const padL=36,padR=16,padT=20,padB=54;
+  const plotW=w-padL-padR, plotH=h-padT-padB;
+  const n=items.length, gap=14;
+  const barW=(plotW-(n-1)*gap)/n;
+  let grid='',bars='';
+  for(let g=0;g<=4;g++){ const gy=padT+plotH-(g/4)*plotH; grid+=`<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${padL+plotW}" y2="${gy.toFixed(1)}" stroke="var(--border)"/><text x="${padL-6}" y="${(gy+3).toFixed(1)}" font-size="8" text-anchor="end" fill="var(--muted)">${Math.round(maxVal*g/4)}${suffix||''}</text>`; }
+  items.forEach((it,i)=>{
+    const x=padL+i*(barW+gap);
+    const bh=(it.value/maxVal)*plotH;
+    const y=padT+plotH-bh;
+    const color = it.value>=it.target ? 'var(--leaf)' : 'var(--amber)';
+    bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="${color}"/>`;
+    if(it.target!=null){ const ty=padT+plotH-(it.target/maxVal)*plotH; bars+=`<line x1="${(x-2).toFixed(1)}" y1="${ty.toFixed(1)}" x2="${(x+barW+2).toFixed(1)}" y2="${ty.toFixed(1)}" stroke="var(--cherry)" stroke-width="1.6" stroke-dasharray="3,3"/>`; }
+    bars+=`<text x="${(x+barW/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text)">${it.value}${suffix||''}</text>`;
+    const [l1,l2]=wrap2Lines(it.label,13);
+    bars+=`<text x="${(x+barW/2).toFixed(1)}" y="${padT+plotH+14}" text-anchor="middle" font-size="8" fill="var(--text)">${esc(l1)}</text><text x="${(x+barW/2).toFixed(1)}" y="${padT+plotH+25}" text-anchor="middle" font-size="8" fill="var(--text)">${esc(l2)}</text>`;
+  });
+  return svgWrap(grid+bars, w, h) + legend([['At or above 80% target','var(--leaf)'],['Below target — flagged','var(--amber)'],['Target line (80%)','var(--cherry)']]);
+}
+
+/* ---------------- Line chart (trend) ---------------- */
+function renderLineChart(labels,series,w,h,yPrefix,ySuffix){
+  const padL=44,padR=18,padT=16,padB=28;
+  const plotW=w-padL-padR, plotH=h-padT-padB;
+  const allVals = series.flatMap(s=>s.values);
+  const maxVal = Math.max(...allVals)*1.2;
+  const stepX = plotW/(labels.length-1);
+  const yOf=v=>padT+plotH-(v/maxVal)*plotH, xOf=i=>padL+i*stepX;
+  let grid='';
+  for(let g=0;g<=4;g++){ const gy=padT+plotH-(g/4)*plotH; grid+=`<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${padL+plotW}" y2="${gy.toFixed(1)}" stroke="var(--border)"/><text x="${padL-6}" y="${(gy+3).toFixed(1)}" font-size="8" text-anchor="end" fill="var(--muted)">${yPrefix||''}${(maxVal*g/4).toFixed(1)}${ySuffix||''}</text>`; }
+  const labelsSvg = labels.map((l,i)=>`<text x="${xOf(i).toFixed(1)}" y="${(padT+plotH+16).toFixed(1)}" font-size="8" text-anchor="middle" fill="var(--text)">${esc(l)}</text>`).join('');
+  let paths='';
+  series.forEach(s=>{
+    const path = s.values.map((v,i)=>(i===0?'M':'L')+xOf(i).toFixed(1)+' '+yOf(v).toFixed(1)).join(' ');
+    paths += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="2.2" ${s.dash?'stroke-dasharray="5,4"':''}/>`;
+    paths += s.values.map((v,i)=>`<circle cx="${xOf(i).toFixed(1)}" cy="${yOf(v).toFixed(1)}" r="2.8" fill="${s.color}"/>`).join('');
+  });
+  return svgWrap(grid+paths+labelsSvg, w, h) + legend(series.map(s=>[s.label,s.color]));
+}
+
+/* ---------------- Donut ---------------- */
+function renderDonut(data,w,h,centerLabel){
+  const cx=w*0.32, cy=h/2, r=Math.min(w,h)/2-14, ir=r*0.58;
+  const total = data.reduce((s,d)=>s+d.value,0);
+  let angle=-Math.PI/2, paths='';
+  data.forEach(d=>{
+    const frac=d.value/total, a1=angle, a2=angle+frac*Math.PI*2;
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1), x2=cx+r*Math.cos(a2), y2=cy+r*Math.sin(a2);
+    const ix1=cx+ir*Math.cos(a2), iy1=cy+ir*Math.sin(a2), ix2=cx+ir*Math.cos(a1), iy2=cy+ir*Math.sin(a1);
+    const large = frac>0.5?1:0;
+    paths += `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} L${ix1.toFixed(1)} ${iy1.toFixed(1)} A${ir} ${ir} 0 ${large} 0 ${ix2.toFixed(1)} ${iy2.toFixed(1)} Z" fill="${d.color}"></path>`;
+    angle=a2;
+  });
+  const legendHtml = data.map(d=>`<div style="margin-bottom:6px"><span class="legend-dot" style="background:${d.color}"></span>${esc(d.label)}</div>`).join('');
+  return `<div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center">
+    <svg viewBox="0 0 ${w} ${h}" width="${w*0.62}" style="max-width:280px">${paths}
+      <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="19" font-weight="700" fill="var(--text)">${total}</text>
+      <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="8.5" fill="var(--muted)">${esc(centerLabel||'total')}</text>
+    </svg>
+    <div style="font-size:.82rem">${legendHtml}</div>
+  </div>`;
+}
+
+
+/* ==================================================================================================
+   DOCUMENT METADATA
+   ================================================================================================== */
+const DOC_META = {
+  tdd:        {code:'KP-TDD-01',  title:'Technical Design Document — KitchenPulse', version:'1.2', status:'Approved', owner:'AI Solution Architect (Engineering)', date:'2026-08-28'},
+  modules:    {code:'KP-MOD-01',  title:'Module / Component Design — KitchenPulse', version:'1.1', status:'Baselined', owner:'AI Solution Architect (Engineering)', date:'2026-09-04'},
+  standards:  {code:'KP-STD-01',  title:'Coding Standards & Naming Conventions — KitchenPulse', version:'1.0', status:'Approved', owner:'AI Solution Architect (Engineering)', date:'2026-09-04'},
+  checklist:  {code:'KP-CRC-01',  title:'Code Review Checklist — KitchenPulse', version:'1.3', status:'Living Document', owner:'AI Solution Architect (Engineering)', date:'2026-11-10'},
+  testplan:   {code:'KP-TEST-01', title:'Unit & Integration Test Plan — KitchenPulse', version:'1.2', status:'Baselined', owner:'Jordan Ruiz, Quality Engineering Lead', date:'2026-10-02'},
+  branching:  {code:'KP-BR-01',   title:'Branching & Pull-Request Workflow — KitchenPulse', version:'1.0', status:'Approved', owner:'AI Solution Architect (Engineering)', date:'2026-09-01'},
+  dod:        {code:'KP-DOD-01',  title:'Definition of Done — KitchenPulse', version:'1.1', status:'Approved', owner:'AI Solution Architect (Engineering)', date:'2026-09-08'}
+};
+
+
+/* ==================================================================================================
+   DOCUMENT 1 — TECHNICAL DESIGN DOCUMENT
+   ================================================================================================== */
+function body_tdd(){
+  return `
+  <h3>1. Executive Summary</h3>
+  <p>Copper Kettle Kitchen's average ticket-to-serve time runs <strong>14.2 minutes</strong> at peak against a <strong>9-minute</strong> service target, with <strong>31%</strong> of tickets missing that target. <strong>KitchenPulse</strong> is designed to close that gap by predicting per-item prep time, dynamically prioritizing kitchen-station queues so items finish together, and pushing that prioritization live to Kitchen Display Screens — while keeping every recall and override under a human's control.</p>
+
+  <h3>2. Context &amp; Problem</h3>
+  <p>Today, the expo station manually re-sequences tickets by eye across grill, fry, and salad stations. This works at low volume and breaks down at peak: hot items sit under heat lamps going soggy while cold items get rushed and assembled wrong, driving remake costs of roughly $740K/year. The system of record for orders is fragmented across the Toast POS, the in-house ordering app, and two delivery aggregators (DoorDash, UberEats), each with a different payload shape and a different failure mode.</p>
+
+  <h3>3. Goals &amp; Non-Goals</h3>
+  <div class="grid grid-2">
+    <div class="card"><h4 class="text-leaf">Goals</h4><ul>
+      <li>Predict per-item prep time from historical data, current station load, and modifiers</li>
+      <li>Compute a dynamic priority score per station so multi-item tickets finish together</li>
+      <li>Push prioritized queue state to KDS screens in near-real-time (sub-2-second latency)</li>
+      <li>Let expo manually override priority or recall a ticket, with every action logged</li>
+    </ul></div>
+    <div class="card"><h4 class="text-cherry">Non-Goals (this phase)</h4><ul>
+      <li>Automating recipe or portion decisions — kitchen staff always execute the recipe</li>
+      <li>Replacing the Toast POS as the system of record for payment and order totals</li>
+      <li>Inventory or ingredient-level forecasting (a candidate for a future phase)</li>
+      <li>Cross-store load balancing — each location's queue is scored independently</li>
+    </ul></div>
+  </div>
+
+  <h3>4. Chosen Approach &amp; Alternatives Considered</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Option</th><th>Description</th><th>Verdict</th></tr></thead><tbody>
+  <tr><td><strong>Chosen: Event-driven, WebSocket push</strong></td><td>Order events flow through a priority-scoring pipeline; KDS screens hold an open WebSocket connection and receive queue-state pushes on every rescore tick.</td><td><span class="badge badge-status-done">SELECTED</span></td></tr>
+  <tr><td>Alternative A: KDS polls a REST endpoint every 5s</td><td>Simpler to build, but a 5s poll interval is too coarse for a queue that needs to reorder within 1 tick of a bump or override, and adds needless load at 34-store scale.</td><td><span class="badge badge-hi">REJECTED</span></td></tr>
+  <tr><td>Alternative B: Priority computed once at order placement, never rescored</td><td>Cheapest to build, but doesn't account for a station falling behind mid-rush — the exact failure mode KitchenPulse exists to fix.</td><td><span class="badge badge-hi">REJECTED</span></td></tr>
+  </tbody></table></div>
+  <div class="callout key"><div class="co-label">Why event-driven, push-based won</div>The 9-minute SLA is measured against wall-clock time, not against when someone happens to check a screen. A push model keeps every station's queue current without kitchen staff or the system polling for it.</div>
+
+  <h3>5. Module Breakdown</h3>
+  <p>Seven modules, each with one stated responsibility — full contracts in <a href="#doc-modules">Document 2</a>.</p>
+  <div class="diagram-frame">${renderComponentDiagram(COMP_NODES,COMP_EDGES,1180,340)}</div>
+  <div class="legend-row"><span><span class="legend-swatch" style="background:var(--cherry)"></span>Main order-to-served flow</span><span><span class="legend-swatch" style="background:var(--muted)"></span>Supporting flow (override, audit, external)</span><span>Dashed border = external system</span></div>
+  <div class="diagram-caption">Component diagram — KitchenPulse's seven internal modules plus the external systems they integrate with.</div>
+
+  <h3 style="margin-top:22px">6. Data Model</h3>
+  <p>Seven entities. An <code>Order</code> can produce multiple <code>KitchenTicket</code> records (one per station); every <code>OrderItem</code> carries exactly one <code>PrepTimeEstimate</code>; every <code>KitchenTicket</code> accumulates an append-only trail of <code>TicketEvent</code> records.</p>
+  <div class="diagram-frame">${renderERD(ERD_ENTITIES,ERD_RELS,1150,370)}</div>
+  <div class="diagram-caption">Entity-relationship diagram — PK = primary key, FK = foreign key.</div>
+
+  <h3 style="margin-top:22px">7. Main Flow — Order to Served</h3>
+  <p>The sequence from order placement to a bumped, served ticket, across all seven modules plus the originating channel and the cook at the KDS screen.</p>
+  <div class="diagram-frame">${renderSequenceDiagram(SEQ_ACTORS,SEQ_MESSAGES,1180,420)}</div>
+  <div class="legend-row"><span><span class="legend-swatch" style="background:var(--cherry)"></span>Synchronous call</span><span><span class="legend-swatch" style="background:var(--muted)"></span>Return value</span><span><span class="legend-swatch" style="background:var(--berry)"></span>Async / staff event</span></div>
+  <div class="diagram-caption">Sequence diagram — order submission through ticket completion and audit logging.</div>
+
+  <h3 style="margin-top:22px">8. Non-Functional Requirements</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Requirement</th><th>Target</th></tr></thead><tbody>
+  <tr><td>KDS push latency (rescore tick to screen update)</td><td class="num">&le; 2 seconds, p95</td></tr>
+  <tr><td>Prep-time model inference timeout</td><td class="num">3 seconds, then fallback</td></tr>
+  <tr><td>Peak throughput per location</td><td class="num">&ge; 180 tickets/hour</td></tr>
+  <tr><td>KDS WebSocket reconnect recovery</td><td class="num">Full correct queue state within 5 seconds of reconnect</td></tr>
+  <tr><td>Unit test coverage, services/</td><td class="num">&ge; 80% (see <a href="#doc-testplan">Test Plan</a>)</td></tr>
+  </tbody></table></div>
+
+  <h3 style="margin-top:22px">9. Risks &amp; Trade-offs</h3>
+  <div class="callout warn"><div class="co-label">Risk: prep-time model degrades silently</div>Mitigation: PrepTimePredictionEngine enforces a hard 3s timeout and falls back to MenuItem.base_prep_seconds, logged as error_class UpstreamUnavailable — the system degrades to "no smarter than today," never to a hang.</div>
+  <div class="callout warn"><div class="co-label">Risk: WebSocket disconnects mid-shift</div>Mitigation: KDSGatewayService pushes full queue state (not deltas) on reconnect, so a dropped connection can never leave a screen showing a stale partial queue — see E2E-03 in the Test Plan.</div>
+  <div class="callout key"><div class="co-label">Trade-off accepted</div>Pushing full queue state on every tick (not a delta) costs more bandwidth than a delta-sync model, but eliminates an entire class of "screen and server disagree" bugs. At 34-store scale the bandwidth cost is negligible; the correctness guarantee is not.</div>
+
+  <h3 style="margin-top:22px">10. Rollout Plan</h3>
+  <p>Pilot at 3 locations (Bellevue, Beaverton, Boise) for 4 weeks with hypercare support, then phased rollout to the remaining 31 locations in cohorts of roughly 8, gated on the pilot's SLA-miss rate holding below 10% for two consecutive weeks.</p>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 2 — MODULE / COMPONENT DESIGN
+   ================================================================================================== */
+function body_modules(){
+  const cards = MODULES.map(m=>`
+    <div class="card">
+      <h3 style="margin-bottom:4px">${esc(m.name)}</h3>
+      <p class="muted" style="margin-top:0">${esc(m.resp)}</p>
+      <div class="codeblock">${escKeepBr(m.sig)}</div>
+      <div class="grid grid-3" style="margin-top:12px">
+        <div><div class="chip-row" style="margin:0 0 4px"><span class="chip">Inputs</span></div><p style="font-size:.82rem;margin:0">${esc(m.inputs)}</p></div>
+        <div><div class="chip-row" style="margin:0 0 4px"><span class="chip">Outputs</span></div><p style="font-size:.82rem;margin:0">${esc(m.outputs)}</p></div>
+        <div><div class="chip-row" style="margin:0 0 4px"><span class="chip">Errors thrown</span></div><p style="font-size:.82rem;margin:0" class="text-cherry mono">${esc(m.errors)}</p></div>
+      </div>
+    </div>`).join('');
+  return `
+  <p>Each module below is scoped to exactly one responsibility (the Modular Composition Rule) and exposes a typed interface — inputs, outputs, and every named error it can throw (the Contract Enforcement Layer). This is what an AI Solution Architect reviews before approving a module's design, before any implementation code is written.</p>
+  ${cards}
+  <div class="callout tip"><div class="co-label">Review habit applied</div>Every error column above names a specific class (ModelUnavailableError, UnknownMenuItemError) — never a generic Error. A module design with an untyped or unnamed error path goes back for revision before implementation starts.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 3 — CODING STANDARDS & NAMING CONVENTIONS
+   ================================================================================================== */
+function body_standards(){
+  const codeRows = GOOD_BAD_CODE.map((g,i)=>`<tr><td class="mono">${i+1}</td><td class="mono" style="white-space:pre-wrap">${esc(g[0])}</td><td class="mono text-leaf" style="white-space:pre-wrap">${esc(g[1])}</td></tr>`).join('');
+  return `
+  <h3>1. Naming Conventions</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Element</th><th>Convention</th><th>Example</th></tr></thead><tbody>
+  <tr><td>File names</td><td class="mono">camelCase.ts</td><td class="mono">priorityQueueEngine.ts</td></tr>
+  <tr><td>Classes</td><td class="mono">PascalCase</td><td class="mono">PriorityQueueEngine</td></tr>
+  <tr><td>Functions / variables</td><td class="mono">camelCase, verb-first for functions</td><td class="mono">computePriorityScore, waitSeconds</td></tr>
+  <tr><td>Constants</td><td class="mono">SCREAMING_SNAKE_CASE</td><td class="mono">MAX_QUEUE_DEPTH, MODEL_TIMEOUT_MS</td></tr>
+  <tr><td>Booleans</td><td class="mono">is / has / should prefix</td><td class="mono">isOverSlaBudget, hasActiveOverride</td></tr>
+  <tr><td>Types / interfaces</td><td class="mono">PascalCase, no "I" prefix</td><td class="mono">KitchenTicket, PrepTimeEstimate</td></tr>
+  <tr><td>Zod schemas</td><td class="mono">PascalCase + Schema suffix</td><td class="mono">RawDoorDashWebhookSchema</td></tr>
+  <tr><td>Error classes</td><td class="mono">PascalCase + Error suffix</td><td class="mono">ModelUnavailableError</td></tr>
+  </tbody></table></div>
+
+  <h3 style="margin-top:22px">2. Size Limits</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Unit</th><th>Soft target</th><th>Hard ceiling</th></tr></thead><tbody>
+  <tr><td>File</td><td class="num">~300 lines</td><td class="num">500 lines</td></tr>
+  <tr><td>Function</td><td class="num">~50 lines</td><td class="num">100 lines</td></tr>
+  <tr><td>Module public export surface</td><td class="num">5&ndash;7 symbols</td><td class="num">12 symbols</td></tr>
+  </tbody></table></div>
+  <div class="callout warn"><div class="co-label">The rule when a ceiling is hit</div>When a file or function exceeds the hard ceiling, the next change to it must split it before adding new code. Existing oversize files are grandfathered until touched — each touch is an opportunity to extract.</div>
+
+  <h3 style="margin-top:22px">3. Comment Policy</h3>
+  <p>Default to no comments. Only add one when the <em>why</em> is non-obvious — a hidden constraint, a workaround for a specific upstream bug, a subtle invariant. Never write a comment that restates what well-named code already says.</p>
+  <div class="grid grid-2">
+    <div class="card"><h4 class="text-cherry">Don't</h4><div class="codeblock">// increments the retry counter
+retryCount++;</div></div>
+    <div class="card"><h4 class="text-leaf">Do</h4><div class="codeblock">// Toast sends duplicate webhooks on any 2xx
+// response slower than 800ms — dedup by event_id.
+if (seenEventIds.has(event.id)) return;</div></div>
+  </div>
+
+  <h3 style="margin-top:22px">4. Error Handling Rules</h3>
+  <ul>
+    <li>Every external call (model inference, POS/delivery webhook, WebSocket push) declares an explicit timeout — never unbounded.</li>
+    <li>Every caught exception is tagged with a stable <code>error_class</code> before being logged or rethrown.</li>
+    <li>No bare <code>catch (e) {}</code> — a caught error either recovers with a documented fallback or is rethrown as a named error.</li>
+    <li>Generic <code>Error</code> is not an acceptable classification in production code paths — catch the specific class the dependency can throw.</li>
+  </ul>
+
+  <h3 style="margin-top:22px">5. Good vs. Bad Code — Applied</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th style="width:6%">#</th><th>Bad</th><th>Good</th></tr></thead><tbody>${codeRows}</tbody></table></div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 4 — CODE REVIEW CHECKLIST
+   ================================================================================================== */
+function body_checklist(){
+  const cats = [...new Set(CHECKLIST.map(c=>c.cat))];
+  const sections = cats.map(cat=>{
+    const rows = CHECKLIST.filter(c=>c.cat===cat).map((c,i)=>`<tr><td class="mono">${cat.slice(0,3).toUpperCase()}-${i+1}</td><td>${esc(c.item)}</td></tr>`).join('');
+    return `<h3 style="margin-top:18px">${esc(cat)}</h3><div class="table-wrap"><table class="data-table"><thead><tr><th style="width:12%">ID</th><th>Check</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join('');
+  return `
+  <p>Twenty-three checks across six categories. Every KitchenPulse pull request — human-written or AI-generated — passes all 23 before it can merge to <code>main</code>. A reviewer who approves without running this list has not reviewed the PR; they've skimmed it.</p>
+  <div class="grid grid-4">
+    ${kpiTile('Total Checks',CHECKLIST.length,'Across 6 categories','Gate on every PR',true)}
+    ${kpiTile('Categories',cats.length,'Correctness → Observability','Style & Modularity included',true)}
+    ${kpiTile('Required Approvals',1,'Minimum before merge','2 for changes touching auth/PHI-adjacent data',true)}
+    ${kpiTile('CI Gates',3,'tsc, lint, unit tests','All green required',true)}
+  </div>
+  ${sections}
+  <div class="callout key"><div class="co-label">Non-negotiable</div>A PR that adds new business logic to <code>services/</code> or <code>intelligence/</code> with zero new tests fails checklist item TES-1 automatically — no exception for "it's a small change."</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 5 — UNIT & INTEGRATION TEST PLAN
+   ================================================================================================== */
+function body_testplan(){
+  const rows = TESTS.map(t=>`<tr><td class="mono">${t.id}</td><td>${tierBadge(t.tier)}</td><td>${esc(t.module)}</td><td>${esc(t.kase)}</td><td>${typeBadge(t.type)}</td></tr>`).join('');
+  return `
+  <p>The full suite holds a 70/20/10 shape: 63 unit tests, 18 integration tests, 9 end-to-end tests — 90 total. The 18 representative cases below trace each testing-pyramid tier against the mandatory case types: happy path, failure path, boundary, and idempotency.</p>
+  <h3 style="margin-top:18px">Test Pyramid Mix</h3>
+  <div class="diagram-frame">${renderDonut(PYRAMID_DONUT,420,220,'tests total')}</div>
+  <div class="diagram-caption">63 unit (70%) / 18 integration (20%) / 9 end-to-end (10%) — matches the target distribution, not inverted.</div>
+
+  <h3 style="margin-top:22px">Coverage by Module</h3>
+  <div class="diagram-frame">${renderBarChart(COVERAGE,760,300,100,'%')}</div>
+  <div class="diagram-caption">KDSGatewayService (65%) and PrepTimePredictionEngine (71%) sit below the 80% target — both flagged below.</div>
+  <div class="callout warn"><div class="co-label">Two modules below target</div>KDSGatewayService's WebSocket lifecycle is inherently integration-heavy — its unit-testable surface is smaller by design; the gap is covered by IT-02 and E2E-03. PrepTimePredictionEngine's shortfall (71%) is a real gap: the fallback path (IT-03) is tested, but three edge cases in feature-vector construction are not yet covered — tracked for Sprint 9.</div>
+
+  <h3 style="margin-top:22px">Representative Test Cases</h3>
+  <div class="table-wrap"><table class="data-table" id="testplanTable"><thead><tr><th>ID</th><th>Tier</th><th>Module</th><th>Case</th><th>Type</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="callout tip"><div class="co-label">Every mandatory type present</div>Happy path (UT-01, IT-01, E2E-01), failure path (UT-02, IT-03, IT-04), boundary (UT-05, UT-08, E2E-03), and idempotency (UT-09, IT-02) all appear — a suite with only happy-path coverage does not satisfy Definition of Done.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 6 — BRANCHING & PULL-REQUEST WORKFLOW
+   ================================================================================================== */
+function body_branching(){
+  return `
+  <h3>1. Branching Model</h3>
+  <p>Trunk-based development against a single protected <code>main</code> branch. Feature and fix work happens on short-lived branches (typically &lt;3 days old) that squash-merge back into <code>main</code> through a reviewed pull request. There is no long-lived <code>develop</code> or <code>staging</code> branch to drift out of sync — every merge to <code>main</code> deploys to staging automatically.</p>
+  <div class="diagram-frame">${renderGitFlow(1150,300)}</div>
+  <div class="legend-row"><span><span class="legend-swatch" style="background:var(--leaf)"></span>Feature branch (squash-merged)</span><span><span class="legend-swatch" style="background:var(--amber)"></span>Hotfix branch (expedited review)</span></div>
+  <div class="diagram-caption">Trunk-based git flow — three feature branches and one hotfix, each merging back to a protected main.</div>
+
+  <h3 style="margin-top:22px">2. Branch Naming</h3>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Pattern</th><th>Example</th><th>Used for</th></tr></thead><tbody>
+  <tr><td class="mono">feature/kp-&lt;ticket&gt;-&lt;slug&gt;</td><td class="mono">feature/kp-142-priority-scoring</td><td>New functionality</td></tr>
+  <tr><td class="mono">fix/kp-&lt;ticket&gt;-&lt;slug&gt;</td><td class="mono">fix/kp-165-tiebreak-order</td><td>Non-urgent bug fixes</td></tr>
+  <tr><td class="mono">hotfix/kp-&lt;ticket&gt;-&lt;slug&gt;</td><td class="mono">hotfix/kp-190-kds-reconnect-loop</td><td>Production-affecting, expedited review</td></tr>
+  </tbody></table></div>
+
+  <h3 style="margin-top:22px">3. PR Size &amp; Review Rules</h3>
+  <div class="grid grid-2">
+    <div class="card"><h4>Size</h4><ul>
+      <li>Soft cap: ~400 changed lines. Larger diffs are split by concern before review, not after.</li>
+      <li>One concern per PR — a bug fix does not carry an unrelated refactor along with it.</li>
+    </ul></div>
+    <div class="card"><h4>Review</h4><ul>
+      <li>Minimum 1 approving human review; 2 for changes touching auth or PHI-adjacent data paths.</li>
+      <li>All CI gates green (tsc --noEmit, lint, unit tests) before a review is requested.</li>
+      <li>Reviewer runs the full <a href="#doc-checklist">Code Review Checklist</a> — not a skim.</li>
+    </ul></div>
+  </div>
+  <div class="callout key"><div class="co-label">Merge rule</div>Squash merge only — one clean commit per PR on <code>main</code>, with a message describing the change's intent, not its history of fixup commits.</div>
+
+  <h3 style="margin-top:22px">4. PR Cycle Time — Trend</h3>
+  <div class="diagram-frame">${renderLineChart(PR_WEEKS,[{label:'Median days, open to merge',color:'var(--cherry)',values:PR_CYCLE_DAYS},{label:'Target (2.0 days)',color:'var(--berry)',dash:true,values:[2,2,2,2,2,2,2,2]}],760,300,'',' d')}</div>
+  <div class="diagram-caption">Cycle time fell from 4.2 to 1.8 days across 8 weeks as PR size discipline took hold — smaller, single-concern PRs review faster.</div>`;
+}
+
+/* ==================================================================================================
+   DOCUMENT 7 — DEFINITION OF DONE
+   ================================================================================================== */
+function body_dod(){
+  const rows = DOD.map((d,i)=>`<tr><td class="mono">DOD-${i+1}</td><td>${esc(d.criterion)}</td><td class="muted">${esc(d.verify)}</td></tr>`).join('');
+  return `
+  <p>A KitchenPulse change is "done" only when every row below is true — not intended, not "should be fine," but demonstrably true with evidence attached. This is the objective bar an AI Solution Architect checks before approving a merge.</p>
+  <div class="table-wrap"><table class="data-table" id="dodTable"><thead><tr><th style="width:10%">ID</th><th>Criterion</th><th>Required verification evidence</th></tr></thead><tbody>${rows}</tbody></table></div>
+
+  <h3 style="margin-top:22px">Defect Trend — Found in Review, Per Sprint</h3>
+  <div class="diagram-frame">${renderLineChart(DEFECT_SPRINTS,[{label:'Defects found in code review',color:'var(--cherry)',values:DEFECT_COUNTS},{label:'Target (&le;5)',color:'var(--berry)',dash:true,values:[5,5,5,5,5,5,5,5]}],760,300,'',' defects')}</div>
+  <div class="diagram-caption">Defects found in review fell from 11 to 3 across 8 sprints as the Code Review Checklist and Test Plan matured — evidence the gate is catching real problems earlier, not just adding process.</div>
+  <div class="callout warn"><div class="co-label">A feature is not "done" on intent</div>"Tests should pass" is not evidence. "CI run #4021 — all green" is. If a DoD row can't point to a concrete artifact, the change is not done — it's in progress with an optimistic label.</div>`;
+}
+
+const DOC_BODY_FN = {tdd:body_tdd, modules:body_modules, standards:body_standards, checklist:body_checklist, testplan:body_testplan, branching:body_branching, dod:body_dod};
+
+
+/* ==================================================================================================
+   COVER / CONTROL STRIP / SIGN-OFF / FOOTER
+   ================================================================================================== */
+function docControlStrip(key){
+  const m = DOC_META[key];
+  return `<div class="doc-control-strip">
+    <div><span class="dcs-label">Document</span>${m.code}</div>
+    <div><span class="dcs-label">Version</span>${m.version}</div>
+    <div><span class="dcs-label">Status</span>${m.status}</div>
+    <div><span class="dcs-label">Date</span>${m.date}</div>
+  </div>`;
+}
+function signoffBlock(){
+  return `<div class="signoff">
+    <div><div class="so-role">Prepared by</div><div class="so-name">AI Solution Architect (Engineering)</div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Reviewed by</div><div class="so-name">Priya Anand, Platform Integration Lead</div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Approved by</div><div class="so-name">Aaron Whitcombe, VP Engineering</div><div class="so-line">Signature / Date</div></div>
+  </div>`;
+}
+function coverBlock(key){
+  const m = DOC_META[key];
+  return `<div style="background:var(--berry);color:#fff;border-radius:var(--radius);padding:34px 30px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;opacity:.8;margin-bottom:8px">Trestle Restaurant Group &middot; Copper Kettle Kitchen &middot; KitchenPulse Initiative</div>
+      <div style="font-size:1.6rem;font-weight:700;">${m.title}</div>
+      <div style="font-size:.85rem;opacity:.85;margin-top:6px">Colaberry Enterprise AI Leadership Accelerator &middot; Software Engineer Field Guide</div>
+    </div>
+    <img src="${logoSrc()}" alt="Colaberry" style="height:44px;background:#fff;padding:6px 10px;border-radius:8px;">
+  </div>`;
+}
+function footBlock(key){
+  const m = DOC_META[key];
+  return `<div style="margin-top:26px;padding-top:14px;border-top:1px solid var(--border);font-size:.74rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <span>${m.code} &middot; v${m.version} &middot; ${m.status}</span>
+    <span>Colaberry Enterprise AI Leadership Accelerator &mdash; Software Engineer Field Guide</span>
+  </div>`;
+}
+function logoSrc(){ const el=document.querySelector('#topbar .brand img'); return el?el.src:''; }
+
+
+/* ==================================================================================================
+   RENDER INTO PAGE
+   ================================================================================================== */
+function renderInPage(){
+  Object.keys(DOC_BODY_FN).forEach(key=>{
+    const el = document.getElementById('docBody-'+key);
+    if(!el) return;
+    el.innerHTML = docControlStrip(key) + DOC_BODY_FN[key]() + signoffBlock() + footBlock(key);
+  });
+  document.getElementById('goodBadBody').innerHTML = GOOD_BAD.map((g,i)=>`<tr><td class="mono">${i+1}</td><td>${g[0]}</td><td>${g[1]}</td></tr>`).join('');
+  document.getElementById('reviewLensBody').innerHTML = REVIEW_LENS.map((r,i)=>`<div class="lens-item"><div class="lens-num">${i+1}</div><div><strong>${esc(r[0])}</strong><div class="muted">${esc(r[1])}</div></div></div>`).join('');
+}
+
+
+/* ==================================================================================================
+   STANDALONE DOCUMENT GENERATION (download / print)
+   ================================================================================================== */
+function standaloneHtml(key){
+  const m = DOC_META[key];
+  const styleTag = document.querySelector('style').outerHTML;
+  const body = `<div style="max-width:900px;margin:34px auto;padding:0 20px 60px;">
+    ${coverBlock(key)}
+    ${docControlStrip(key)}
+    ${DOC_BODY_FN[key]()}
+    ${signoffBlock()}
+    ${footBlock(key)}
+  </div>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>${m.title}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  ${styleTag}
+  <style>body{background:#fff;padding:0;} @media print{body{background:#fff;}}</style>
+  </head><body>${body}</body></html>`;
+}
+function downloadDoc(key){
+  const html = standaloneHtml(key);
+  const blob = new Blob([html],{type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'KitchenPulse_' + DOC_META[key].code + '.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function printDoc(key){
+  const html = standaloneHtml(key);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Please allow pop-ups to save as PDF.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  w.onload = function(){ setTimeout(()=>{ w.focus(); w.print(); }, 350); };
+}
+
+
+/* ---------------- CSV export ---------------- */
+function csvCell(v){ const s=String(v==null?'':v).replace(/"/g,'""'); return /[",\n]/.test(s)? '"'+s+'"' : s; }
+function toCSV(rows){ return rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); }
+function downloadCSVBlob(filename, rows){
+  const csv = toCSV(rows);
+  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function plainSig(s){ return s.replace(/&#10;/g,' | ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'); }
+function downloadCSV(kind){
+  if(kind==='modules'){
+    downloadCSVBlob('KitchenPulse_ModuleDesign.csv',[
+      ['Module','Responsibility','Signature','Inputs','Outputs','Errors Thrown'],
+      ...MODULES.map(m=>[m.name,m.resp,plainSig(m.sig),m.inputs,m.outputs,m.errors])
+    ]);
+  } else if(kind==='checklist'){
+    downloadCSVBlob('KitchenPulse_CodeReviewChecklist.csv',[
+      ['Category','Check'],
+      ...CHECKLIST.map(c=>[c.cat,c.item])
+    ]);
+  } else if(kind==='testplan'){
+    downloadCSVBlob('KitchenPulse_TestPlan.csv',[
+      ['ID','Tier','Module','Case','Type'],
+      ...TESTS.map(t=>[t.id,t.tier,t.module,t.kase,t.type])
+    ]);
+  } else if(kind==='dod'){
+    downloadCSVBlob('KitchenPulse_DefinitionOfDone.csv',[
+      ['ID','Criterion','Required Verification Evidence'],
+      ...DOD.map((d,i)=>['DOD-'+(i+1),d.criterion,d.verify])
+    ]);
+  }
+}
+
+
+/* ==================================================================================================
+   SEARCH
+   ================================================================================================== */
+let SEARCH_INDEX = [];
+function buildSearchIndex(){
+  document.querySelectorAll('section.page-section').forEach(sec=>{
+    const title = sec.getAttribute('data-title') || sec.id;
+    const extra = sec.getAttribute('data-search') || '';
+    const text = (sec.innerText || '').slice(0,4000);
+    SEARCH_INDEX.push({id:sec.id, title, text:(title+' '+extra+' '+text).toLowerCase(), snippet:(sec.querySelector('.section-lede, p')||{}).innerText || ''});
+  });
+}
+function runSearch(q){
+  q = q.trim().toLowerCase();
+  const box = document.getElementById('searchResults');
+  if(!q){ box.style.display='none'; box.innerHTML=''; return; }
+  const terms = q.split(/\s+/).filter(Boolean);
+  const scored = SEARCH_INDEX.map(item=>{
+    let score=0;
+    terms.forEach(t=>{ if(item.title.toLowerCase().includes(t)) score+=5; const c=(item.text.match(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'))||[]).length; score+=c; });
+    return {item,score};
+  }).filter(s=>s.score>0).sort((a,b)=>b.score-a.score).slice(0,8);
+  if(!scored.length){ box.innerHTML = '<div class="res-empty">No matches. Try a different term, or ask the guide.</div>'; box.style.display='block'; return; }
+  box.innerHTML = scored.map(s=>`<div class="res-item" onclick="jumpTo('${s.item.id}')"><div class="rk">Field Guide</div><div class="rt">${s.item.title}</div><div class="rs">${(s.item.snippet||'').slice(0,110)}</div></div>`).join('');
+  box.style.display='block';
+}
+function jumpTo(id){
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchInput').value='';
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderInPage();
+  buildSearchIndex();
+  document.getElementById('searchInput').addEventListener('input', e=>runSearch(e.target.value));
+  document.addEventListener('click', e=>{
+    if(!e.target.closest('.searchwrap')) document.getElementById('searchResults').style.display='none';
+  });
+  document.getElementById('footDate').textContent = 'Generated ' + new Date('2026-08-19').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) + ' · v1.0.0';
+  setupNavHighlight();
+});
+
+/* ---------------- Nav active-state on scroll ---------------- */
+function setupNavHighlight(){
+  const links = Array.from(document.querySelectorAll('#sidenav a.navlink'));
+  const sections = links.map(l=>document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  function onScroll(){
+    let current = sections[0];
+    const y = window.scrollY + 90;
+    sections.forEach(s=>{ if(s.offsetTop <= y) current = s; });
+    links.forEach(l=>l.classList.toggle('active', current && l.getAttribute('href')==='#'+current.id));
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+}
+
+/* ---------------- Theme toggle ---------------- */
+function currentTheme(){
+  const attr = document.documentElement.getAttribute('data-theme');
+  if(attr) return attr;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const next = currentTheme()==='dark' ? 'light':'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeToggle').textContent = next==='dark' ? 'Light mode' : 'Dark mode';
+});
+(function initThemeLabel(){
+  document.getElementById('themeToggle').textContent = currentTheme()==='dark' ? 'Light mode' : 'Dark mode';
+})();
+
+
+/* ==================================================================================================
+   ASK THE GUIDE (offline keyword-matched FAQ)
+   ================================================================================================== */
+const FAQ = [
+  {q:"What is the testing pyramid?",kw:["testing pyramid","unit integration e2e","70 20 10","test distribution"],a:"The testing pyramid is the healthy shape of a test suite: ~70% fast unit tests at the base, ~20% integration tests in the middle, ~10% end-to-end tests at the top. KitchenPulse's suite holds this shape: 63 unit / 18 integration / 9 end-to-end tests.",link:'#f-pyramid'},
+  {q:"What happens when the prep-time model is unavailable?",kw:["model unavailable","prep time model","fallback","timeout"],a:"PrepTimePredictionEngine enforces a hard 3-second timeout, then throws ModelUnavailableError. StationAssignmentService catches it and falls back to MenuItem.base_prep_seconds, logged as error_class UpstreamUnavailable — the system degrades to 'no smarter than today,' never to a hang.",link:'#doc-tdd'},
+  {q:"What is the branch naming convention?",kw:["branch naming","feature branch","hotfix branch","fix branch"],a:"feature/kp-<ticket>-<slug> for new functionality, fix/kp-<ticket>-<slug> for non-urgent bugs, hotfix/kp-<ticket>-<slug> for production-affecting issues with expedited review.",link:'#doc-branching'},
+  {q:"What's on the Definition of Done?",kw:["definition of done","dod","shippable","done criteria"],a:"Ten criteria: tests pass at the right pyramid tier, tsc --noEmit passes, no secrets introduced, directives updated if needed, a junior dev can understand the change, assumptions logged, no unresolved governance boundary, PROGRESS.md updated, idempotency proven, and structured logging present at new external boundaries.",link:'#doc-dod'},
+  {q:"What is modularity and separation of concerns?",kw:["modularity","separation of concerns","single responsibility module"],a:"Modularity means each unit of code does one job and exposes a narrow way for others to ask for it. Separation of concerns keeps those jobs from blurring — OrderIngestionService normalizes orders; it does not also decide station priority.",link:'#f-modularity'},
+  {q:"What is an interface and a contract?",kw:["interface","contract","inputs outputs errors"],a:"An interface is the typed shape a module exposes. A contract is the interface plus its rules: valid inputs, guaranteed output, and every error that can be thrown. See the Module Design document for all seven KitchenPulse modules' full contracts.",link:'#f-interfaces'},
+  {q:"What is SOLID?",kw:["solid","single responsibility open closed liskov interface segregation dependency inversion"],a:"Five lightweight design habits: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion. PrepTimePredictionEngine depends on a ModelClient interface rather than the Azure ML SDK directly — Dependency Inversion in practice.",link:'#f-solid'},
+  {q:"What is DRY?",kw:["dry","dont repeat yourself","duplication"],a:"Don't Repeat Yourself — duplicated logic should be lifted into one place, but only once it has appeared three times. Two occurrences can be coincidence, not a pattern worth abstracting.",link:'#f-solid'},
+  {q:"What is technical debt?",kw:["technical debt","shortcut","grandfathered"],a:"A shortcut taken deliberately or accidentally that makes future change more expensive. KitchenPulse's rule: existing oversize files are grandfathered until touched, and each touch is an opportunity to extract and split.",link:'#f-techdebt'},
+  {q:"What is failure-first design?",kw:["failure first design","error handling","timeout retry fallback"],a:"Design the failure path before the happy path. Every external boundary needs an explicit timeout, a documented retry strategy, and a defined fallback. A silent catch(e){} is not error handling — it's a decision to lose information, made invisibly.",link:'#f-errorhandling'},
+  {q:"What modules make up KitchenPulse?",kw:["modules","seven modules","module list","components"],a:"OrderIngestionService, PrepTimePredictionEngine, StationAssignmentService, PriorityQueueEngine, KDSGatewayService, ExpoOverrideService, and AuditLogger — each with one responsibility and a typed contract.",link:'#doc-modules'},
+  {q:"What is the main flow from order to served?",kw:["main flow","sequence diagram","order to served"],a:"Channel submits order → OrderIngestion normalizes it → StationAssignment routes each item → PrepTimePredict estimates timing → PriorityQueue enqueues and scores it → KDSGateway pushes to the cook's screen → a bump event flows back through PriorityQueue → AuditLogger records it.",link:'#doc-tdd'},
+  {q:"What is the data model / ERD?",kw:["data model","erd","entities","order item ticket"],a:"Seven entities: Order, MenuItem, OrderItem, Station, KitchenTicket, PrepTimeEstimate, and TicketEvent. An Order can produce multiple KitchenTickets (one per station); every OrderItem carries exactly one PrepTimeEstimate.",link:'#doc-tdd'},
+  {q:"Why was a WebSocket push model chosen over polling?",kw:["websocket","polling","chosen approach","alternatives considered"],a:"A 5-second poll interval is too coarse for a queue that must reorder within one tick of a bump or override. The TDD names this trade-off explicitly and rejects two alternatives — see Document 1, section 4.",link:'#doc-tdd'},
+  {q:"What are the file and function size limits?",kw:["file size limit","function size limit","500 lines","300 lines"],a:"Soft target 300 lines / hard ceiling 500 lines per file; soft target 50 lines / hard ceiling 100 lines per function. When a hard ceiling is hit, the next change to that file must split it before adding new code.",link:'#doc-standards'},
+  {q:"What are the naming conventions?",kw:["naming conventions","camelCase","PascalCase","error class naming"],a:"Files and functions: camelCase. Classes, types, and error classes: PascalCase (errors suffixed Error, e.g. ModelUnavailableError). Constants: SCREAMING_SNAKE_CASE. Booleans: is/has/should prefix.",link:'#doc-standards'},
+  {q:"What is on the code review checklist?",kw:["code review checklist","23 checks","pr gate"],a:"23 checks across 6 categories: Correctness & Logic, Contracts & Types, Tests, Idempotency & Failure-First, Security, and Observability & Style — every KitchenPulse PR passes all 23 before merge.",link:'#doc-checklist'},
+  {q:"Which modules have coverage below target?",kw:["coverage below target","test coverage gap","65 percent","71 percent"],a:"KDSGatewayService (65%, WebSocket-heavy and covered more by integration tests) and PrepTimePredictionEngine (71%, a real gap in feature-vector edge cases, tracked for Sprint 9) — both flagged in the Test Plan's coverage chart, against an 80% target.",link:'#doc-testplan'},
+  {q:"What is the PR size limit?",kw:["pr size limit","400 lines","one concern per pr"],a:"Soft cap of ~400 changed lines, one concern per PR. Larger diffs are split by concern before review, not after — a bug fix does not carry an unrelated refactor with it.",link:'#doc-branching'},
+  {q:"How many approvals does a PR need?",kw:["approvals","review requirement","1 approval 2 approvals"],a:"Minimum 1 approving human review; 2 for changes touching auth or PHI-adjacent data paths. All CI gates (tsc, lint, unit tests) must be green before a review is requested.",link:'#doc-branching'},
+  {q:"What is the PR cycle time trend?",kw:["pr cycle time","cycle time trend","days to merge"],a:"Median days from PR open to merge fell from 4.2 to 1.8 days across 8 weeks as PR size discipline took hold — see the Branching & PR Workflow document.",link:'#doc-branching'},
+  {q:"What is the defect trend?",kw:["defect trend","defects found in review","sprint defects"],a:"Defects found in code review fell from 11 to 3 across 8 sprints as the Code Review Checklist and Test Plan matured, against a target of ≤5 per sprint.",link:'#doc-dod'},
+  {q:"What company and problem is this example about?",kw:["trestle","copper kettle","company","restaurant chain"],a:"Trestle Restaurant Group operates Copper Kettle Kitchen, a 34-location fast-casual chain in WA/OR/ID. Average ticket-to-serve time runs 14.2 minutes against a 9-minute target, with 31% of tickets missing it — costing roughly $740K/year in remake waste.",link:'#initiative'},
+  {q:"What is KitchenPulse?",kw:["kitchenpulse","what is the initiative","kds system"],a:"An AI-assisted Kitchen Display & Order Prioritization System. It predicts per-item prep time, computes a dynamic priority score per station, and pushes live-reprioritized queues to Kitchen Display Screens, with expo override.",link:'#initiative'},
+  {q:"What does an AI Solution Architect check when reviewing AI-generated code?",kw:["review lens","architect checklist","evaluate ai code"],a:"Nine checks: single responsibility per module, typed interfaces with named errors, timeouts and fallbacks at external boundaries, tests that assert behavior, failure/boundary coverage, idempotent side effects, no silent catches, intent-revealing names, and a reviewable PR size.",link:'#f-lens'},
+  {q:"What is a good vs bad code example?",kw:["good bad code","vague code","specific typed code"],a:"Bad: catch (e) {} — silent and untyped. Good: catch (e) { logger.error({event:'model_inference_failed', error_class:e.constructor.name}); throw new ModelUnavailableError(e.message); } — see the Good vs. Bad Code table.",link:'#f-goodbad'},
+  {q:"How do I download a document?",kw:["download","export","save"],a:"Every document has a toolbar above it: 'Download HTML' saves a fully styled, standalone copy; 'Save as PDF' opens a print-ready view; tabular documents (Module Design, Code Review Checklist, Test Plan, Definition of Done) also offer 'Export CSV.'",link:'#doc-tdd'},
+  {q:"Can I export to CSV?",kw:["csv","excel","spreadsheet export"],a:"Yes — the Module Design, Code Review Checklist, Test Plan, and Definition of Done documents each have an Export CSV button in their toolbar, ready to open in Excel.",link:'#doc-checklist'},
+  {q:"Who signs off on KitchenPulse documents?",kw:["sign off","approved by","reviewed by"],a:"Prepared by the AI Solution Architect (Engineering); reviewed by Priya Anand, Platform Integration Lead; approved by Aaron Whitcombe, VP Engineering — see the sign-off block at the bottom of every document.",link:'#doc-tdd'}
+];
+function toggleAsk(){ document.getElementById('askPanel').classList.toggle('open'); if(document.getElementById('askPanel').classList.contains('open')) document.getElementById('askInput').focus(); }
+function scoreFaq(query){
+  const q = query.toLowerCase();
+  let best=null, bestScore=0;
+  FAQ.forEach(f=>{
+    let score=0;
+    if(q.includes(f.q.toLowerCase().replace('?',''))) score+=6;
+    f.kw.forEach(k=>{ if(q.includes(k)) score+=3; });
+    const qWords = f.q.toLowerCase().replace(/[?']/g,'').split(/\s+/);
+    qWords.forEach(w=>{ if(w.length>3 && q.includes(w)) score+=1; });
+    if(score>bestScore){ bestScore=score; best=f; }
+  });
+  return bestScore>0 ? best : null;
+}
+function pushAsk(question, answerHtml){
+  const body = document.getElementById('askBody');
+  const qd = document.createElement('div'); qd.className='aq'; qd.textContent=question;
+  const ad = document.createElement('div'); ad.className='aa'; ad.innerHTML=answerHtml;
+  body.appendChild(qd); body.appendChild(ad);
+  body.scrollTop = body.scrollHeight;
+}
+function handleAsk(e){
+  e.preventDefault();
+  const input = document.getElementById('askInput');
+  const q = input.value.trim();
+  if(!q) return false;
+  const match = scoreFaq(q);
+  if(match){
+    pushAsk(q, esc(match.a) + `<br><a class="aa-link" href="${match.link}" onclick="toggleAsk()">Jump to this section &rarr;</a>`);
+  } else {
+    pushAsk(q, `I couldn't find a confident match in the guide for that. Try the search box above, or ask about: modularity, interfaces, the testing pyramid, SOLID, error handling, branching, the Code Review Checklist, or the Definition of Done.`);
+  }
+  input.value='';
+  return false;
+}
+function askSuggested(el){
+  document.getElementById('askInput').value = el.textContent;
+  document.getElementById('askForm').dispatchEvent(new Event('submit',{cancelable:true}));
+}
+
+</script>
+</body>
+</html>

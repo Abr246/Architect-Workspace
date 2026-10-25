@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "id": "refund-limit",
+      "actionType": "refund",
+      "field": "amount",
+      "operator": "greaterThan",
+      "value": 500,
+      "verdict": "escalate"
+    }
+  ]
+}

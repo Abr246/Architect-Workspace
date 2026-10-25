@@ -1,0 +1,12 @@
+{
+  "name": "governance-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An unguarded acting agent used to demonstrate governance failure modes on demand.",
+  "main": "run.js",
+  "scripts": {
+    "start": "node run.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

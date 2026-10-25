@@ -1,0 +1,1946 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Designer Field Guide — Colaberry Enterprise AI Leadership Accelerator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================= COLABERRY DESIGN TOKENS ============================= */
+:root{
+  --cherry:#FB2832; --berry:#367895; --leaf:#5BA63C; --amber:#E8920C;
+  --text:#1A1A1A; --muted:#6B6B6B; --border:#E4E4E3; --surface:#FFFFFF; --surface-alt:#F8F8F7;
+  --font-body:'Roboto',system-ui,-apple-system,Arial,sans-serif;
+  --font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(26,26,26,.06),0 4px 14px rgba(26,26,26,.06);
+}
+:root[data-theme="dark"]{
+  --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+  --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+    --text:#F2F2F2; --muted:#A8A8A8; --border:#2A2A2A; --surface:#0F0F0F; --surface-alt:#171717;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 18px rgba(0,0,0,.5);
+  }
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-body);color:var(--text);background:var(--surface-alt);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:var(--font-body);color:var(--berry);font-weight:700;line-height:1.25;margin:0 0 .5em;}
+h1{font-size:1.9rem;} h2{font-size:1.45rem;margin-top:0;} h3{font-size:1.15rem;} h4{font-size:1rem;color:var(--text);}
+p{margin:.4em 0 .9em;}
+a{color:var(--berry);}
+code,.mono{font-family:var(--font-mono);}
+.muted{color:var(--muted);}
+.text-cherry{color:var(--cherry);} .text-leaf{color:var(--leaf);} .text-amber{color:var(--amber);} .text-berry{color:var(--berry);}
+ul,ol{padding-left:20px;}
+li{margin-bottom:3px;}
+
+/* ---------- Layout shell ---------- */
+#topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;box-shadow:var(--shadow);}
+#topbar .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+#topbar .brand img{height:38px;display:block;}
+#topbar .brand .titles{min-width:0;}
+#topbar .brand .titles .t1{font-weight:700;font-size:1rem;color:var(--berry);white-space:nowrap;}
+#topbar .brand .titles .t2{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+#topbar .searchwrap{flex:1;max-width:520px;position:relative;}
+#searchInput{width:100%;padding:10px 14px 10px 38px;border-radius:999px;border:1px solid var(--border);background:var(--surface-alt);color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;}
+#searchInput:focus{border-color:var(--berry);box-shadow:0 0 0 3px rgba(54,120,149,.15);}
+.searchicon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.95rem;}
+#searchResults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);max-height:420px;overflow:auto;display:none;z-index:60;}
+#searchResults .res-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;}
+#searchResults .res-item:last-child{border-bottom:none;}
+#searchResults .res-item:hover{background:var(--surface-alt);}
+#searchResults .res-item .rk{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--berry);font-weight:700;}
+#searchResults .res-item .rt{font-weight:500;}
+#searchResults .res-item .rs{font-size:.8rem;color:var(--muted);}
+#searchResults .res-empty{padding:14px;color:var(--muted);font-size:.85rem;}
+#topbar .actions{display:flex;align-items:center;gap:8px;}
+.iconbtn{background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:.78rem;cursor:pointer;font-family:var(--font-body);white-space:nowrap;}
+.iconbtn:hover{border-color:var(--berry);}
+
+#shell{display:flex;align-items:flex-start;max-width:1500px;margin:0 auto;}
+#sidenav{width:272px;flex:none;position:sticky;top:59px;height:calc(100vh - 59px);overflow-y:auto;padding:18px 10px 60px 18px;border-right:1px solid var(--border);}
+#sidenav .navgroup{margin-bottom:18px;}
+#sidenav .navgroup-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;padding:0 10px;margin-bottom:6px;}
+#sidenav a.navlink{display:block;padding:7px 10px;border-radius:8px;color:var(--text);text-decoration:none;font-size:.86rem;border-left:3px solid transparent;}
+#sidenav a.navlink:hover{background:var(--surface-alt);}
+#sidenav a.navlink.active{background:var(--surface-alt);border-left-color:var(--cherry);color:var(--berry);font-weight:500;}
+
+main{flex:1;min-width:0;padding:26px 34px 100px;}
+section.page-section{max-width:1150px;margin:0 auto 64px;scroll-margin-top:72px;}
+section.page-section:first-of-type{margin-top:6px;}
+.section-kicker{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--cherry);font-weight:700;margin-bottom:6px;}
+.section-lede{font-size:1.02rem;color:var(--muted);max-width:820px;}
+hr.rule{border:none;border-top:1px solid var(--border);margin:28px 0;}
+
+/* ---------- Cards / callouts ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px;}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+.callout{border-radius:var(--radius);padding:14px 16px;margin:16px 0;border:1px solid var(--border);border-left:4px solid var(--berry);background:var(--surface);}
+.callout .co-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:4px;}
+.callout.tip{border-left-color:var(--leaf);} .callout.tip .co-label{color:var(--leaf);}
+.callout.warn{border-left-color:var(--amber);} .callout.warn .co-label{color:var(--amber);}
+.callout.key{border-left-color:var(--cherry);} .callout.key .co-label{color:var(--cherry);}
+.callout.info{border-left-color:var(--berry);} .callout.info .co-label{color:var(--berry);}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.68rem;font-weight:700;font-family:var(--font-mono);letter-spacing:.02em;white-space:nowrap;}
+.badge-hi{background:rgba(251,40,50,.12);color:var(--cherry);}
+.badge-med{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-lo{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-status-done{background:rgba(91,166,60,.14);color:var(--leaf);}
+.badge-status-progress{background:rgba(232,146,12,.15);color:var(--amber);}
+.badge-status-open{background:rgba(251,40,50,.12);color:var(--cherry);}
+.badge-status-notstarted{background:rgba(107,107,107,.16);color:var(--muted);}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table.data-table{width:100%;border-collapse:collapse;font-size:.84rem;background:var(--surface);}
+table.data-table thead th{background:var(--berry);color:#fff;text-align:left;padding:10px 12px;font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;}
+table.data-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.data-table tbody tr:nth-child(even){background:var(--surface-alt);}
+table.data-table td.mono, table.data-table th.mono{font-family:var(--font-mono);}
+table.data-table td.num{font-family:var(--font-mono);text-align:right;}
+table.data-table td.center{text-align:center;}
+
+/* ---------- Doc toolbar / control strip ---------- */
+.doc-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 20px;}
+.btn{font-family:var(--font-body);font-size:.82rem;font-weight:500;border-radius:8px;padding:9px 15px;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--cherry);color:#fff;}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--berry);color:var(--berry);}
+.btn-ghost{background:var(--surface-alt);color:var(--text);border-color:var(--border);}
+
+.doc-control-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;font-family:var(--font-mono);font-size:.76rem;}
+.doc-control-strip div{padding:10px 14px;border-right:1px solid var(--border);background:var(--surface);}
+.doc-control-strip div:last-child{border-right:none;}
+.doc-control-strip .dcs-label{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.62rem;margin-bottom:3px;}
+@media(max-width:800px){.doc-control-strip{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- KPI tiles ---------- */
+.kpi-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);}
+.kpi-tile .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+.kpi-tile .kpi-value{font-family:var(--font-mono);font-size:1.9rem;font-weight:700;color:var(--berry);margin:4px 0 2px;}
+.kpi-tile .kpi-delta{font-size:.78rem;font-family:var(--font-mono);}
+.kpi-tile .kpi-target{font-size:.72rem;color:var(--muted);margin-top:4px;}
+
+/* ---------- Sign-off block ---------- */
+.signoff{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:22px;}
+.signoff div{padding:16px;border-right:1px solid var(--border);background:var(--surface);}
+.signoff div:last-child{border-right:none;}
+.signoff .so-role{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
+.signoff .so-name{font-weight:600;margin:8px 0 26px;}
+.signoff .so-line{border-top:1px solid var(--border);padding-top:6px;font-size:.72rem;color:var(--muted);}
+@media(max-width:800px){.signoff{grid-template-columns:1fr;}}
+
+/* ---------- Diagram / chart frames ---------- */
+.diagram-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;overflow-x:auto;box-shadow:var(--shadow);}
+.diagram-caption{font-size:.78rem;color:var(--muted);margin-top:8px;text-align:center;}
+svg text{font-family:var(--font-body);}
+svg .mono-t{font-family:var(--font-mono);}
+.legend-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:.78rem;color:var(--muted);justify-content:center;}
+.legend-swatch{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+/* ---------- Foundations chips / definitions / lens ---------- */
+.def-term{font-weight:700;color:var(--berry);}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.chip{background:var(--surface-alt);border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:.78rem;font-family:var(--font-mono);}
+.lens-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.lens-item:last-child{border-bottom:none;}
+.lens-num{background:var(--berry);color:#fff;border-radius:50%;width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;font-size:.76rem;font-weight:700;}
+
+/* ---------- Wireframe schematic boxes ---------- */
+.wf-box{border:1.5px dashed var(--border);border-radius:8px;background:var(--surface-alt);}
+.wf-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;fill:var(--muted);}
+.state-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px;}
+.state-tab{padding:5px 12px;border-radius:999px;font-size:.72rem;font-weight:700;font-family:var(--font-mono);border:1px solid var(--border);background:var(--surface-alt);color:var(--muted);}
+.state-tab.empty{color:var(--berry);border-color:var(--berry);}
+.state-tab.loading{color:var(--amber);border-color:var(--amber);}
+.state-tab.error{color:var(--cherry);border-color:var(--cherry);}
+.state-tab.success{color:var(--leaf);border-color:var(--leaf);}
+
+/* ---------- Persona card ---------- */
+.persona-card{display:grid;grid-template-columns:88px 1fr;gap:16px;}
+.persona-avatar{width:88px;height:88px;border-radius:14px;background:var(--berry);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;font-family:var(--font-mono);}
+@media(max-width:700px){.persona-card{grid-template-columns:1fr;}.persona-avatar{width:56px;height:56px;font-size:1.1rem;}}
+
+/* ---------- Ask widget ---------- */
+#askFab{position:fixed;bottom:22px;right:22px;z-index:80;background:var(--cherry);color:#fff;border:none;border-radius:999px;padding:14px 20px;font-family:var(--font-body);font-weight:700;font-size:.86rem;cursor:pointer;box-shadow:0 6px 20px rgba(251,40,50,.35);display:flex;align-items:center;gap:8px;}
+#askPanel{position:fixed;bottom:88px;right:22px;width:400px;max-width:92vw;max-height:72vh;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);z-index:80;display:none;flex-direction:column;overflow:hidden;}
+#askPanel.open{display:flex;}
+#askHead{background:var(--berry);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+#askHead .ah-t{font-weight:700;font-size:.92rem;}
+#askHead .ah-s{font-size:.72rem;opacity:.85;}
+#askClose{background:transparent;border:none;color:#fff;font-size:1.1rem;cursor:pointer;}
+#askBody{flex:1;overflow-y:auto;padding:14px 16px;font-size:.86rem;}
+#askBody .aq{background:var(--surface-alt);border-radius:10px 10px 2px 10px;padding:9px 12px;margin:8px 0 8px auto;max-width:88%;}
+#askBody .aa{background:rgba(54,120,149,.09);border-radius:10px 10px 10px 2px;padding:9px 12px;margin:8px auto 8px 0;max-width:92%;}
+#askBody .aa .aa-link{display:inline-block;margin-top:6px;font-size:.76rem;font-weight:700;}
+#askBody .ask-welcome{color:var(--muted);font-size:.82rem;}
+#askForm{display:flex;border-top:1px solid var(--border);}
+#askInput{flex:1;border:none;padding:12px 14px;font-family:var(--font-body);font-size:.85rem;outline:none;background:var(--surface);color:var(--text);}
+#askSend{background:var(--cherry);color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:700;}
+.ask-suggest{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:.72rem;margin:3px 4px 0 0;cursor:pointer;}
+.ask-suggest:hover{border-color:var(--berry);color:var(--berry);}
+
+#pagefoot{max-width:1150px;margin:0 auto;padding:26px 0 60px;color:var(--muted);font-size:.8rem;text-align:center;border-top:1px solid var(--border);}
+
+/* ---------- Print (whole guide fallback) ---------- */
+@media print{
+  #topbar,#sidenav,#askFab,#askPanel,.doc-toolbar,#pagefoot{display:none!important;}
+  main{padding:0;} body{background:#fff;}
+  section.page-section{max-width:100%;margin:0 0 24px;page-break-after:always;}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASMAAABSCAYAAAAfKbL9AABJ9klEQVR4nO29CZBc13UleN7f8ue+1L6iCoUCUFgJAiQBcKcoSqQoyZIoS7Kktt2W29N2O9wOt3vaHZ6JmYiJjnHbjnC3PR7LY8tyWBKthRIlUzJFijtBYiMIAsRahdr3qszK/e//Tdz3CySx1IJNIqQ8wWIVWZlZP3++d99dzj2Xcc5RQw011PCzhvSzvoAaaqihBkLNGNVQQw3vC9SMUQ011PC+QM0Y1VBDDe8L1IxRDTXU8L5AzRjVUEMN7wvUjFENNdTwvkDNGNVQQw3vCyi4SVCq5rjplOAzHyrTkYm3sJ/1NdVQQw2/YMZoauEkPzb2bahKEr7kwnSykJ0o39D4Yaxt31UzSjXU8HMAdjO0g7x2+pvcUmaRSaTgexJsn2M2l0WlPIWezB3Y1H4PotG6mlGqoYabGDeFMeqfPcjPTP8IrU2dcLkCRXJg2ioWihUsZM8izHRs7/4kOjI9UEMyJClZM0w11HCT4aYwRoQ3zj3J58rHkGxrA3wJilOFVfaxULbwyvGnwPQSbmn/MHZ0/TI2tm+vGaMaarjJcNMYo5IxzYen92M0fwqp+mbA82BUfBTNOew/+T1kjWGEQhKSWgc2td+F9c13o7P+VsTDGcT0VM041VDD+xw3jTGynDwPqSl2YvAZPjDzGmzJRtVRMTx5EAMjB8GZDDXsQQ27sDwZYVlBd6YP3fV3oqvpFjQlu5AINyMd76wZphpqeB/ipjFG78VcYZjP5Pvx+slv48Dpp1F1qwAcSDwCX3KghDyomg7H96GHolBlhpgeRzLahbpkMzLxFNJyHeJaGyJaMxQ1Aof7qNpFlKwBFO1x2IUywpEENnd9FL0Ne2oGrIYabjBuSmN0HtnCJD989im8cuJrGMuegOkCkqSD8TIY08ElGXrYh6aosGGA+RwMCmSmQVU5FJUeC/i+C0lmoFvheRwWN+F6dHcU3Nr+IP7NvX+CRLipZpBqqOEXnWe0FOqSrexDt/07bFy7m+9/6ykcHnwa87lRlF2AowKdpWA4FqqqAeaGoMkOmOLAd1QU5Aog2QiHZKghH65rQWE6mSowS4HtleH5CSzk5uE5PhD+Wb/b9ycKrs2TilYz1DW8vzwjx81zajBRpZ9+wtioLvD5whROjL6Ot4Z/iMG5t1Cxi/BtRRgYm1vgIRuypcBXJEieI7wiRXUBpoKpMpgMcDI8jgPXi4JLDB/e9QV88YE/vS7vx3ZyXFMz4rVcb4Ercvqm3cQF1+FJRb1pr7+GX4AwzfIWuOfb8HwHjl+Bxx0Ef0EC/S2JKVBlHaqkQ2UaGAPU67wps/lJPlM6i8nCII6c+hFOjD8PaBEwT8GGxjuxUB3FbG4InmeC+xI8nwEKg+sZUKFChgYLHM31LfiND/4ptnd/4Jqvr1Ad5FVvDpypgB1FMpZAVLt5W1oKRpWPTxRguT4szYGu6tjR0XzTvp8afo7CtIJ1jucrA1gwJlF0+mFZeZieAccxRTeuJ3FIPARZcqHIEsJqPdJKD/RQB5LxFp7We6Er18coxcI6UtHt6KjbgrOjbyKcTuL2NZ/EwPiPwVI2PnfL/wrTtDBZOItsZQKma8GgvjduQUYYYT2BukQSvc13Yl3jzmu6FtvLcU3OsNOzT2G09DQkMnY8gh0dXyJjhJsVc8US/vyFfRjKFkCHT0dDGv/Xp+7n3Zlabq2Gn5ExGss/x8fz+5Ezp1A2RmG7BXBZgcwVwJXBZRncsyHJgAcOn7uQyDqxKUx7x2DLHsLzaaTCW9Ca2svXRLYiHmm/JqMUCmWYY0/xobG3MTD1Ejqb1uLhrb+JNzOd+N7Rv8KrnoSP7frfsOeWT7GKneeuy8HIg+M+GFMhyzKi14mbRIaIvtuooOQYkH0bsmwKj/FmhswUFAsuzJwLDx5KIQbFuXmLITXcRMbIdPKcS1Ru4ghrGTYxd4CfLH4Pk+Wz8JwcVK7DgwxXCgMegyox+MyhUlXAAfIk+L4PJknw4EOCjDIY4DO4RgVm9SAmKm/gnN6DruTDvCN+CzLR1ncMAud5ztjqDYRhMxwbewFFbx47Eh9HKpHGbdpnUSqU8PyZv0L0VBqfSf4JF0ZHww0HYxo4FPi+BIlpAFdxM4PRZ8cg8moU6TPGIFHMXUMNN9oY6WpgCPLGMH9r9jt8MPsiXGMWDpOh+DHYig9XdqHZHArnMCQOxiSwsgHuk1cESD7AdIZKBNB9GTEWQpVyS5w4Qjq4rWHKOolC4SxGEzuwqelR3pO+S/zdKzFEhPnqON6e/DHCkQjWt9+JsNbEJH+Bf2DL5zFbnsWJ8f0Yzh7DhuaNXJEbbvgucjwfrscgcS48MP8mplQEoM+XPhf6icNnHLxmi2q4kcbIdrNcU4KO+JHCAX5s8nFMlIbggyHMIwA3YMiu8IDIy6nMVxAbdpEa85HotxErcvhUuWIUAjG4kod8awhmdxhmpwynDeCpOhRUIGotQFFCMDwFVuE4is4YCtUxvrHufkT0K0uOvjn0I8yXRrG+8270Nm4X/89TGOoz3ewTt/8Of/zVQewf+C7WpP93xCK44SBj7HHyIlz4HoNHFvomBplSKkgEBRD6qlmiGm60Z+QHDxmce4m/OPFVmOYMmOvD1DxwXxbuTsU00XAGaHg1j8xRA/W5D1GZUkY2FO5DcSWRR6LT02MepKEqpFdLKIJhsj2K7E4b87dG4XUnwGwfpgIofhFOieNA9buw3AL6Gj7KU5G2Va34yYUBfnzwx0jEmnDfpl9BJhZUrSJK4F21261gt3R9nv/kzJ8hXx5GLJLGjQbtWZc8Q5+oDwr4Te5GBFd/3jW6ud9LDTeJMdK0JDs5/yp/bfIfUTHHAF+DAgeaF4LPPLATFrY8baLzzQKiThGSHIKuhqAwJljQLhkfBSJXRJ4RufQS7UqZIapIaBitoDxQRPYFB6fuKmHmAQ1SQxweC8OXbTBbw+vT30NBKuNe/AYPRy5fcTPNPFdlF3mjhOeP/i1K7gwe2PEH2NL84GXf15qmDXCPmzg8+iOk4l08Fr6xnB/OpcCbIPsODZzd1HzT95gjLt4UpzDtZo88a/iZYsUd0T93kB8c/TtUKgWQI+QyB7InwylXkHmmgs6XZ9E1bYPrKiJKBLJgDnLIlCNinLYddVVAkoLFSwRESuSKxCd8EZYVIi4ydhF3/pBj7FgcJx/hyN0RRcoKwQo58A0db08eQNxvxo6mj/CIfqnhYChjvlTF02//Fd4YfQp3rPsi9qx7FJHI5XNNzbF29KZ34ZnTX0V33XZs734UNxIe8Zk4Je8lEdJ6N70zsWha2UWeUg13msYD1yg1LN26Bk4uu78ap/rD0KUUeECFj0iODZAJm/6SgxSaEbxNZOIkyWMYUJmnKtDx0mZBSacJPzGWQYBw5Zh1JqQL3azpxLNKM5FbnAG3iAXpKfKB1sqIH3l7NX//jydN2CmecFHGrIYXPjNsQ9CxeSDBcLA3zX7pcQiw1jbeuHIfmb0d34EWTiG5CINCMkq5AhIWQ4uJyGKgVwWQrhUAqheAtcqRNTM/vRVLoLW1o+iBrJZ5FnpIVCf83fnT2CqcJ+wOOwZQ+e5CBiSAg7DFo4hFhIRTgcQjgURlgNXQjLSoRUFapM+aQwbNvGTHYWtu1BUUKQUYY9x7ORmzcxNTGGaqUCkOw6yFxCVFEQVXVEQjrCagRSKATVMxAmAXhwESIRWzHR1v0J1EU3XvZ6/Q4faGaU/GAj4hRxBWjZNIzM+gpqYglYgYNyxSPjkoAfL0KLuoiEXcRDCuJhSUopBaKqRoJhE+bcnADFm4EclhFRVXLADCzTgWNZUKmvVJ9RG5NkspwPqDoinouAqXAgQ+X01x8AtBBIRw5w9WFCM3RUDBc1w4Xr64jHZOhkdMtGDlAoDCoLYFsBLDINg2j0YKPQTs0ax2yBQ7dsSCyDXtdESKb1IRk2XR2wOu5eNw3aOnhoJduT3JGWAhoJlUlfJPQE0MMYHDwB1w7QkGpAJq3Rd3DdstREOaFQoMbCcHwHfmDDD3xInkR21EEmJRxs0Y36xnq4uk2mqNGCtsC1LmwGdEeM4TFT2GA8HZUZH2E9BFdxYPU4qFY9uJ6DUNiFxFR6TxSuG8ByLDgW58/reuTCE3TAoOtqhKA5DsZlA+d1CxWLzGgHUCw4CLtRGKFuKh4X7X0BFrhaWfNZH3EPT/Fx9AzVYIRnUbNMFHtNaJHNaOnfhVi0BUW+FzuTFyPZAzB+ZOfZ2Yy16Aluu5wrgOJfV/hTdgQxNQnHDeAaAWJ1CezZjSVvOzLZLKZFA4uIWFEEnXwuMhIcT+3xoUcDNPfF0FQfxrpXKB0Ic4WsUsGuxYNW86y8lWNhoUqfEmiJ0IIhO49lXwYUcJhehyKmMTs/ArNsIhFqRlvbQQTegAyi5D2GBg9AlkxIcpRQtLdyngm4NgKfAmQ+TdMwrDcHK8HxHwr0G8FFAtDaHTFRmzTQTAdgdcSPKcMLHTaQlJDNZ8Cx82QjD2t6Ah1YUmzE8vJTBpj09OY0RxLIeEnwCsjkmr+wtWZbUx2eZBdARLdMlrGqhh4chzhugCJdQZmNy0j2SrCsBQ0mBpu2p9AJqRcODT7GKarE1FrKGr7v+bY7hZ07ozgSMcEDpotJZQ3tPo7cWQTOFuZAdo+2tj7NEZlLp1MYnCoAdEUUfr5WQWtLGqmUFq5XkFCnHFCwTOOsfEK6vXTUJVIkVAtQxAxq1MJ8kOw8xTvhBCEZgabAUVQIQpuk4roQFn0GLxdBb1qGVzJJcpz4pJfoJOaz9jgnyygx6xEQdmvOZ+CJ3igUZK0K5rmw2ijb5wUCTUlwGCa2VgnT9SVYFrn/RJLTOhCyRJdWDrsMh4vNHTvyABGrJpG5FE9CyOGqPQXNb9dgykXsyD6NuqiKmvR/kQtVoOgWLGE28gc/wnH8LKriwOI99Cf2R+ic4z5+GYYIeSHm5oRxsHTUJ+Puw6nkGJZOTeCEWU9Ic/SlMOTALJhFF3Mve6EFqPQVbNsxbNu4LI/kFCPZ8HDMDWEsSJC5DodxHNwww5xySEt+ZfHNSU8sXHOTV7SESmZJ4hDcOoy7Ycx7WoP93aiWkH0PmoUD2NAdrPCFdWaikFSuTuIBhbTKN6bxvzsHhTNMYRcHXFZR0ZW0aPEsCEcx4ZQBOsjcaTVELpDGtaHIrqDeOgAAAABJRU5ErkJggg==" alt="Colaberry">
+    <div class="titles">
+      <div class="t1">UX Designer Field Guide</div>
+      <div class="t2">Colaberry Enterprise AI Leadership Accelerator</div>
+    </div>
+  </div>
+  <div class="searchwrap">
+    <span class="searchicon">&#128269;</span>
+    <input id="searchInput" type="text" placeholder="Search the guide — try &quot;heuristics&quot;, &quot;WCAG&quot;, &quot;personas&quot;..." autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+  <div class="actions">
+    <button class="iconbtn" onclick="toggleAsk()">Ask the guide</button>
+    <button class="iconbtn" onclick="window.print()">Print guide</button>
+  </div>
+</div>
+
+<div id="shell">
+  <nav id="sidenav">
+    <div class="navgroup">
+      <div class="navgroup-title">Start here</div>
+      <a class="navlink" href="#welcome" data-nav>Welcome &amp; how to use this guide</a>
+      <a class="navlink" href="#initiative" data-nav>The example initiative: ClaimSight</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Foundations — the 20%</div>
+      <a class="navlink" href="#f-why" data-nav>Why UX exists</a>
+      <a class="navlink" href="#f-personas" data-nav>Personas &amp; jobs-to-be-done</a>
+      <a class="navlink" href="#f-journeys" data-nav>User journeys</a>
+      <a class="navlink" href="#f-ia" data-nav>Information architecture</a>
+      <a class="navlink" href="#f-fidelity" data-nav>Wireframes, mockups, prototypes</a>
+      <a class="navlink" href="#f-heuristics" data-nav>Nielsen's 10 heuristics</a>
+      <a class="navlink" href="#f-a11y" data-nav>Accessibility (WCAG 2.1 AA)</a>
+      <a class="navlink" href="#f-hierarchy" data-nav>Visual &amp; interaction hierarchy</a>
+      <a class="navlink" href="#f-tokens" data-nav>Design systems &amp; tokens</a>
+      <a class="navlink" href="#f-testing" data-nav>Usability testing</a>
+      <a class="navlink" href="#f-goodbad" data-nav>Good vs. bad design</a>
+      <a class="navlink" href="#f-kpis" data-nav>UX KPIs</a>
+      <a class="navlink" href="#f-lens" data-nav>The architect's review lens</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Deliverables (9 documents)</div>
+      <a class="navlink" href="#doc-personas" data-nav>1. Personas &amp; JTBD</a>
+      <a class="navlink" href="#doc-journey" data-nav>2. User Journey Map</a>
+      <a class="navlink" href="#doc-ia" data-nav>3. Information Architecture</a>
+      <a class="navlink" href="#doc-wireframes" data-nav>4. Annotated Wireframes</a>
+      <a class="navlink" href="#doc-heuristics" data-nav>5. Heuristic Evaluation</a>
+      <a class="navlink" href="#doc-wcag" data-nav>6. WCAG 2.1 AA Checklist</a>
+      <a class="navlink" href="#doc-tokens" data-nav>7. Design Token Sheet</a>
+      <a class="navlink" href="#doc-testplan" data-nav>8. Usability Test Plan</a>
+      <a class="navlink" href="#doc-execsummary" data-nav>9. Executive Summary</a>
+    </div>
+    <div class="navgroup">
+      <div class="navgroup-title">Reference</div>
+      <a class="navlink" href="#glossary" data-nav>Glossary</a>
+    </div>
+  </nav>
+
+  <main>
+
+  <!-- ============================================================ WELCOME ============================================================ -->
+  <section class="page-section" id="welcome" data-title="Welcome and how to use this guide" data-search="welcome how to use this guide AI Solution Architect UX 20 percent direct evaluate approve knowledge base search ask assistant offline">
+    <div class="section-kicker">Start here</div>
+    <h1>The UX Designer Field Guide</h1>
+    <p class="section-lede">You are training to be an <strong>AI Solution Architect</strong>, not a UX Designer. You will rarely draw a wireframe yourself. You will very often be handed one — produced by a design tool, a contractor, or an AI agent — and asked to decide whether it is good enough to ship, what's missing, and what to send back. This guide teaches the roughly 20% of user-experience design that lets you do that with confidence: read a persona and know if it's grounded or invented; read a journey map and spot the pain point that actually matters; read a heuristic evaluation and know whether "severity 3" is being used correctly; read a WCAG checklist and know whether "4.6:1" is actually a pass.</p>
+    <div class="callout key">
+      <div class="co-label">How this guide is organized</div>
+      Two layers. <strong>Foundations</strong> teaches the concepts once, in plain language. <strong>Deliverables</strong> applies every concept to one real, worked example — a claims-portal redesign for a fictional regional insurer — so you see what "good" looks like as an actual document, not a description of one. Use the left navigation or the search box to jump anywhere. Each of the nine documents opens with a document-control strip (version, owner, status, date) exactly as it would appear in a real repository, and closes with a Prepared / Reviewed / Approved sign-off block. Use the toolbar above each document to <strong>download the styled HTML</strong>, <strong>save as PDF</strong>, or (where the document is tabular) <strong>export to CSV</strong>.
+    </div>
+    <div class="grid grid-3">
+      <div class="card">
+        <h4 class="text-berry">Search</h4>
+        <p class="muted" style="margin-bottom:0">The search box in the top bar indexes every section and document on this page. Type a term — "contrast ratio," "empty state," "task success" — and jump straight there.</p>
+      </div>
+      <div class="card">
+        <h4 class="text-berry">Ask the guide</h4>
+        <p class="muted" style="margin-bottom:0">The <strong>Ask the guide</strong> button (bottom right) answers questions from this document's own content — entirely offline, no external service. Try "What is a JTBD statement?" or "What's the SUS score benchmark?"</p>
+      </div>
+      <div class="card">
+        <h4 class="text-berry">Downloads</h4>
+        <p class="muted" style="margin-bottom:0">Every deliverable is a real, reusable document: styled HTML you can hand to a stakeholder, a print-ready PDF export, and — for the tabular documents — a CSV you can drop straight into Excel or Sheets.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ WHY UX EXISTS ============================================================ -->
+  <section class="page-section" id="f-why" data-title="Why UX design exists" data-search="why UX exists usability business risk cost of change AI generated interfaces">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Why UX design exists</h2>
+    <p class="section-lede">Software fails for two very different reasons: it doesn't work, and it doesn't make sense. Engineering discipline defends against the first. UX discipline defends against the second — and the second one is invisible to every test suite you own.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>The cost curve</h4>
+        <p>A usability problem found in a wireframe review costs a redline comment. The same problem found in a usability test costs a design iteration. Found after launch, it costs a support-ticket queue, a call-center line item, and — for a regulated product like an insurance claims portal — potential accessibility exposure. UX front-loads the expensive discovery into the cheapest phase.</p>
+      </div>
+      <div class="card">
+        <h4>Why this matters more with AI-generated interfaces</h4>
+        <p>An AI coding agent will happily generate a plausible-looking screen with no persona behind it, a status label no policyholder would understand, and a contrast ratio nobody checked. It is fluent, not informed. Your job as the architect is to be the check the model doesn't apply to itself — you supply the judgment about <em>who this is for</em> and <em>what happens when it goes wrong</em>, which a generated screen cannot supply about itself.</p>
+      </div>
+    </div>
+    <div class="callout info">
+      <div class="co-label">The 20% you actually need</div>
+      Personas &amp; jobs-to-be-done &middot; user journeys &middot; information architecture &middot; wireframes vs. mockups vs. prototypes &middot; Nielsen's 10 usability heuristics &middot; accessibility to WCAG 2.1 AA &middot; visual &amp; interaction hierarchy &middot; design systems &amp; tokens &middot; usability testing. That's the whole list. Master reading these, not producing them.
+    </div>
+  </section>
+
+  <!-- ============================================================ PERSONAS CONCEPT ============================================================ -->
+  <section class="page-section" id="f-personas" data-title="Personas and jobs-to-be-done" data-search="personas jobs to be done JTBD goals frustrations not demographics grounded persona red flags">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Personas &amp; jobs-to-be-done</h2>
+    <p class="section-lede">A persona is not a demographic sketch. "Dana, 34, marketing manager" tells you nothing you can design against. A persona grounded in <span class="def-term">goals</span> and <span class="def-term">frustrations</span> tells you exactly what the interface has to do and exactly where it currently fails to do it.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4 class="text-leaf">A persona that earns its place</h4>
+        <ul>
+          <li>States a goal in the user's own terms, not the business's ("I want to know what happens next," not "increase self-service adoption")</li>
+          <li>Names specific, sourced frustrations — ideally traced to a real interview, ticket, or observed session</li>
+          <li>Includes a <span class="def-term">Jobs-to-be-Done (JTBD)</span> statement: <code>When [situation], I want to [motivation], so I can [expected outcome]</code></li>
+          <li>Is falsifiable — a reviewer could look at real usage data and say "this persona is wrong about X"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 class="text-cherry">A persona that's decoration</h4>
+        <ul>
+          <li>Leads with age, job title, a stock photo, and a made-up quote</li>
+          <li>Lists generic goals that apply to almost any user of almost any product ("wants a fast, easy experience")</li>
+          <li>Has no traceable source — nobody could tell you which interview or dataset it came from</li>
+          <li>Never gets referenced again anywhere in the design decisions that follow it</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout warn">
+      <div class="co-label">Architect's check</div>
+      When an AI agent hands you personas, ask: <em>can I trace this goal to something real, and does any later design decision actually change because of this persona's specific frustration?</em> If every persona would produce the same design, you have one persona wearing three names.
+    </div>
+  </section>
+
+  <!-- ============================================================ JOURNEYS CONCEPT ============================================================ -->
+  <section class="page-section" id="f-journeys" data-title="User journey maps" data-search="user journey map emotion curve pain points unhappy path stages touchpoints thoughts feelings">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>User journeys</h2>
+    <p class="section-lede">A journey map traces one persona through one end-to-end scenario — across every channel and moment, not just the screens your team owns — and plots what they're <em>thinking</em> and <em>feeling</em> at each stage, alongside what actually happens.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>What a real journey map has</h4>
+        <ul>
+          <li>Concrete stages tied to a specific scenario, not generic lifecycle labels</li>
+          <li>An emotion curve, not just a feature list — where does confidence rise, where does it collapse?</li>
+          <li>The <strong>unhappy path</strong> included, not smoothed over — where does the design actually fail today?</li>
+          <li>Every pain point traceable to a cause a designer could act on (a missing confirmation, a jargon label, a dead channel handoff)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Why the unhappy path is non-negotiable</h4>
+        <p>A journey map that only shows the golden path is a highlight reel, not a diagnostic tool. The redesign case is made at the dips in the emotion curve — the moment a user is left guessing, or has to repeat themselves to a human because the system already had the information. See Document 2 for a worked example where the two worst dips directly become the two most-funded pieces of the redesign.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ IA CONCEPT ============================================================ -->
+  <section class="page-section" id="f-ia" data-title="Information architecture and sitemaps" data-search="information architecture IA sitemap structure plain language labels three clicks card sorting navigation">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Information architecture</h2>
+    <p class="section-lede">Information architecture (IA) is the structure of the product — what's grouped with what, what it's called, and how many decisions stand between a user and the thing they came for.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>What to check</h4>
+        <ul>
+          <li><strong>Labels are plain language.</strong> "My Claims," not "Claims Repository." "Documents," not "Asset Library."</li>
+          <li><strong>Grouping matches the user's mental model,</strong> not the org chart or the database schema.</li>
+          <li><strong>Core tasks are shallow.</strong> A common rule of thumb: no more than three clicks from the home screen to any task the persona does regularly.</li>
+          <li><strong>Every leaf node has a parent that makes sense</strong> — if you had to guess where a feature lives before seeing the sitemap, and guessed right, the IA is doing its job.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Common IA failure the architect should catch</h4>
+        <p>Internal-process taxonomy leaking into customer-facing labels ("FNOL," "Reserve," "Subrogation") is the single most common IA defect in enterprise redesigns — the structure is often fine; the words on it aren't. Also watch for "everything three levels deep" IA that technically obeys a click-count rule but buries content behind an unlabeled mega-menu the user has to fully parse to find anything.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ FIDELITY CONCEPT ============================================================ -->
+  <section class="page-section" id="f-fidelity" data-title="Wireframes vs mockups vs prototypes" data-search="wireframes mockups prototypes fidelity low fidelity high fidelity clickable states empty loading error success">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Wireframes, mockups &amp; prototypes</h2>
+    <p class="section-lede">These three terms get used interchangeably in the wild. They aren't interchangeable — each answers a different question, and asking for the wrong one wastes a design cycle.</p>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Artifact</th><th>Fidelity</th><th>Answers the question</th><th>What it should NOT have yet</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Wireframe</strong></td><td>Low</td><td>Where does everything go, and in what order? Is the structure right?</td><td>Final colors, real copy, brand type, polish</td></tr>
+          <tr><td><strong>Mockup</strong></td><td>High (static)</td><td>What does this actually look like — color, type, spacing, real content?</td><td>Interactivity, transitions, live states</td></tr>
+          <tr><td><strong>Prototype</strong></td><td>High (interactive)</td><td>What does it feel like to actually use this — can a user complete the task?</td><td>Production code, real backend data</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout key">
+      <div class="co-label">The state requirement</div>
+      A screen is not "done" — at any fidelity — until it has been designed for <strong>all four states</strong>: <span class="mono">empty</span>, <span class="mono">loading</span>, <span class="mono">error</span>, and <span class="mono">success</span>. A wireframe review that only shows the success state has reviewed roughly a quarter of the actual product. Document 4 works every key screen through all four states.
+    </div>
+  </section>
+
+  <!-- ============================================================ HEURISTICS CONCEPT ============================================================ -->
+  <section class="page-section" id="f-heuristics" data-title="Nielsen's ten usability heuristics" data-search="Nielsen 10 heuristics usability heuristic evaluation severity rating scale 0 1 2 3 4 cosmetic minor major catastrophe">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Nielsen's 10 usability heuristics</h2>
+    <p class="section-lede">Jakob Nielsen's heuristics are the closest thing UX has to a code-review checklist — broad rules of thumb, not laws, used to find usability problems fast without recruiting test participants.</p>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Heuristic</th><th>In one line</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">H1</td><td>Visibility of system status</td><td>The system always tells the user what's happening, in reasonable time.</td></tr>
+          <tr><td class="mono">H2</td><td>Match between system and the real world</td><td>Speak the user's language, not internal jargon; follow real-world conventions.</td></tr>
+          <tr><td class="mono">H3</td><td>User control and freedom</td><td>Give a clearly marked "emergency exit" — undo, cancel, back — for mistaken paths.</td></tr>
+          <tr><td class="mono">H4</td><td>Consistency and standards</td><td>Don't make users wonder if different words, situations, or actions mean the same thing.</td></tr>
+          <tr><td class="mono">H5</td><td>Error prevention</td><td>Prevent the problem before it happens — better than a good error message.</td></tr>
+          <tr><td class="mono">H6</td><td>Recognition rather than recall</td><td>Minimize memory load — make objects, actions, and options visible.</td></tr>
+          <tr><td class="mono">H7</td><td>Flexibility and efficiency of use</td><td>Accelerators for experts that novices never have to notice.</td></tr>
+          <tr><td class="mono">H8</td><td>Aesthetic and minimalist design</td><td>No irrelevant or rarely-needed information competing with what matters.</td></tr>
+          <tr><td class="mono">H9</td><td>Help users recognize, diagnose, and recover from errors</td><td>Plain language, precise problem, constructive suggestion — no error codes.</td></tr>
+          <tr><td class="mono">H10</td><td>Help and documentation</td><td>Even if the product needs no docs, help should be easy to search, task-focused, and short.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout info">
+      <div class="co-label">Severity scale (Nielsen)</div>
+      <span class="chip-row" style="margin:8px 0 0">
+        <span class="chip">0 — Not a usability problem</span>
+        <span class="chip">1 — Cosmetic</span>
+        <span class="chip">2 — Minor</span>
+        <span class="chip">3 — Major</span>
+        <span class="chip">4 — Usability catastrophe</span>
+      </span>
+      Severity blends frequency, impact, and persistence. A finding that blocks a first-time user from ever completing checkout is a 4 even if only 5% of sessions hit it. A finding every user sees but easily works around might only be a 1 or 2.
+    </div>
+  </section>
+
+  <!-- ============================================================ ACCESSIBILITY CONCEPT ============================================================ -->
+  <section class="page-section" id="f-a11y" data-title="Accessibility WCAG 2.1 AA" data-search="accessibility WCAG 2.1 AA contrast ratio 4.5 to 1 keyboard operability focus order labels target size POUR perceivable operable understandable robust">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Accessibility to WCAG 2.1 AA</h2>
+    <p class="section-lede">WCAG (Web Content Accessibility Guidelines) organizes accessibility into four principles — <strong>P</strong>erceivable, <strong>O</strong>perable, <strong>U</strong>nderstandable, <strong>R</strong>obust (POUR) — each broken into testable success criteria at three conformance levels: A, AA, AAA. Level AA is the enterprise and legal baseline almost everywhere.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>The five checks you should always be able to run yourself</h4>
+        <ul>
+          <li><strong>Contrast ratio</strong> — normal text needs <strong>4.5:1</strong> against its background (SC 1.4.3); large text (≥18.66px bold or ≥24px regular) only needs <strong>3:1</strong>. Non-text UI components (borders, icons) need <strong>3:1</strong> (SC 1.4.11).</li>
+          <li><strong>Keyboard operability</strong> — every interactive element reachable and operable with Tab, Shift+Tab, Enter, Space, and arrow keys alone (SC 2.1.1), with no trap (SC 2.1.2).</li>
+          <li><strong>Focus order &amp; visibility</strong> — Tab order matches visual/reading order (SC 2.4.3); a visible focus indicator exists at all times (SC 2.4.7).</li>
+          <li><strong>Labels &amp; instructions</strong> — every form field has a persistent, visible label — not a placeholder that disappears on input (SC 3.3.2).</li>
+          <li><strong>Error identification</strong> — errors are described in text, never by color alone (SC 3.3.1), with a suggested fix where one is knowable (SC 3.3.3).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>A precision the architect should insist on</h4>
+        <p>Target size (44&times;44px minimum touch target) is excellent practice and will be a hard <strong>AA</strong> requirement under WCAG 2.2's SC 2.5.8 — but under WCAG 2.1, it is Level <strong>AAA</strong> (SC 2.5.5). If a checklist claims target size as an "AA" citation under 2.1, that's a real, common defect in AI-generated accessibility audits: a correct-sounding but wrong citation. Always ask which WCAG <em>version</em> is in scope before trusting a level claim.</p>
+        <p class="muted" style="margin-bottom:0">Real numbers matter here more than almost anywhere else in UX: "looks readable" is not evidence. A contrast checker and an actual computed ratio are. Document 6 shows a full checklist built this way.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ VISUAL HIERARCHY CONCEPT ============================================================ -->
+  <section class="page-section" id="f-hierarchy" data-title="Visual and interaction hierarchy" data-search="visual hierarchy interaction hierarchy primary secondary tertiary action Fitts law progressive disclosure emphasis">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Visual &amp; interaction hierarchy</h2>
+    <p class="section-lede">On any screen, one action should be the obvious next step, a small set should be visibly available but secondary, and everything else should be quiet until it's needed.</p>
+    <div class="grid grid-3">
+      <div class="card"><h4 class="text-cherry">Primary</h4><p class="muted" style="margin-bottom:0">One filled, high-contrast action per screen. "Submit Claim," not three buttons that all look equally important.</p></div>
+      <div class="card"><h4 class="text-berry">Secondary</h4><p class="muted" style="margin-bottom:0">Outlined or text buttons — "Save Draft," "Cancel" — visible but clearly not the default path.</p></div>
+      <div class="card"><h4 class="text-muted">Tertiary / progressive disclosure</h4><p class="muted" style="margin-bottom:0">Rare actions live behind a menu or an expandable section rather than competing for space on every visit.</p></div>
+    </div>
+    <div class="callout tip">
+      <div class="co-label">A quick review test</div>
+      Squint at the screen (or shrink it to a thumbnail). If you can't tell what the primary action is, neither can the user. A screen where every element has equal visual weight has no hierarchy at all — this is one of the fastest defects to spot in an AI-generated mockup, because generated layouts default to uniform emphasis unless explicitly told otherwise.
+    </div>
+  </section>
+
+  <!-- ============================================================ DESIGN SYSTEMS / TOKENS CONCEPT ============================================================ -->
+  <section class="page-section" id="f-tokens" data-title="Design systems and tokens" data-search="design system tokens semantic tokens raw hex color type scale spacing scale named tokens single source of truth">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Design systems &amp; tokens</h2>
+    <p class="section-lede">A <span class="def-term">design token</span> is a named, reusable design decision — a color, a type size, a spacing value — stored once and referenced everywhere, instead of typed as a raw value on every screen.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4 class="text-leaf">Tokens (what to look for)</h4>
+        <ul>
+          <li><code>color.feedback.danger.text</code>, not <code>#C4291D</code> scattered across forty components</li>
+          <li>Semantic naming — named by <em>role</em> (danger, success, muted) not by <em>appearance</em> (red, green, gray), so the palette can change without renaming anything</li>
+          <li>A type <em>scale</em> — a fixed set of sizes/weights/line-heights, not one-off pixel values per screen</li>
+          <li>A spacing scale on a consistent base unit (commonly 4px or 8px)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 class="text-cherry">Red flag: no tokens</h4>
+        <p>When every screen in a handoff has its own slightly-different blue, its own one-off 13.5px label size, and its own 17px vs. 18px vs. 20px gaps between form fields, there is no design system — there's a set of screens that happened to be made by the same person (or the same prompt) on the same day. This is expensive later: a single brand-color update becomes a find-and-replace across hundreds of files instead of one token edit.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ USABILITY TESTING CONCEPT ============================================================ -->
+  <section class="page-section" id="f-testing" data-title="Usability testing" data-search="usability testing moderated unmoderated task success rate SUS system usability scale SEQ single ease question five users Nielsen">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Usability testing</h2>
+    <p class="section-lede">A usability test gives a small number of real (or representative) users real tasks, and measures whether — and how easily — they succeed. It is the only method on this list that produces evidence rather than expert judgment.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>The essentials</h4>
+        <ul>
+          <li><strong>Tasks, not questions.</strong> "File a claim for this damage," not "Do you like this screen?"</li>
+          <li><strong>Set success metrics before the test</strong> — task success rate, time on task, System Usability Scale (SUS) — never grade after the fact.</li>
+          <li><strong>5&ndash;8 participants per round</strong> is the standard rule of thumb (Nielsen's research: ~5 users surface ~85% of usability problems in a single round; more participants find fewer new problems per participant).</li>
+          <li><strong>Post-task questions</strong> — a Single Ease Question (1&ndash;7 scale) after each task, plus SUS at the end of the session.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Reading a SUS score</h4>
+        <p>SUS is a 10-item, 0&ndash;100 questionnaire. Common benchmarks: <strong>68</strong> is the crowd-sourced industry average; below that is below average. Rough letter grades: <span class="mono">&lt;51 F</span> &middot; <span class="mono">51&ndash;67 D/C</span> &middot; <span class="mono">68&ndash;80 B</span> &middot; <span class="mono">&gt;80 A</span>. A single score without a benchmark to compare against tells you almost nothing — always ask "compared to what?"</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ GOOD VS BAD ============================================================ -->
+  <section class="page-section" id="f-goodbad" data-title="Good design vs bad design" data-search="good design bad design examples comparison table before after">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>Good design vs. bad design</h2>
+    <p class="section-lede">Ten concrete, side-by-side comparisons — the kind of pattern-matching an architect should be able to do at a glance.</p>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th style="width:32px">#</th><th>Bad</th><th>Good</th></tr></thead>
+        <tbody id="goodBadBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ UX KPIS ============================================================ -->
+  <section class="page-section" id="f-kpis" data-title="UX KPIs" data-search="UX KPIs task success rate time on task SUS system usability scale WCAG conformance rate metrics dashboard">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>UX KPIs</h2>
+    <p class="section-lede">Four metrics do most of the work of proving a redesign actually helped. All four appear, measured, in the ClaimSight deliverables that follow.</p>
+    <div class="grid grid-4" id="kpiConceptGrid"></div>
+  </section>
+
+  <!-- ============================================================ REVIEW LENS ============================================================ -->
+  <section class="page-section" id="f-lens" data-title="The architect's review lens" data-search="architect review lens checklist how to review UX work approve reject AI generated design">
+    <div class="section-kicker">Foundations — the 20%</div>
+    <h2>The architect's review lens</h2>
+    <p class="section-lede">Eight questions to run against any UX deliverable — human-made or AI-generated — before you approve it.</p>
+    <div class="card" id="reviewLensBody"></div>
+  </section>
+
+  <!-- ============================================================ INITIATIVE CONTEXT ============================================================ -->
+  <section class="page-section" id="initiative" data-title="The example initiative ClaimSight" data-search="ClaimSight Meridian Mutual Insurance policyholder claims portal redesign initiative overview problem statement ClaimLine Classic">
+    <div class="section-kicker">Working example</div>
+    <h2>The example initiative: ClaimSight</h2>
+    <p class="section-lede">Every document in this guide is built against one concrete, believable initiative so you can see how each UX concept plays out in practice — not as an abstract template, but as real documents an AI Solution Architect would have to review, question, and sign off on.</p>
+    <div class="card">
+      <div class="grid grid-2">
+        <div>
+          <h4>The organization</h4>
+          <p><strong>Meridian Mutual Insurance</strong> is a regional property &amp; casualty insurer serving roughly 1.1M policyholders across 14 states, writing primarily homeowners and personal/commercial auto policies through independent agents.</p>
+          <h4>The problem</h4>
+          <p>Meridian's existing self-service portal, <strong>ClaimLine Classic</strong> (built 2014, bolted onto the policy-administration mainframe), gives policyholders almost no visibility once a claim is filed. Discovery research found this drives roughly 38% of inbound call-center volume as status-check calls, at an average handle time of 6.4 minutes each.</p>
+        </div>
+        <div>
+          <h4>The initiative</h4>
+          <p><strong>ClaimSight</strong> — a redesigned policyholder claims portal — replacing the static "In Review" badge with a plain-language status timeline, fixing a silently-failing document upload, and shipping a WCAG 2.1 AA&ndash;conformant design system, validated by usability testing before development handoff.</p>
+          <h4>Non-goals (this phase)</h4>
+          <p>Claims payment disbursement logic, the internal adjuster desktop tool, and agent/broker-facing tooling are explicitly out of scope. ClaimSight is the customer-facing portal only.</p>
+        </div>
+      </div>
+      <hr class="rule">
+      <div class="grid grid-4" id="initiativeBaselineKpis"></div>
+    </div>
+    <div class="callout warn">
+      <div class="co-label">Why this baseline matters</div>
+      Every number that follows in this guide — heuristic severities, WCAG pass rate, SUS score, task success — either comes from this baseline discovery work or is measured against it. A design package that can't point to where its numbers came from is the single most common gap an architect should flag.
+    </div>
+  </section>
+
+  <!-- ============================================================ DOC 1: PERSONAS ============================================================ -->
+  <section class="page-section" id="doc-personas" data-title="Personas and Jobs-to-be-Done" data-search="Dana Whitfield Marcus Webb Priya Chandrasekaran persona JTBD goals frustrations first-time claimant repeat claimant adjuster">
+    <div class="section-kicker">Document 1 of 9</div>
+    <h2>Personas &amp; Jobs-to-be-Done</h2>
+    <p class="section-lede">Three personas — two policyholders and one internal claims adjuster — each grounded in a goal, a sourced set of frustrations, and a JTBD statement.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('personas')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('personas')">Save as PDF</button>
+    </div>
+    <div id="docBody-personas"></div>
+  </section>
+
+  <!-- ============================================================ DOC 2: JOURNEY MAP ============================================================ -->
+  <section class="page-section" id="doc-journey" data-title="User Journey Map" data-search="user journey map Dana Whitfield emotion curve pain point upload failure waiting silence current state end to end">
+    <div class="section-kicker">Document 2 of 9</div>
+    <h2>User Journey Map</h2>
+    <p class="section-lede">Dana Whitfield's end-to-end, current-state journey through ClaimLine Classic — eight stages, with the emotion curve and the two pain points that justify the redesign.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('journey')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('journey')">Save as PDF</button>
+    </div>
+    <div id="docBody-journey"></div>
+  </section>
+
+  <!-- ============================================================ DOC 3: IA ============================================================ -->
+  <section class="page-section" id="doc-ia" data-title="Information Architecture and Sitemap" data-search="information architecture sitemap ClaimSight structure plain language labels three clicks navigation tree">
+    <div class="section-kicker">Document 3 of 9</div>
+    <h2>Information Architecture / Sitemap</h2>
+    <p class="section-lede">The proposed ClaimSight structure — seven top-level areas, plain-language labels, no core task deeper than three clicks from Home.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('ia')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('ia')">Save as PDF</button>
+    </div>
+    <div id="docBody-ia"></div>
+  </section>
+
+  <!-- ============================================================ DOC 4: WIREFRAMES ============================================================ -->
+  <section class="page-section" id="doc-wireframes" data-title="Annotated Wireframes" data-search="annotated wireframes dashboard file a claim upload status timeline document center empty loading error success states">
+    <div class="section-kicker">Document 4 of 9</div>
+    <h2>Annotated Wireframes</h2>
+    <p class="section-lede">Four key ClaimSight screens, each worked through all four states — empty, loading, error, success — with component and accessibility annotations.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('wireframes')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('wireframes')">Save as PDF</button>
+    </div>
+    <div id="docBody-wireframes"></div>
+  </section>
+
+  <!-- ============================================================ DOC 5: HEURISTIC EVALUATION ============================================================ -->
+  <section class="page-section" id="doc-heuristics" data-title="Usability Heuristic Evaluation" data-search="heuristic evaluation ClaimLine Classic Nielsen 10 severity rating findings catastrophic major minor cosmetic">
+    <div class="section-kicker">Document 5 of 9</div>
+    <h2>Usability Heuristic Evaluation</h2>
+    <p class="section-lede">ClaimLine Classic (the current portal), evaluated by three reviewers against Nielsen's 10 heuristics across four screens — 14 findings, severity-rated.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('heuristics')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('heuristics')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('heuristics')">Export CSV</button>
+    </div>
+    <div id="docBody-heuristics"></div>
+  </section>
+
+  <!-- ============================================================ DOC 6: WCAG CHECKLIST ============================================================ -->
+  <section class="page-section" id="doc-wcag" data-title="Accessibility WCAG 2.1 AA Checklist" data-search="WCAG 2.1 AA checklist accessibility contrast ratio keyboard focus order labels target size success criteria pass open remediation">
+    <div class="section-kicker">Document 6 of 9</div>
+    <h2>Accessibility (WCAG 2.1 AA) Checklist</h2>
+    <p class="section-lede">Twenty success criteria audited against the ClaimSight wireframes and prototype, with measured contrast ratios and cited success criteria — 17 of 19 applicable AA criteria pass; 2 open items tracked to remediation.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('wcag')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('wcag')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('wcag')">Export CSV</button>
+    </div>
+    <div id="docBody-wcag"></div>
+  </section>
+
+  <!-- ============================================================ DOC 7: TOKENS ============================================================ -->
+  <section class="page-section" id="doc-tokens" data-title="Design System Token Sheet" data-search="design token sheet ClaimSight color tokens type scale spacing scale semantic named tokens">
+    <div class="section-kicker">Document 7 of 9</div>
+    <h2>Design-System Token Sheet</h2>
+    <p class="section-lede">ClaimSight's own named color, type-scale, and spacing tokens — semantic, not raw hex — independent of the Colaberry accelerator brand chrome used elsewhere in this guide.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('tokens')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('tokens')">Save as PDF</button>
+      <button class="btn btn-ghost" onclick="downloadCSV('tokens')">Export CSV</button>
+    </div>
+    <div id="docBody-tokens"></div>
+  </section>
+
+  <!-- ============================================================ DOC 8: TEST PLAN ============================================================ -->
+  <section class="page-section" id="doc-testplan" data-title="Usability Test Plan and Script" data-search="usability test plan script tasks success metrics SUS SEQ moderator script recruiting participants round 1 results">
+    <div class="section-kicker">Document 8 of 9</div>
+    <h2>Usability Test Plan &amp; Script</h2>
+    <p class="section-lede">Five tasks, pre-set success targets, a moderator script, and the Round 1 results validating the ClaimSight prototype against those targets.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('testplan')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('testplan')">Save as PDF</button>
+    </div>
+    <div id="docBody-testplan"></div>
+  </section>
+
+  <!-- ============================================================ DOC 9: EXECUTIVE SUMMARY ============================================================ -->
+  <section class="page-section" id="doc-execsummary" data-title="Executive Summary" data-search="executive summary one pager ClaimSight recommendation ask next milestone problem approach validation">
+    <div class="section-kicker">Document 9 of 9</div>
+    <h2>Executive Summary</h2>
+    <p class="section-lede">One page: the problem, the approach, the validation results, and the ask.</p>
+    <div class="doc-toolbar">
+      <button class="btn btn-primary" onclick="downloadDoc('execsummary')">Download HTML</button>
+      <button class="btn btn-outline" onclick="printDoc('execsummary')">Save as PDF</button>
+    </div>
+    <div id="docBody-execsummary"></div>
+  </section>
+
+  <!-- ============================================================ GLOSSARY ============================================================ -->
+  <section class="page-section" id="glossary" data-title="Glossary" data-search="glossary definitions terms JTBD SUS WCAG heuristic IA persona token fidelity">
+    <div class="section-kicker">Reference</div>
+    <h2>Glossary</h2>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th style="width:180px">Term</th><th>Definition</th></tr></thead>
+        <tbody id="glossaryBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<div id="pagefoot">Colaberry Enterprise AI Leadership Accelerator &middot; UX Designer Field Guide &middot; <span id="footDate"></span></div>
+
+<button id="askFab" onclick="toggleAsk()">Ask the guide</button>
+<div id="askPanel">
+  <div id="askHead">
+    <div><div class="ah-t">Ask the guide</div><div class="ah-s">Answers come from this document only — works offline</div></div>
+    <button id="askClose" onclick="toggleAsk()">&times;</button>
+  </div>
+  <div id="askBody">
+    <div class="ask-welcome">Try a question, or tap a suggestion:</div>
+    <div style="margin-top:8px">
+      <span class="ask-suggest" onclick="askSuggested(this)">What is a JTBD statement?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What's the SUS score benchmark?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What is the required contrast ratio?</span>
+      <span class="ask-suggest" onclick="askSuggested(this)">What are the two open WCAG items?</span>
+    </div>
+  </div>
+  <form id="askForm" onsubmit="return handleAsk(event)">
+    <input id="askInput" type="text" placeholder="Ask about personas, journeys, heuristics, WCAG..." autocomplete="off">
+    <button id="askSend" type="submit">Ask</button>
+  </form>
+</div>
+
+<script id="deepdive-metadata" type="application/json">
+{
+  "guide_type": "UX Designer Field Guide",
+  "curriculum_type": "deep_dive",
+  "week": 5,
+  "discipline": "UX Designer",
+  "student_id": "abdinur2468",
+  "project_id": "claimsight-policyholder-claims-portal-redesign",
+  "repository": "colaberry-enterprise-ai-leadership-accelerator",
+  "generated_by": "Claude Code",
+  "generated_date": "2026-08-30",
+  "version": "1.0.0",
+  "build_number": "1"
+}
+</script>
+
+<script>
+/* ==================================================================================================
+   UTILITIES
+   ================================================================================================== */
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function logoSrc(){ const el=document.querySelector('#topbar .brand img'); return el?el.src:''; }
+function svgWrap(inner,w,h,maxW){ return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${maxW||w}px;height:auto;display:block;margin:0 auto;">${inner}</svg>`; }
+function legend(items){
+  return `<div class="legend-row">${items.map(i=>`<span><span class="legend-swatch" style="background:${i[1]}"></span>${esc(i[0])}</span>`).join('')}</div>`;
+}
+function sevBadge(n){
+  const map={0:['badge-status-notstarted','0 · NOT A PROBLEM'],1:['badge-status-done','1 · COSMETIC'],2:['badge-med','2 · MINOR'],3:['badge-hi','3 · MAJOR'],4:['badge-hi','4 · CATASTROPHE']};
+  const [cls,label]=map[n];
+  return `<span class="badge ${cls}"${n===4?' style="background:rgba(251,40,50,.22)"':''}>${label}</span>`;
+}
+function statusBadge(s){
+  const cls = s==='Pass' ? 'badge-status-done' : s==='Open' ? 'badge-status-open' : s==='Best practice' ? 'badge-med' : 'badge-status-notstarted';
+  return `<span class="badge ${cls}">${esc(s.toUpperCase())}</span>`;
+}
+function kpiTile(label,value,deltaText,target,good){
+  const c = good? 'var(--leaf)':'var(--cherry)';
+  return `<div class="kpi-tile"><div class="kpi-label">${esc(label)}</div><div class="kpi-value">${esc(value)}</div><div class="kpi-delta" style="color:${c}">${esc(deltaText)}</div><div class="kpi-target">${esc(target)}</div></div>`;
+}
+
+/* ==================================================================================================
+   CHART / DIAGRAM RENDERERS (inline SVG, no external libraries)
+   ================================================================================================== */
+
+/* ---------------- Grouped bar chart ---------------- */
+function barChart(groups,opts){
+  opts = opts||{}; const w=560,h=260,padL=40,padB=36,padT=16,padR=16;
+  const max = opts.max || Math.max(...groups.map(g=>g.value))*1.15;
+  const bw = (w-padL-padR)/groups.length*0.5;
+  const gap = (w-padL-padR)/groups.length;
+  let bars='', labels='', gridlines='';
+  for(let i=0;i<=4;i++){
+    const y = padT + (h-padT-padB)*(1-i/4);
+    gridlines += `<line x1="${padL}" y1="${y}" x2="${w-padR}" y2="${y}" stroke="var(--border)" stroke-width="1"/><text x="${padL-8}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)" class="mono-t">${Math.round(max*i/4)}${opts.suffix||''}</text>`;
+  }
+  groups.forEach((g,i)=>{
+    const bh = (h-padT-padB)*(g.value/max);
+    const x = padL + gap*i + (gap-bw)/2;
+    const y = h-padB-bh;
+    bars += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="4" fill="${g.color}"/><text x="${x+bw/2}" y="${y-8}" text-anchor="middle" font-size="12" font-weight="700" fill="${g.color}" class="mono-t">${esc(g.valueLabel||g.value)}</text>`;
+    const [l1,l2] = wrap2(g.label,14);
+    labels += `<text x="${x+bw/2}" y="${h-padB+16}" text-anchor="middle" font-size="10.5" fill="var(--text)">${esc(l1)}</text>`;
+    if(l2) labels += `<text x="${x+bw/2}" y="${h-padB+29}" text-anchor="middle" font-size="10.5" fill="var(--text)">${esc(l2)}</text>`;
+  });
+  return svgWrap(gridlines+bars+labels, w, h+ (opts.hasTwoLineLabels?8:0), 560);
+}
+function wrap2(label,maxChars){
+  const words = String(label).split(' ');
+  let l1='', l2='';
+  words.forEach(wd=>{ if((l1+' '+wd).trim().length<=maxChars && !l2) l1=(l1?l1+' ':'')+wd; else l2=(l2?l2+' ':'')+wd; });
+  return [l1,l2];
+}
+
+/* ---------------- Donut chart ---------------- */
+function donutChart(data,centerLabel,centerSub){
+  const w=220,h=220,cx=110,cy=110,r=78,r2=50;
+  const total = data.reduce((s,d)=>s+d.value,0);
+  let angle=-90, paths='';
+  data.forEach(d=>{
+    const frac = d.value/total, sweep = frac*360;
+    const a1 = angle*Math.PI/180, a2=(angle+sweep)*Math.PI/180;
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    const x2=cx+r*Math.cos(a2), y2=cy+r*Math.sin(a2);
+    const xi1=cx+r2*Math.cos(a1), yi1=cy+r2*Math.sin(a1);
+    const xi2=cx+r2*Math.cos(a2), yi2=cy+r2*Math.sin(a2);
+    const large = sweep>180?1:0;
+    paths += `<path d="M${xi1},${yi1} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} L${xi2},${yi2} A${r2},${r2} 0 ${large} 0 ${xi1},${yi1} Z" fill="${d.color}"/>`;
+    angle += sweep;
+  });
+  const center = `<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="24" font-weight="700" fill="var(--berry)" class="mono-t">${esc(centerLabel)}</text><text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="10" fill="var(--muted)">${esc(centerSub||'')}</text>`;
+  const legendHtml = data.map(d=>`<div style="margin-bottom:6px;font-size:.8rem"><span class="legend-swatch" style="background:${d.color}"></span>${esc(d.label)} <span class="mono" style="color:var(--muted)">(${d.value})</span></div>`).join('');
+  return `<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center">
+    <svg viewBox="0 0 ${w} ${h}" width="200" style="max-width:200px">${paths}${center}</svg>
+    <div>${legendHtml}</div>
+  </div>`;
+}
+
+/* ---------------- Emotion journey line chart ---------------- */
+function journeyChart(stages){
+  const w=980,h=300,padL=44,padR=20,padT=20,padB=60;
+  const n=stages.length;
+  const x = i => padL + (w-padL-padR)*(i/(n-1));
+  const yScale = e => padT + (h-padT-padB)*(1-(e+2)/4);
+  let grid='', zeroLine='';
+  [-2,-1,0,1,2].forEach(v=>{
+    const y=yScale(v);
+    grid += `<line x1="${padL}" y1="${y}" x2="${w-padR}" y2="${y}" stroke="var(--border)" stroke-width="1"/><text x="${padL-8}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)" class="mono-t">${v>0?'+':''}${v}</text>`;
+  });
+  zeroLine = `<line x1="${padL}" y1="${yScale(0)}" x2="${w-padR}" y2="${yScale(0)}" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3,3"/>`;
+  let pts='', dots='', labels='', pains='';
+  stages.forEach((s,i)=>{
+    const px=x(i), py=yScale(s.emotion);
+    pts += `${px},${py} `;
+    const isPain = s.pain;
+    dots += `<circle cx="${px}" cy="${py}" r="${isPain?7:5}" fill="${isPain?'var(--cherry)':'var(--berry)'}" stroke="#fff" stroke-width="2"/>`;
+    const [l1,l2] = wrap2(s.label,13);
+    labels += `<text x="${px}" y="${h-padB+18}" text-anchor="middle" font-size="10.5" fill="var(--text)" font-weight="${isPain?700:400}">${esc(l1)}</text>`;
+    if(l2) labels += `<text x="${px}" y="${h-padB+31}" text-anchor="middle" font-size="10.5" fill="var(--text)">${esc(l2)}</text>`;
+    if(isPain){
+      pains += `<text x="${px}" y="${py-14}" text-anchor="middle" font-size="10" fill="var(--cherry)" font-weight="700">PAIN POINT</text>`;
+    }
+  });
+  const line = `<polyline points="${pts}" fill="none" stroke="var(--berry)" stroke-width="2.5"/>`;
+  return svgWrap(grid+zeroLine+line+dots+pains+labels, w, h, 980);
+}
+
+/* ---------------- Sitemap tree ---------------- */
+function sitemapTree(root){
+  const w=1080,h=520;
+  let boxes='', lines='';
+  function box(x,y,bw,bh,label,fill,textColor){
+    return `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="7" fill="${fill}" stroke="var(--border)"/><text x="${x+bw/2}" y="${y+bh/2+4}" text-anchor="middle" font-size="11.5" fill="${textColor}" font-weight="600">${esc(label)}</text>`;
+  }
+  const rootW=150, rootH=42, rootX=w/2-rootW/2, rootY=14;
+  boxes += box(rootX,rootY,rootW,rootH,root.label,'var(--berry)','#fff');
+  const kids = root.children;
+  const kw=126, kh=40, gap=14;
+  const totalW = kids.length*kw + (kids.length-1)*gap;
+  let kx = w/2 - totalW/2;
+  const ky = rootY+rootH+56;
+  kids.forEach(k=>{
+    lines += `<path d="M${w/2},${rootY+rootH} L${w/2},${rootY+rootH+28} L${kx+kw/2},${rootY+rootH+28} L${kx+kw/2},${ky}" fill="none" stroke="var(--border)" stroke-width="1.5"/>`;
+    boxes += box(kx,ky,kw,kh,k.label,'var(--surface-alt)','var(--text)');
+    if(k.children && k.children.length){
+      const gcW=108, gcH=32, gcGap=8;
+      const gcTotalW = k.children.length*gcW + (k.children.length-1)*gcGap;
+      let gx = kx+kw/2-gcTotalW/2;
+      const gy = ky+kh+30;
+      k.children.forEach(g=>{
+        lines += `<path d="M${kx+kw/2},${ky+kh} L${kx+kw/2},${ky+kh+16} L${gx+gcW/2},${ky+kh+16} L${gx+gcW/2},${gy}" fill="none" stroke="var(--border)" stroke-width="1.2"/>`;
+        boxes += box(gx,gy,gcW,gcH,g,'var(--surface)','var(--muted)');
+        gx += gcW+gcGap;
+      });
+    }
+    kx += kw+gap;
+  });
+  return svgWrap(lines+boxes, w, h, 1080);
+}
+
+/* ---------------- Task flow diagram (File a Claim, happy + unhappy path) ---------------- */
+function flowBox(x,y,bw,bh,lines,fill,tc){
+  let t='';
+  const startY = y+bh/2 - (lines.length-1)*7 + 4;
+  lines.forEach((ln,i)=>{ t += `<text x="${x+bw/2}" y="${startY+i*14}" text-anchor="middle" font-size="11" fill="${tc}" font-weight="600">${esc(ln)}</text>`; });
+  return `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="8" fill="${fill}" stroke="var(--border)"/>${t}`;
+}
+function flowDiamond(cx,cy,dw,dh,lines,fill){
+  let t='';
+  const startY = cy - (lines.length-1)*7 + 4;
+  lines.forEach((ln,i)=>{ t += `<text x="${cx}" y="${startY+i*14}" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">${esc(ln)}</text>`; });
+  return `<polygon points="${cx},${cy-dh/2} ${cx+dw/2},${cy} ${cx},${cy+dh/2} ${cx-dw/2},${cy}" fill="${fill}" stroke="var(--border)"/>${t}`;
+}
+function flowArrow(x1,y1,x2,y2,color,dash){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color||'var(--muted)'}" stroke-width="1.6" ${dash?'stroke-dasharray="5,4"':''} marker-end="url(#arrHead)"/>`;
+}
+function taskFlowDiagram(){
+  const w=1080, h=340;
+  const defs = `<defs><marker id="arrHead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--muted)"/></marker>
+    <marker id="arrHeadCherry" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8Z" fill="var(--cherry)"/></marker></defs>`;
+  let s = defs;
+  const y=118, bh=56;
+  const bw1=130;
+  s += flowBox(16,y,bw1,bh,['1 · What','Happened'],'var(--surface-alt)','var(--text)');
+  s += flowArrow(146,y+bh/2,196,y+bh/2);
+  s += flowBox(196,y,bw1,bh,['2 · Where','&amp; When'],'var(--surface-alt)','var(--text)');
+  s += flowArrow(326,y+bh/2,376,y+bh/2);
+  s += flowBox(376,y,150,bh,['3 · Add Photos','&amp; Documents'],'var(--surface-alt)','var(--text)');
+  s += flowArrow(526,y+bh/2,586,y+bh/2);
+  s += flowDiamond(636,y+bh/2,108,bh+18,['File type','valid?'],'var(--berry)');
+  s += flowArrow(690,y+bh/2-27,690,y-40,'var(--cherry)');
+  s += flowBox(626,y-96,160,44,['Inline error +','retry (H9)'],'rgba(251,40,50,.10)','var(--cherry)');
+  s += `<path d="M706,${y-74} C 820,${y-74} 820,${y+bh/2-8} 690,${y+bh/2-9}" fill="none" stroke="var(--cherry)" stroke-width="1.6" stroke-dasharray="5,4" marker-end="url(#arrHeadCherry)"/>`;
+  s += `<text x="820" y="${y-84}" text-anchor="middle" font-size="10" fill="var(--cherry)" font-weight="700">RETRY LOOP</text>`;
+  s += flowArrow(690,y+bh/2+27,690,y+bh+40);
+  s += flowBox(626,y+bh+40,130,44,['4 · Review &amp;','Submit'],'var(--surface-alt)','var(--text)');
+  s += flowArrow(756,y+bh+62,806,y+bh+62);
+  s += flowBox(806,y+bh+40,150,44,['Claim Received —','Status Timeline starts'],'rgba(91,166,60,.14)','var(--leaf)');
+  return svgWrap(s,w,h,1080);
+}
+
+/* ---------------- Low-fidelity wireframe screen schematic ---------------- */
+const WF_FILL = {
+  chrome:'var(--berry)', chromeText:'#fff',
+  card:'var(--surface)', cardBorder:'var(--border)',
+  skeleton:'#DCE4E8', skeletonText:'var(--muted)',
+  error:'rgba(251,40,50,.08)', errorBorder:'var(--cherry)', errorText:'var(--cherry)',
+  success:'rgba(91,166,60,.10)', successBorder:'var(--leaf)', successText:'var(--leaf)',
+  cta:'var(--cherry)', ctaText:'#fff',
+  muted:'var(--surface-alt)', mutedText:'var(--muted)'
+};
+function wfRegion(r){
+  const fillKey = r.kind||'card';
+  const fill = WF_FILL[fillKey] || 'var(--surface-alt)';
+  const stroke = r.kind==='error' ? WF_FILL.errorBorder : r.kind==='success' ? WF_FILL.successBorder : (r.kind==='card'||r.kind==='muted') ? 'var(--border)' : 'none';
+  const dash = r.dashed ? 'stroke-dasharray="4,3"' : '';
+  let out = `<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="${r.radius!=null?r.radius:6}" fill="${fill}" stroke="${stroke}" stroke-width="1.4" ${dash}/>`;
+  if(r.label){
+    const tc = r.kind==='chrome'?WF_FILL.chromeText:r.kind==='error'?WF_FILL.errorText:r.kind==='success'?WF_FILL.successText:r.kind==='cta'?WF_FILL.ctaText:r.kind==='skeleton'?WF_FILL.skeletonText:'var(--text)';
+    const lines = String(r.label).split('\n');
+    const fs = r.fontSize||10.5;
+    const anchor = r.align==='left' ? 'start' : 'middle';
+    const tx = r.align==='left' ? r.x+10 : r.x+r.w/2;
+    const startY = r.valign==='top' ? r.y+16 : r.y+r.h/2 - (lines.length-1)*(fs*0.65) + fs*0.35;
+    lines.forEach((ln,i)=>{ out += `<text x="${tx}" y="${startY+i*(fs+3)}" text-anchor="${anchor}" font-size="${fs}" font-weight="${r.bold?700:400}" fill="${tc}">${esc(ln)}</text>`; });
+  }
+  return out;
+}
+function wireframeScreen(w,h,title,regions){
+  let s = `<rect x="0" y="0" width="${w}" height="${h}" rx="10" fill="var(--surface)" stroke="var(--border)" stroke-width="1.4"/>`;
+  s += wfRegion({x:0,y:0,w:w,h:34,kind:'chrome',label:title,align:'left',bold:true,fontSize:11.5});
+  regions.forEach(r=>{ s += wfRegion(r); });
+  return svgWrap(s,w,h,Math.min(w,520));
+}
+
+/* ==================================================================================================
+   DATA — CONCEPT SECTIONS
+   ================================================================================================== */
+const KPI_CONCEPT = [
+  ['Task success rate','% of participants who complete a task unassisted','Primary signal of "does it work for real users"'],
+  ['Time on task','Seconds/minutes to complete a task','Efficiency — pairs with success rate, not a substitute for it'],
+  ['SUS (System Usability Scale)','0–100 composite, 10-item questionnaire','Perceived usability — benchmark against 68 (average)'],
+  ['WCAG conformance rate','% of applicable success criteria passing','Legal/inclusion baseline — should trend toward 100%, tracked to zero open items before release']
+];
+function initiativeBaselineKpisHtml(){
+  return [
+    kpiTile('Baseline task success','61%','vs. target 85%+','ClaimLine Classic, 8-participant discovery test',false),
+    kpiTile('Baseline SUS score','58.4','"Poor" grade','vs. industry average 68',false),
+    kpiTile('Baseline WCAG AA pass','71.7%','33 of 46 criteria','7 outright failures found',false),
+    kpiTile('Status-check call volume','38%','of inbound call-center volume','Avg. handle time 6.4 min/call',false)
+  ].join('');
+}
+
+const GOOD_BAD = [
+  ["A static badge that reads “In Review” for 9 days with no detail","A stepped timeline: Received → Under Review → Adjuster Assigned → Estimate Ready → Payment Sent, each with a timestamp and a plain-language “what happens next” line"],
+  ["A file upload with no progress bar and no confirmation of receipt","A per-file progress bar, then a named success state (checkmark + filename + size) the user can see and trust"],
+  ["An error that fails silently — nothing on screen tells the user it happened","An inline, file-specific message naming the problem and the fix (“HEIC files aren’t supported. Try JPG or PNG.”)"],
+  ["Internal jargon in customer-facing copy (“FNOL Complete,” “Reserve Set”)","Plain-language status labels a policyholder would use themselves, with a one-line explanation"],
+  ["Every button on the screen styled identically — no visual hierarchy","One filled primary action per screen; secondary actions outlined; rare actions tucked behind a menu"],
+  ["A free-text date field with no format hint, producing frequent submission errors","A constrained date picker with a visible format hint, validated on blur, not just on submit"],
+  ["Colors and spacing hand-picked per screen, a slightly different blue every time","Named, semantic design tokens (color.action.primary, space.md) referenced everywhere, defined once"],
+  ["A persona built from a stock photo, an age, and a job title","A persona built from a sourced goal, a specific frustration, and a JTBD statement a reviewer can trace"],
+  ["A usability test graded after the fact, with no target set in advance","Success metrics (task success ≥ 85%, SUS ≥ 70) set in the test plan before a single session runs"],
+  ["A journey map that only shows the happy path, because it reads better in a deck","A journey map that plots the emotion dip at the real failure point — because that's where the redesign budget should go"]
+];
+
+const REVIEW_LENS = [
+  ["Is every persona traceable?","Can you point to the interview, ticket, or dataset a goal or frustration came from — or is it invented?"],
+  ["Does the journey map include the unhappy path?","If every stage trends positive, the map is a highlight reel, not a diagnostic tool."],
+  ["Is the IA labeled in plain language?","Would the actual user recognize every label, or does internal process jargon leak through?"],
+  ["Were all four states designed, not just success?","Empty, loading, error, and success — a screen missing three of these is roughly a quarter finished."],
+  ["Are heuristic severities used correctly and consistently?","A 4 should mean catastrophic and rare-but-blocking; if everything is a 3, the scale isn't being applied."],
+  ["Are accessibility numbers real, measured values — not claims?","“Looks readable” is not evidence. A computed contrast ratio, cited against the correct WCAG version and level, is."],
+  ["Are colors and type named tokens, or one-off hex values?","One-off values mean a single brand update becomes a find-and-replace across every screen instead of one edit."],
+  ["Were success metrics set before testing, not after?","If the target appears in the same document as the result and both were written on the same day, be skeptical."]
+];
+
+const GLOSSARY = [
+  ["Persona","A grounded model of a user type built from goals and frustrations — not a demographic sketch."],
+  ["JTBD (Jobs-to-be-Done)","A statement of the form “When [situation], I want to [motivation], so I can [outcome]” describing the job a user is hiring the product to do."],
+  ["Journey map","A visualization of one persona's end-to-end experience across stages, including thoughts, emotions, and pain points."],
+  ["Information architecture (IA)","The structure and labeling of a product's content and navigation."],
+  ["Wireframe","A low-fidelity layout artifact that answers “where does everything go,” with no final visual polish."],
+  ["Mockup","A high-fidelity, static visual artifact showing real color, type, and content — but not interactive."],
+  ["Prototype","An interactive artifact, at any fidelity, that a user can click or tap through to complete a task."],
+  ["Heuristic evaluation","An expert review of an interface against a fixed set of usability principles — commonly Nielsen's 10."],
+  ["Severity rating","A 0–4 scale (Nielsen) combining frequency, impact, and persistence to prioritize usability findings."],
+  ["WCAG","Web Content Accessibility Guidelines — the standard defining testable accessibility success criteria at levels A, AA, and AAA."],
+  ["Contrast ratio","A measured value (1:1 to 21:1) comparing the luminance of foreground text/graphics to its background."],
+  ["Design token","A named, reusable design decision (a color, size, or spacing value) referenced everywhere instead of hard-coded per screen."],
+  ["SUS (System Usability Scale)","A standardized 10-item, 0–100 questionnaire measuring perceived usability, benchmarked against a crowd-sourced average of 68."],
+  ["SEQ (Single Ease Question)","A 1–7 post-task question asking how easy or difficult a just-completed task felt."],
+  ["Task success rate","The percentage of test participants who complete a given task correctly and unassisted."],
+  ["POUR","The four WCAG principles: Perceivable, Operable, Understandable, Robust."],
+  ["FNOL","“First Notice of Loss” — insurance-industry jargon for the initial claim report; a real example of internal language that should never reach customer-facing UI."]
+];
+
+/* ==================================================================================================
+   DOCUMENT METADATA
+   ================================================================================================== */
+const DOC_META = {
+  personas:    {code:'CS-PER-01',  title:'Personas & Jobs-to-be-Done — ClaimSight',            version:'1.1', status:'Approved',        owner:'Elena Vasquez, Lead UX Designer', date:'2026-07-14'},
+  journey:     {code:'CS-JRN-01',  title:'User Journey Map — ClaimSight',                       version:'1.0', status:'Approved',        owner:'Elena Vasquez, Lead UX Designer', date:'2026-07-18'},
+  ia:          {code:'CS-IA-01',   title:'Information Architecture / Sitemap — ClaimSight',      version:'1.2', status:'Baselined',       owner:'Elena Vasquez, Lead UX Designer', date:'2026-07-25'},
+  wireframes:  {code:'CS-WF-01',   title:'Annotated Wireframes — ClaimSight',                    version:'1.3', status:'Baselined',       owner:'Elena Vasquez, Lead UX Designer', date:'2026-08-06'},
+  heuristics:  {code:'CS-HEU-01',  title:'Usability Heuristic Evaluation — ClaimLine Classic',    version:'1.0', status:'Final',           owner:'Elena Vasquez, Lead UX Designer', date:'2026-07-10'},
+  wcag:        {code:'CS-A11Y-01', title:'Accessibility (WCAG 2.1 AA) Checklist — ClaimSight',    version:'1.1', status:'2 Items Open',    owner:'Elena Vasquez, Lead UX Designer', date:'2026-08-12'},
+  tokens:      {code:'CS-TOK-01',  title:'Design-System Token Sheet — ClaimSight',                version:'1.0', status:'Approved',        owner:'Elena Vasquez, Lead UX Designer', date:'2026-08-01'},
+  testplan:    {code:'CS-TEST-01', title:'Usability Test Plan & Script — ClaimSight',             version:'1.1', status:'Round 1 Complete',owner:'Elena Vasquez, Lead UX Designer', date:'2026-08-22'},
+  execsummary: {code:'CS-EXEC-01', title:'Executive Summary — ClaimSight',                        version:'1.0', status:'Approved',        owner:'Elena Vasquez, Lead UX Designer', date:'2026-08-28'}
+};
+
+/* ==================================================================================================
+   DOCUMENT 1 — PERSONAS & JOBS-TO-BE-DONE
+   ================================================================================================== */
+function personaCard(initials,name,role,jtbd,goals,frustrations,quote){
+  return `<div class="card">
+    <div class="persona-card">
+      <div class="persona-avatar">${esc(initials)}</div>
+      <div>
+        <h3 style="margin-bottom:2px">${esc(name)}</h3>
+        <div class="muted" style="margin-bottom:10px">${esc(role)}</div>
+        <div class="callout info" style="margin:0 0 12px"><div class="co-label">Jobs-to-be-Done</div>${jtbd}</div>
+      </div>
+    </div>
+    <div class="grid grid-2" style="margin-top:14px">
+      <div><h4 class="text-leaf">Goals</h4><ul>${goals.map(g=>`<li>${g}</li>`).join('')}</ul></div>
+      <div><h4 class="text-cherry">Frustrations (sourced)</h4><ul>${frustrations.map(f=>`<li>${f}</li>`).join('')}</ul></div>
+    </div>
+    <div style="margin-top:10px;padding:12px 14px;background:var(--surface-alt);border-radius:8px;font-style:italic;color:var(--muted);border-left:3px solid var(--berry)">&ldquo;${quote}&rdquo;</div>
+  </div>`;
+}
+function body_personas(){
+  return `
+  <h3>1. Purpose</h3>
+  <p>Three personas ground every downstream ClaimSight decision: two policyholders representing the two dominant claim-filing patterns Meridian sees, and one internal claims adjuster, because the portal's design directly changes her workload. Each persona traces to Meridian's July 2026 discovery research: 11 contextual interviews with recent claimants, 3 adjuster shadowing sessions, and the 8-participant ClaimLine Classic usability test referenced throughout this guide.</p>
+
+  <h3>2. Persona 1 — Dana Whitfield, "The First-Time Claimant"</h3>
+  ${personaCard('DW','Dana Whitfield','Homeowner, first claim in 6 years of coverage &middot; Marketing manager, 34','&ldquo;When something unexpected damages my home, I want to know my claim is being handled and what I need to do next, so I can stop worrying and make repair decisions.&rdquo;',
+    ['Understand what happens after filing, without having to call and ask','Avoid re-explaining her situation to a different person each time she makes contact','Get enough clarity to make repair decisions (schedule a contractor, approve an estimate) with confidence'],
+    ['Status showed "In Review" for 9 straight days with no timestamp, sub-status, or ETA','Called the claims line three times asking essentially the same question','Uploaded her damage photos twice — the first attempt gave no confirmation, so she assumed it failed'],
+    'It just says &ldquo;In Review.&rdquo; Review of what? By who? For how long? I had to call to find out anything at all.')}
+
+  <h3>3. Persona 2 — Marcus Webb, "The Repeat Commercial Claimant"</h3>
+  ${personaCard('MW','Marcus Webb','Fleet operations manager, 22-vehicle courier company &middot; Files 8&ndash;12 claims/year','&ldquo;When one of my drivers is in a minor incident, I want to file and track the claim in minutes without re-typing fleet data, so it doesn&rsquo;t eat into my ops day.&rdquo;',
+    ['File a claim fast, without re-entering the same VIN and driver information every time','See every currently-open claim across his fleet on one screen, not one at a time','Get adjuster notes without having to call and interrupt his day'],
+    ['No way to view all 4 currently-open claims together — has to look them up one claim number at a time','Re-enters the same vehicle and driver details on every single claim','Adjuster notes are phone-only; nothing appears in the portal until he calls to ask'],
+    'I run a fleet. I file claims constantly. Every single time it&rsquo;s like the system has never met me before.')}
+
+  <h3>4. Persona 3 — Priya Chandrasekaran, "The Claims Adjuster" (internal)</h3>
+  ${personaCard('PC','Priya Chandrasekaran','Claims Adjuster, Meridian Mutual &middot; 45&ndash;60 open files at a time','&ldquo;When I update a claim, I want the policyholder to see it without calling me, so I can spend my day working files instead of the phone.&rdquo;',
+    ['See everything a policyholder has submitted — photos, documents, messages — in one place tied to the claim file','Reduce inbound &ldquo;what&rsquo;s the status&rdquo; calls that interrupt deep file review','Know whether a policyholder has actually seen a status update before they call to ask about it'],
+    ['Policyholder-submitted photos land in a disconnected upload queue, not attached to the claim file view she works from','No visibility into whether a status update was ever seen — every update risks generating a call anyway','Spends an estimated 90 minutes/day on status-check calls that a self-service timeline could absorb'],
+    'If they could just see what I already updated, half my calls would disappear.')}
+
+  <h3>5. Why an internal persona is in a customer-facing design package</h3>
+  <div class="callout warn">
+    <div class="co-label">Architect's note</div>
+    Priya is not a ClaimSight end user, but her workload is a direct dependency: every screen decision that makes Dana's or Marcus's status clearer is also a decision that reduces Priya's call interruptions. Including her goal (fewer status calls) keeps the redesign's internal business case — call-volume reduction — visibly connected to the same screens the policyholder actually uses, rather than living only in a separate business case document nobody cross-checks against the design.
+  </div>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 2 — USER JOURNEY MAP
+   ================================================================================================== */
+const JOURNEY_STAGES = [
+  {label:'Trigger: pipe bursts',emotion:-1,thought:'Is this even covered? What do I do first?',pain:false},
+  {label:'Files claim (phone + portal)',emotion:-1,thought:'Why do I have to call AND use a website for the same claim?',pain:false},
+  {label:'Uploads documents',emotion:-2,thought:'Did that even work? There is no confirmation at all.',pain:true},
+  {label:'Waiting — In Review',emotion:-2,thought:'It just says In Review. Review of what? For how long?',pain:true},
+  {label:'Adjuster calls',emotion:0,thought:'Why did I have to explain this again? I typed it all in online.',pain:false},
+  {label:'Estimate emailed (PDF)',emotion:1,thought:'Okay, finally a number. Wish it were in the portal, though.',pain:false},
+  {label:'Payment (mailed check)',emotion:0,thought:'A paper check, in 2026? And no way to track it.',pain:false},
+  {label:'Claim closed',emotion:1,thought:'Glad it is over, but I would not want to do that again.',pain:false}
+];
+function body_journey(){
+  const rows = JOURNEY_STAGES.map((s,i)=>`<tr>
+    <td class="mono center">${i+1}</td>
+    <td>${esc(s.label)}${s.pain?' <span class="badge badge-hi" style="margin-left:6px">PAIN POINT</span>':''}</td>
+    <td style="font-style:italic">&ldquo;${esc(s.thought)}&rdquo;</td>
+    <td class="mono center" style="color:${s.emotion<=-2?'var(--cherry)':s.emotion<0?'var(--amber)':s.emotion===0?'var(--muted)':'var(--leaf)'}">${s.emotion>0?'+':''}${s.emotion}</td>
+  </tr>`).join('');
+  return `
+  <h3>1. Scope</h3>
+  <p>Persona: <strong>Dana Whitfield</strong> (see Document 1). Scenario: a burst pipe damages her kitchen cabinetry; she files and carries a homeowners claim through to close on the <strong>current</strong> ClaimLine Classic experience. This is the "before" journey — it is the evidence base for the ClaimSight redesign, not the redesign itself.</p>
+
+  <h3>2. Emotion curve</h3>
+  <div class="diagram-frame">
+    ${journeyChart(JOURNEY_STAGES)}
+    ${legend([['Stage','var(--berry)'],['Pain point','var(--cherry)']])}
+    <div class="diagram-caption">Emotion scored -2 (very negative) to +2 (very positive) at each stage. The two pain points — document upload and the "In Review" waiting period — are where redesign investment concentrates in Documents 3 and 4.</div>
+  </div>
+
+  <h3>3. Stage-by-stage detail</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th style="width:36px">#</th><th>Stage</th><th>Dana's thought</th><th style="width:70px">Emotion</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <h3>4. Where it goes wrong — the unhappy path in detail</h3>
+  <div class="grid grid-2">
+    <div class="card">
+      <h4 class="text-cherry">Pain point A — Document upload (Stage 3)</h4>
+      <p>Dana uploads photos of the water damage. ClaimLine Classic gives no progress indicator and no success confirmation. Believing the upload failed, she uploads the same photos again from a different device the next day. Root cause: <strong>Heuristic 1 (Visibility of system status)</strong> and <strong>Heuristic 9 (Help recognize/recover from errors)</strong> violations — see Document 5, findings F-02 and F-03.</p>
+    </div>
+    <div class="card">
+      <h4 class="text-cherry">Pain point B — The "In Review" black hole (Stage 4)</h4>
+      <p>The status badge shows one static value for the entire 6.2-day average review period, with no sub-state, timestamp, or expected-next-update window. Dana calls the claims line three times over this period asking a version of the same question. Root cause: <strong>Heuristic 1</strong> and <strong>Heuristic 2 (Match between system and the real world)</strong> — internal jargon with no plain-language translation. See Document 5, findings F-01 and F-07.</p>
+    </div>
+  </div>
+
+  <h3>5. Channel fragmentation</h3>
+  <p>A secondary pattern visible across the whole journey: five different channels are used (phone, portal, adjuster phone call, email PDF, physical mail) and none of them share state with each other. The estimate lives only in an emailed PDF; the payment is a check with no tracking. This fragmentation is why the redesign's IA (Document 3) consolidates status, documents, messages, and payment into one Claim Detail view rather than solving each channel in isolation.</p>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 3 — INFORMATION ARCHITECTURE / SITEMAP
+   ================================================================================================== */
+const SITEMAP = {label:'Home — My Claims Dashboard', children:[
+  {label:'File a New Claim', children:['1 · What Happened','2 · Where & When','3 · Add Photos/Docs','4 · Review & Submit']},
+  {label:'My Claims', children:['Claim Detail','↳ Status Timeline','↳ Documents','↳ Messages','↳ Payment']},
+  {label:'Document Center', children:['All documents','Filter by claim']},
+  {label:'Messages', children:['Threaded by claim']},
+  {label:'Payments & Estimates', children:['Cross-claim ledger']},
+  {label:'Account & Policy', children:['Coverage summary','Profile & contact']},
+  {label:'Help & Support', children:['FAQ','Live chat handoff']}
+]};
+const CLICK_DEPTH = [
+  ['Check claim status','Home (status already on card) → tap card','1 click — or 2 via My Claims → Claim Detail'],
+  ['File a new claim','Home → File a New Claim','1 click to start the guided flow'],
+  ['See a payment','Home → My Claims → Claim Detail (Payment tab)','2 clicks + 1 tab'],
+  ['Message the adjuster','Home → Messages, or Claim Detail → Messages tab','1–2 clicks'],
+  ['Find a document','Home → Document Center → filter','2 clicks + filter, no page reload']
+];
+function body_ia(){
+  const rows = CLICK_DEPTH.map(r=>`<tr><td><strong>${esc(r[0])}</strong></td><td>${esc(r[1])}</td><td class="mono">${esc(r[2])}</td></tr>`).join('');
+  return `
+  <h3>1. Structure</h3>
+  <div class="diagram-frame">
+    ${sitemapTree(SITEMAP)}
+    <div class="diagram-caption">Seven top-level areas under Home. Claim Detail nests Status Timeline, Documents, Messages, and Payment as tabs of one view — the direct structural fix for the channel fragmentation found in Document 2.</div>
+  </div>
+
+  <h3>2. Plain-language labeling rules</h3>
+  <div class="grid grid-2">
+    <div class="card">
+      <h4 class="text-leaf">Rule applied</h4>
+      <p>Every top-level label is a noun phrase a policyholder would use unprompted: <span class="mono">My Claims</span>, not <span class="mono">Claims Repository</span>; <span class="mono">Documents</span>, not <span class="mono">Asset Library</span>. No internal claims-processing terminology (FNOL, Reserve, Subrogation) appears anywhere in the customer-facing tree.</p>
+    </div>
+    <div class="card">
+      <h4 class="text-berry">Grouping logic</h4>
+      <p>Grouping follows Dana's and Marcus's mental model from the journey map — "where is my claim right now," "what have I sent them," "what am I owed" — rather than Meridian's internal claims-system data schema, which splits these across five disconnected mainframe modules.</p>
+    </div>
+  </div>
+
+  <h3>3. Depth check — no core task deeper than three clicks</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Core task</th><th>Path from Home</th><th>Depth</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <h3>4. What moved and why</h3>
+  <ul>
+    <li><strong>Estimate &amp; payment now live in-portal</strong> (previously PDF email + mailed check with no tracking) — directly closes the channel-fragmentation gap from Document 2.</li>
+    <li><strong>Messages became a first-class top-level area</strong>, not a phone-only channel — supports Priya's goal of reducing status-check calls (Document 1).</li>
+    <li><strong>Document Center added as a cross-claim view</strong> — serves Marcus's need to manage documents across his fleet's multiple open claims without hunting per-claim.</li>
+  </ul>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 4 — ANNOTATED WIREFRAMES
+   ================================================================================================== */
+function wf_dashboardSuccess(){
+  const regions = [
+    {x:16,y:50,w:428,h:92,kind:'card',radius:8},
+    {x:26,y:60,w:56,h:56,kind:'muted',label:'photo',fontSize:8.5},
+    {x:92,y:60,w:200,h:16,kind:'card',label:'Kitchen water damage',align:'left',bold:true,fontSize:11.5},
+    {x:92,y:82,w:150,h:20,kind:'success',label:'● Adjuster Assigned',align:'left',fontSize:9.5,radius:10},
+    {x:92,y:108,w:330,h:14,kind:'card',label:'Next: estimate expected by Aug 22',align:'left',fontSize:9,radius:0},
+    {x:16,y:154,w:428,h:92,kind:'card',radius:8},
+    {x:26,y:164,w:56,h:56,kind:'muted',label:'photo',fontSize:8.5},
+    {x:92,y:164,w:200,h:16,kind:'card',label:'2019 Transit — rear collision',align:'left',bold:true,fontSize:11.5},
+    {x:92,y:186,w:130,h:20,kind:'muted',label:'● Under Review',align:'left',fontSize:9.5,radius:10},
+    {x:92,y:212,w:330,h:14,kind:'card',label:'Next: confirming receipt of your photos',align:'left',fontSize:9,radius:0},
+    {x:318,y:260,w:126,h:30,kind:'cta',label:'+ File a New Claim',fontSize:10,bold:true,radius:15}
+  ];
+  return wireframeScreen(460,304,'My Claims — Dashboard',regions);
+}
+function wf_dashboardEmpty(){
+  const regions = [
+    {x:130,y:80,w:200,h:80,kind:'muted',label:'no claims yet',fontSize:9.5},
+    {x:80,y:172,w:300,h:34,kind:'card',label:'Nothing to report. File a new claim in under 5 minutes.',fontSize:9.5,radius:0},
+    {x:167,y:216,w:126,h:30,kind:'cta',label:'+ File a New Claim',fontSize:10,bold:true,radius:15}
+  ];
+  return wireframeScreen(460,270,'My Claims — Dashboard',regions);
+}
+function wf_uploadError(){
+  const regions = [
+    {x:16,y:50,w:428,h:70,kind:'muted',label:'Drop files here, or browse\nJPG, PNG, PDF — up to 10MB each',fontSize:9.5,radius:8},
+    {x:16,y:132,w:130,h:90,kind:'success',label:'✓\nreceipt.jpg\n214 KB',fontSize:9,radius:8},
+    {x:154,y:132,w:130,h:90,kind:'error',label:'⚠ damage.HEIC\nnot uploaded',fontSize:9,radius:8,dashed:true},
+    {x:16,y:230,w:268,h:34,kind:'error',label:'This photo did not upload — HEIC is not supported. Try JPG or PNG.',fontSize:8.8,radius:6},
+    {x:294,y:230,w:70,h:34,kind:'cta',label:'Retry',fontSize:9.5,bold:true,radius:6},
+    {x:16,y:276,w:110,h:26,kind:'card',label:'+ Add more',fontSize:9.5,radius:13}
+  ];
+  return wireframeScreen(460,318,'New Claim · Step 3 of 4 — Add Photos',regions);
+}
+function wf_statusTimeline(){
+  const nodes = [
+    ['Claim Received','Aug 12, 9:02 AM','We logged your claim and assigned CLM-88213.'],
+    ['Under Review','Aug 12, 2:15 PM','A specialist is checking your policy and documents.'],
+    ['Adjuster Assigned','Aug 14, 10:40 AM','Priya C. is your adjuster. Expect contact within 2 business days.'],
+    ['Estimate Ready','Aug 19, 4:05 PM','Estimate: $4,280. Review it in the Payment tab.'],
+    ['Payment Sent','—','Next: payment issues after estimate approval.']
+  ];
+  let regions = [];
+  const startY = 50;
+  nodes.forEach((n,i)=>{
+    const y = startY + i*44;
+    const done = i<3;
+    regions.push({x:24,y:y+4,w:16,h:16,kind: done?'success':(i===3?'card':'muted'),label:'',radius:8});
+    regions.push({x:50,y:y,w:394,h:38,kind:'card',radius:6,label:n[0]+'  ·  '+n[1]+'\n'+n[2],align:'left',fontSize:9.5,bold:false,valign:'top'});
+  });
+  return wireframeScreen(478,startY+nodes.length*44+10,'Claim CLM-88213 — Status Timeline',regions);
+}
+const WIREFRAME_STATES = [
+  ['My Claims Dashboard','Empty','No open claims (new policyholder or all claims closed). Centered illustration, one sentence of reassurance, one primary CTA.','"Nothing to report. File a new claim in under 5 minutes."','Heading announces "No claims" to screen readers via aria-live="polite" on route change; CTA is a real button, not a styled link.'],
+  ['My Claims Dashboard','Loading','Skeleton cards matching the eventual card layout (not a spinner) appear within 100ms of navigation.','No copy — motion only, ≤ 3 skeleton cards.','Container carries aria-busy="true"; a visually-hidden live region announces "Loading your claims."'],
+  ['My Claims Dashboard','Error','API/network failure fetching claims list.','"We could not load your claims. Retry, or call 1-800-555-0134."','role="alert" on the message; focus moves programmatically to the Retry button on render.'],
+  ['My Claims Dashboard','Success','1+ open claims as cards: plain-language title, status chip, next-step microcopy, thumbnail.','Status chip text is plain language, never a raw system code.','Each card is a single focusable link with an accessible name including the claim title, not just "View."'],
+  ['File a Claim — Add Photos','Empty','No files added yet; dropzone with accepted-format and size guidance shown once.','"Drop files here, or browse. JPG, PNG, PDF — up to 10MB each."','Dropzone is a real <button>/<input type=file> pair; drag-and-drop has a keyboard-operable fallback (SC 2.1.1).'],
+  ['File a Claim — Add Photos','Loading','Per-file upload progress bar while a file is transferring.','Percent-complete text alongside the bar, not color alone.','Progress uses <progress> or role="progressbar" with aria-valuenow updated as it transfers.'],
+  ['File a Claim — Add Photos','Error','A specific file fails (e.g., unsupported format) — never a silent failure.','"This photo did not upload — HEIC is not supported. Try JPG or PNG."','Error text is programmatically associated to the specific file card via aria-describedby, not just adjacent color (SC 3.3.1, 3.3.3).'],
+  ['File a Claim — Add Photos','Success','Thumbnail grid: checkmark, filename, file size; persistent "Add more" control.','File name and size shown as confirmation, not just a checkmark icon.','Removing a file has a labeled control: aria-label="Remove damage.jpg", not an icon-only ⨯ with no name.'],
+  ['Claim Detail — Status Timeline','Empty','N/A in practice — a filed claim always has at least one timeline node ("Claim Received"); shown as a single-node minimal timeline instead of true empty.','"Just submitted — we will update this within 1 business day."','Single node still uses the same timeline markup so assistive tech users get a consistent structure claim to claim.'],
+  ['Claim Detail — Status Timeline','Loading','Skeleton timeline (gray bars in place of node text) while the claim record loads.','No copy — motion only.','aria-busy="true" on the timeline container; live region announces "Loading claim status."'],
+  ['Claim Detail — Status Timeline','Error','Live status feed fails to refresh; last-known state is shown from cache rather than a blank screen.','"Showing status as of 9:14 AM — reconnecting…"','Stale-data banner uses role="status" (polite), not role="alert" — it is informational, not blocking.'],
+  ['Claim Detail — Status Timeline','Success','Full stepped timeline — Received → Under Review → Adjuster Assigned → Estimate Ready → Payment Sent — each node timestamped with a plain-language "what happens next" line.','See full timeline copy in the wireframe below.','Current step carries aria-current="step"; completed steps are marked programmatically, not by color alone (SC 1.4.1).'],
+  ['Document Center','Empty','No documents uploaded across any claim yet.','"No documents yet. Upload one from an open claim."','Empty-state CTA deep-links to the correct claim upload flow, not a generic dead end.'],
+  ['Document Center','Loading','Skeleton table rows while the cross-claim document list loads.','No copy — motion only.','Table region carries aria-busy="true"; column headers remain visible (not skeletonized) for orientation.'],
+  ['Document Center','Error','Filter/search query fails to return results due to a backend error (distinct from a legitimate "no results" empty state).','"Something went wrong loading documents. Try again."','Distinguishing "error" from "no results" in copy prevents users from assuming they made a search mistake when the system actually failed (H9).'],
+  ['Document Center','Success','Filterable, sortable table: file name, claim #, type, uploaded date, uploaded by, download action.','Uses real <table> markup with <th scope="col">, not a styled div grid.','Download links have accessible names including the filename, e.g. aria-label="Download receipt.jpg".']
+];
+function body_wireframes(){
+  const stateRows = WIREFRAME_STATES.map(r=>`<tr><td><strong>${esc(r[0])}</strong></td><td><span class="state-tab ${r[1].toLowerCase()}">${esc(r[1])}</span></td><td>${esc(r[2])}</td><td class="mono" style="font-size:.78rem">${esc(r[3])}</td><td class="muted" style="font-size:.8rem">${esc(r[4])}</td></tr>`).join('');
+  return `
+  <h3>1. Key screens covered</h3>
+  <p>Four screens carry the redesign: <strong>My Claims Dashboard</strong>, <strong>File a Claim → Add Photos/Documents</strong> (step 3 of 4), <strong>Claim Detail → Status Timeline</strong>, and <strong>Document Center</strong>. Each is worked through all four required states below — empty, loading, error, success — per the fidelity standard in the Foundations section. These are schematic, low-fidelity wireframes: layout and content priority, not final visual design (that is the Design Token Sheet's job, Document 7).</p>
+
+  <h3>2. Illustrated wireframes</h3>
+  <div class="grid grid-2">
+    <div>
+      <div class="state-tabs"><span class="state-tab success">SUCCESS</span></div>
+      <div class="diagram-frame">${wf_dashboardSuccess()}<div class="diagram-caption">My Claims Dashboard — Success. Plain-language claim titles fix the recall problem from Heuristic finding F-05; status chips replace jargon per F-07.</div></div>
+    </div>
+    <div>
+      <div class="state-tabs"><span class="state-tab empty">EMPTY</span></div>
+      <div class="diagram-frame">${wf_dashboardEmpty()}<div class="diagram-caption">My Claims Dashboard — Empty. Reassurance copy plus one unambiguous next step.</div></div>
+    </div>
+    <div>
+      <div class="state-tabs"><span class="state-tab error">ERROR</span></div>
+      <div class="diagram-frame">${wf_uploadError()}<div class="diagram-caption">Add Photos — Error. Directly resolves the silent-upload-failure pain point from the Journey Map and heuristic findings F-02/F-03.</div></div>
+    </div>
+    <div>
+      <div class="state-tabs"><span class="state-tab success">SUCCESS</span></div>
+      <div class="diagram-frame">${wf_statusTimeline()}<div class="diagram-caption">Claim Detail — Status Timeline, Success. Directly resolves the "In Review" black hole (F-01).</div></div>
+    </div>
+  </div>
+
+  <h3>3. Full state matrix — all 4 screens × 4 states</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Screen</th><th style="width:90px">State</th><th>What appears</th><th>Microcopy</th><th>Accessibility note</th></tr></thead>
+      <tbody>${stateRows}</tbody>
+    </table>
+  </div>
+
+  <h3>4. Task flow — File a Claim, happy and unhappy path</h3>
+  <div class="diagram-frame">
+    ${taskFlowDiagram()}
+    <div class="diagram-caption">The retry loop at Step 3 is the structural fix for the silent-failure pain point: a failed file never disappears without explanation — it returns an inline, actionable error and lets the user try again without losing already-uploaded files.</div>
+  </div>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 5 — USABILITY HEURISTIC EVALUATION
+   ================================================================================================== */
+const HEURISTICS_FINDINGS = [
+  {id:'F-01',screen:'Claim Status page',h:'H1',hname:'Visibility of system status',sev:4,finding:'Status badge reads "In Review" for the entire review period (avg. 6.2 days) with no sub-state, timestamp, or ETA.',rec:'Replace the static badge with a stepped timeline showing current stage, entry timestamp, and expected next-update window.'},
+  {id:'F-02',screen:'Document Upload',h:'H1',hname:'Visibility of system status',sev:4,finding:'Upload has no progress indicator or success confirmation; users cannot tell whether a file was received.',rec:'Add a per-file progress bar and an explicit success state (checkmark, filename, size).'},
+  {id:'F-03',screen:'Document Upload',h:'H9',hname:'Help recognize, diagnose, recover from errors',sev:4,finding:'Failed uploads (e.g., unsupported HEIC format) fail silently — no error message appears anywhere on the page.',rec:'Surface an inline, file-specific error message naming the reason and offering a retry action.'},
+  {id:'F-04',screen:'File a Claim',h:'H4',hname:'Consistency and standards',sev:3,finding:'Required-field asterisks appear on page 2 of the form but are omitted on page 3, which marks errors with red text alone.',rec:'Standardize required-field marking and pair color with an icon and text label across all form pages.'},
+  {id:'F-05',screen:'Claims Dashboard',h:'H6',hname:'Recognition rather than recall',sev:3,finding:'Policyholders with 2+ open claims see only claim numbers (e.g., CLM-88213), forcing recall of which number matches which incident.',rec:'Show a short plain-language label (e.g., "Kitchen water damage") alongside the claim number on every card.'},
+  {id:'F-06',screen:'File a Claim',h:'H5',hname:'Error prevention',sev:3,finding:'The incident-date field accepts free text with no format validation and no calendar picker, producing frequent format-mismatch submission errors.',rec:'Replace with a constrained date picker plus a visible format hint; validate on blur.'},
+  {id:'F-07',screen:'Claim Status page',h:'H2',hname:'Match between system and the real world',sev:3,finding:'Status values use internal claims-processing jargon ("FNOL Complete," "Reserve Set") with no plain-language translation.',rec:'Map every internal status to a plain-language equivalent with a one-line explanation of what it means for the policyholder.'},
+  {id:'F-09',screen:'File a Claim',h:'H3',hname:'User control and freedom',sev:3,finding:'No save-and-resume; closing the browser mid-form discards all entered data with no warning.',rec:'Auto-save draft claims and warn before navigation away from an unsaved form.'},
+  {id:'F-08',screen:'Claims Dashboard',h:'H7',hname:'Flexibility and efficiency of use',sev:2,finding:'No way to filter or sort claims; commercial policyholders with 5+ open claims scroll a flat list.',rec:'Add filter-by-status and sort-by-date/claim-number controls for accounts with multiple claims.'},
+  {id:'F-11',screen:'Claim Status page',h:'H10',hname:'Help and documentation',sev:2,finding:'No contextual help or FAQ link addressing the most common question — why a claim is still "In Review."',rec:'Add a contextual help link answering the top three status-related questions inline.'},
+  {id:'F-12',screen:'Claims Dashboard',h:'H1',hname:'Visibility of system status',sev:2,finding:'Page shows a blank white screen for up to 4 seconds on slow connections with no loading indicator.',rec:'Add a skeleton-screen loading state matching the eventual card layout.'},
+  {id:'F-13',screen:'File a Claim',h:'H4',hname:'Consistency and standards',sev:2,finding:'Primary action button label changes across steps ("Continue," "Next," "Proceed") with no consistent pattern.',rec:'Standardize on "Continue" for intermediate steps and "Submit Claim" for the final step.'},
+  {id:'F-10',screen:'Document Upload',h:'H8',hname:'Aesthetic and minimalist design',sev:1,finding:'Upload page repeats the same instructional paragraph three times, in three different font sizes.',rec:'Consolidate to one instance of upload guidance placed near the dropzone.'},
+  {id:'F-14',screen:'Claim Status page',h:'H9',hname:'Help recognize, diagnose, recover from errors',sev:1,finding:'Generic "An error occurred" message with no next step when the status feed fails to load.',rec:'Add a specific message, a retry action, and a support fallback link.'}
+];
+function heuristicSevCounts(){
+  const c={0:0,1:0,2:0,3:0,4:0};
+  HEURISTICS_FINDINGS.forEach(f=>c[f.sev]++);
+  return c;
+}
+function body_heuristics(){
+  const c = heuristicSevCounts();
+  const rows = HEURISTICS_FINDINGS.map(f=>`<tr>
+    <td class="mono">${f.id}</td><td>${esc(f.screen)}</td>
+    <td class="mono">${f.h}</td><td>${esc(f.hname)}</td>
+    <td>${sevBadge(f.sev)}</td>
+    <td>${esc(f.finding)}</td>
+    <td>${esc(f.rec)}</td>
+  </tr>`).join('');
+  return `
+  <h3>1. Method</h3>
+  <p>Three reviewers (Elena Vasquez plus two peer designers) independently evaluated <strong>ClaimLine Classic</strong> — the current portal, not the ClaimSight redesign — against Nielsen's 10 usability heuristics, then consolidated findings in a group session, removing duplicates and reconciling severity disagreements. Screens covered: Claims Dashboard, File a Claim (multi-page form), Claim Status page, Document Upload. Severity uses Nielsen's 0&ndash;4 scale (see Foundations).</p>
+
+  <h3>2. Summary</h3>
+  <div class="grid grid-2" style="align-items:stretch">
+    <div class="diagram-frame">
+      ${barChart([
+        {label:'Catastrophic (4)',value:c[4],color:'var(--cherry)',valueLabel:c[4]},
+        {label:'Major (3)',value:c[3],color:'var(--amber)',valueLabel:c[3]},
+        {label:'Minor (2)',value:c[2],color:'var(--berry)',valueLabel:c[2]},
+        {label:'Cosmetic (1)',value:c[1],color:'var(--muted)',valueLabel:c[1]}
+      ],{max:6})}
+      <div class="diagram-caption">14 findings total across 4 screens. Three catastrophic findings — F-01, F-02, F-03 — map directly onto the two Journey Map pain points and drove the redesign's top two priorities.</div>
+    </div>
+    <div class="grid grid-2">
+      ${kpiTile('Total findings',String(HEURISTICS_FINDINGS.length),'across 4 screens','3 catastrophic, 5 major, 4 minor, 2 cosmetic',false)}
+      ${kpiTile('Catastrophic (Sev 4)',String(c[4]),'blocking, real-world impact','all 3 resolved in ClaimSight wireframes',true)}
+      ${kpiTile('Most-cited heuristic','H1','Visibility of system status','3 of 14 findings',false)}
+      ${kpiTile('Screens evaluated','4','Dashboard, File a Claim, Status, Upload','—',false)}
+    </div>
+  </div>
+
+  <h3>3. Full findings table</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th style="width:56px">ID</th><th>Screen</th><th style="width:44px">#</th><th>Heuristic</th><th style="width:150px">Severity</th><th>Finding</th><th>Recommendation</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <h3>4. From finding to redesign decision</h3>
+  <div class="callout key">
+    <div class="co-label">Traceability</div>
+    F-01 and F-07 (status jargon and visibility) → Document 3's consolidated Claim Detail view and Document 4's Status Timeline. F-02 and F-03 (upload) → Document 4's Add Photos error/retry flow. F-05 (recall) → plain-language claim titles on every Dashboard card. Every catastrophic and major finding in this document has a named fix in the wireframes — an architect reviewing this package should be able to draw that line for every row above.
+  </div>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 6 — ACCESSIBILITY (WCAG 2.1 AA) CHECKLIST
+   ================================================================================================== */
+const WCAG_ROWS = [
+  ['SC 1.4.3','AA','Contrast (Minimum)','Body text — color.text.primary #1B1F24 on Surface #FFFFFF','≥ 4.5:1 (normal text)','16.56:1','Pass',''],
+  ['SC 1.4.3','AA','Contrast (Minimum)','Muted/secondary text — color.text.muted #5B6470 on Surface / Surface-Alt','≥ 4.5:1 (normal text)','6.00:1 / 5.59:1','Pass',''],
+  ['SC 1.4.3','AA','Contrast (Minimum)','Primary action link/button text — color.action.primary #1F5FA8 on Surface','≥ 4.5:1 (normal text)','6.44:1','Pass',''],
+  ['SC 1.4.3','AA','Contrast (Minimum)','White label text on filled Danger button (Cancel Claim) — #C4291D','≥ 4.5:1 (normal text)','5.70:1','Pass',''],
+  ['SC 1.4.11','AA','Non-text Contrast','Input field border — color.border.default #D8DCE1, sole visual boundary of a text input','≥ 3:1 (essential UI boundary)','1.38:1','Open','Darken to color.border.interactive #8A93A0 (3.11:1) on all form inputs. Owner: E. Vasquez. Due before dev handoff.'],
+  ['SC 2.1.1','AA','Keyboard','All primary flows (4-step wizard, upload, timeline tabs) operable via keyboard only','Full task completion, no mouse','3 of 4 flows fully operable','Open','Document-type filter in Document Center is a custom styled &lt;div&gt; with no keyboard support — rebuild as native &lt;select&gt; or ARIA combobox. Owner: Frontend lead. Due before dev handoff.'],
+  ['SC 2.4.3','AA','Focus Order','File a Claim 4-step wizard, including dropzone → thumbnail-grid transition','Focus order matches visual/reading order','Verified steps 1–4 and post-upload focus placement','Pass',''],
+  ['SC 2.4.7','AA','Focus Visible','All interactive elements — buttons, tabs, form fields, links','Visible indicator, ≥ 3:1 against surface','Focus ring #1F5FA8, 2px offset — 6.44:1','Pass',''],
+  ['SC 3.3.2','AA','Labels or Instructions','All 11 fields across the File a Claim wizard','Persistent visible label, not placeholder-only','Audited all 11 fields — labels persist above every field','Pass',''],
+  ['SC 3.3.1','AA','Error Identification','Incident-date field validation','Errors identified in text, not color alone','Icon + red text + descriptive message shown','Pass',''],
+  ['SC 3.3.3','AA','Error Suggestion','Document upload error (unsupported format)','Suggest a correction where the fix is knowable','Names exact fix — "HEIC is not supported. Try JPG or PNG."','Pass',''],
+  ['SC 2.4.6','AA','Headings and Labels','Claim Detail tab labels','Descriptive, not generic','"Status," "Documents," "Messages," "Payment" — not "Tab 1–4"','Pass',''],
+  ['SC 2.4.4','AA','Link Purpose (In Context)','Dashboard card call-to-action link','Destination clear from link text/context','"View kitchen water damage claim," not "Click here"','Pass',''],
+  ['SC 4.1.2','AA','Name, Role, Value','Status-timeline stepper; icon-only thumbnail remove control','Accessible name/role/state exposed programmatically','aria-current="step" on active node; aria-label="Remove damage.jpg" on remove control','Pass',''],
+  ['SC 1.3.1','AA','Info and Relationships','Claim Detail Payment tab data table','Structure conveyed programmatically','Real &lt;table&gt;/&lt;th scope&gt; markup, not a styled div grid','Pass',''],
+  ['SC 1.4.4','AA','Resize Text','Claims Dashboard and File a Claim at 200% browser zoom','No loss of content or function at 200%','Tested at 200% — no clipped content, no horizontal scroll','Pass',''],
+  ['SC 1.4.10','AA','Reflow','All primary screens at 320px viewport width','No horizontal scrolling (data tables exempted)','Verified at 320px; Document Center table in a scoped scroll container','Pass',''],
+  ['SC 4.1.3','AA','Status Messages','Upload success and autosave-draft confirmations','Announced to assistive tech without requiring focus','aria-live="polite" regions on both confirmations','Pass',''],
+  ['SC 2.2.1','AA','Timing Adjustable','File a Claim wizard session timeout','Timing adjustable or extendable','Autosave prevents data loss; "Stay signed in" prompt 2 min before expiry','Pass',''],
+  ['SC 2.5.5','AAA (2.1)','Target Size (Enhanced)','All primary touch targets — buttons, tabs, remove icons','≥ 44×44px (best practice; becomes AA-equivalent under WCAG 2.2 SC 2.5.8 at 24×24px)','All primary targets measured ≥ 44×44px','Best practice','Not counted toward the AA pass-rate denominator — included for forward compatibility.']
+];
+function wcagPassCounts(){
+  const scoped = WCAG_ROWS.filter(r=>r[1]==='AA');
+  const pass = scoped.filter(r=>r[6]==='Pass').length;
+  const open = scoped.filter(r=>r[6]==='Open').length;
+  return {scoped:scoped.length,pass,open};
+}
+function body_wcag(){
+  const counts = wcagPassCounts();
+  const pct = Math.round(counts.pass/counts.scoped*100);
+  const rows = WCAG_ROWS.map(r=>`<tr>
+    <td class="mono">${esc(r[0])}</td><td class="mono center">${esc(r[1])}</td><td>${esc(r[2])}</td>
+    <td>${esc(r[3])}</td><td class="muted" style="font-size:.8rem">${esc(r[4])}</td>
+    <td class="mono" style="font-size:.8rem">${r[5]}</td>
+    <td>${statusBadge(r[6])}</td>
+    <td class="muted" style="font-size:.78rem">${r[7]}</td>
+  </tr>`).join('');
+  return `
+  <h3>1. Scope &amp; method</h3>
+  <p>Twenty success criteria audited against the ClaimSight hi-fi wireframes and interactive prototype prior to development handoff — a design-stage accessibility gate, distinct from the ClaimLine Classic baseline audit referenced in the Executive Summary (that earlier audit found 71.7% pass on the legacy portal and is the reason this gate exists). All contrast ratios below are computed values (WCAG relative-luminance formula), not visual estimates. Scope: WCAG 2.1, Level AA, plus one Level AAA criterion included for forward compatibility with WCAG 2.2.</p>
+
+  <h3>2. Conformance summary</h3>
+  <div class="grid grid-2" style="align-items:stretch">
+    <div class="diagram-frame">
+      ${donutChart([{label:'Pass',value:counts.pass,color:'var(--leaf)'},{label:'Open',value:counts.open,color:'var(--amber)'}],pct+'%','AA pass rate')}
+      <div class="diagram-caption">${counts.pass} of ${counts.scoped} applicable Level AA criteria pass. 1 additional AAA criterion (target size) is tracked separately as best practice.</div>
+    </div>
+    <div class="grid grid-2">
+      ${kpiTile('AA criteria passing',counts.pass+' / '+counts.scoped,pct+'% pass rate','Ship gate: 100% before release',true)}
+      ${kpiTile('Open items','2','Both low-effort, no redesign required','Owners assigned, due before dev handoff',false)}
+      ${kpiTile('vs. legacy baseline','71.7%','ClaimLine Classic pass rate','+'+(pct-72)+' pts on the redesigned surfaces',true)}
+      ${kpiTile('Best-practice items','1','Target size (WCAG 2.2 forward-compat)','Already met — 44×44px minimum',true)}
+    </div>
+  </div>
+
+  <h3>3. Full checklist</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>SC</th><th style="width:60px">Level</th><th>Criterion</th><th>Where checked</th><th>Requirement</th><th style="width:110px">Evidence</th><th style="width:100px">Status</th><th>Remediation / owner</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <h3>4. A citation precision worth flagging</h3>
+  <div class="callout warn">
+    <div class="co-label">Architect's note</div>
+    Row 20 (target size) is deliberately labeled <strong>AAA under WCAG 2.1</strong>, not AA — a common error in AI-generated accessibility checklists is citing SC 2.5.5 as an AA requirement, which is only true starting with WCAG 2.2's SC 2.5.8. Getting the conformance level wrong on even one row is exactly the kind of confident-but-incorrect output an architect exists to catch before it reaches legal or compliance review.
+  </div>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 7 — DESIGN-SYSTEM TOKEN SHEET
+   ================================================================================================== */
+const TOKENS_COLOR = [
+  ['color.text.primary','#1B1F24','Primary body and heading text','16.56:1 on Surface'],
+  ['color.text.muted','#5B6470','Secondary text, captions, helper copy','6.00:1 on Surface, 5.59:1 on Surface-Alt'],
+  ['color.text.disabled','#9AA2AC','Disabled control labels','2.58:1 — exempt; WCAG 1.4.3 does not apply to inactive UI components'],
+  ['color.action.primary','#1F5FA8','Primary buttons, links, active tab, focus ring','6.44:1 on Surface'],
+  ['color.action.primary.on','#FFFFFF','Text/icon on filled primary buttons','6.44:1 (paired with color.action.primary)'],
+  ['color.feedback.success.text','#197A4A','Success text/icons — "Approved," "Uploaded"','5.35:1 on Surface, 4.76:1 on success.bg'],
+  ['color.feedback.success.bg','#E7F5EC','Success chip / banner background','Pairs with color.feedback.success.text'],
+  ['color.feedback.warning.text','#8A5300','Warning text/icons — "Action needed"','6.33:1 on Surface, 5.54:1 on warning.bg'],
+  ['color.feedback.warning.bg','#FCEEDA','Warning chip / banner background','Pairs with color.feedback.warning.text'],
+  ['color.feedback.danger.text','#C4291D','Error text/icons, destructive actions','5.70:1 on Surface, 4.86:1 on danger.bg'],
+  ['color.feedback.danger.bg','#FBE9E7','Error chip / banner background','Pairs with color.feedback.danger.text'],
+  ['color.border.default','#D8DCE1','Decorative card/section dividers only','1.38:1 — not used as the sole boundary of an interactive component'],
+  ['color.border.interactive','#8A93A0','Input/interactive component boundary','3.11:1 — remediation token, see WCAG checklist SC 1.4.11'],
+  ['color.surface','#FFFFFF','Page / card background','—'],
+  ['color.surface.alt','#F5F7FA','Section background, skeleton-loading fill','—'],
+  ['color.focus.ring','#1F5FA8','2px keyboard focus outline, 2px offset','6.44:1 on Surface']
+];
+const TOKENS_TYPE = [
+  ['type.display','32px / 40px','700','Dashboard hero, page title'],
+  ['type.h1','26px / 32px','700','Section titles — "My Claims"'],
+  ['type.h2','20px / 26px','700','Card and subsection titles'],
+  ['type.h3','17px / 24px','600','Claim Detail tab-panel headers'],
+  ['type.body','15px / 23px','400','Default body copy'],
+  ['type.body-strong','15px / 23px','600','Emphasized inline text, status labels'],
+  ['type.caption','13px / 18px','400','Helper text, timestamps, field hints'],
+  ['type.label','12px / 16px','700, uppercase, 0.04em tracking','Field labels, eyebrow text'],
+  ['type.data-mono','14px / 20px','400, Roboto Mono','Claim numbers, policy numbers, table dates']
+];
+const TOKENS_SPACE = [
+  ['space.2xs','4px'],['space.xs','8px'],['space.sm','12px'],['space.md','16px'],
+  ['space.lg','24px'],['space.xl','32px'],['space.2xl','48px'],['space.3xl','64px']
+];
+const TOKENS_MISC = [
+  ['radius.sm','6px','Inputs, chips'],
+  ['radius.md','10px','Cards, panels'],
+  ['radius.pill','999px','Status chips, buttons'],
+  ['target.min','44 × 44px','Minimum interactive touch target (see WCAG checklist SC 2.5.5)']
+];
+function body_tokens(){
+  const colorRows = TOKENS_COLOR.map(t=>`<tr><td class="mono">${esc(t[0])}</td><td><span class="legend-swatch" style="background:${t[1]}"></span><span class="mono">${t[1]}</span></td><td>${esc(t[2])}</td><td class="mono" style="font-size:.78rem">${esc(t[3])}</td></tr>`).join('');
+  const typeRows = TOKENS_TYPE.map(t=>`<tr><td class="mono">${esc(t[0])}</td><td class="mono">${esc(t[1])}</td><td class="mono">${esc(t[2])}</td><td>${esc(t[3])}</td></tr>`).join('');
+  const spaceRows = TOKENS_SPACE.map(t=>`<tr><td class="mono">${esc(t[0])}</td><td class="mono">${esc(t[1])}</td></tr>`).join('');
+  const miscRows = TOKENS_MISC.map(t=>`<tr><td class="mono">${esc(t[0])}</td><td class="mono">${esc(t[1])}</td><td>${esc(t[2])}</td></tr>`).join('');
+  return `
+  <h3>1. Scope of this token sheet</h3>
+  <div class="callout info">
+    <div class="co-label">Important distinction</div>
+    These are <strong>ClaimSight's own product tokens</strong> — an insurance company's claims portal is not branded in Colaberry's colors. They are entirely independent of the Cherry/Berry/Leaf/Amber brand chrome used elsewhere in this Field Guide. Never confuse a deliverable's own design system with the tool or program that produced the deliverable.
+  </div>
+  <p>Every value below is named by semantic <em>role</em> (what it means) rather than by <em>appearance</em> (what it looks like), so the palette can change without renaming a single reference in code. Every color that carries text is paired with a measured contrast ratio.</p>
+
+  <h3>2. Color tokens</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Token</th><th style="width:120px">Value</th><th>Usage</th><th style="width:230px">Contrast evidence</th></tr></thead>
+      <tbody>${colorRows}</tbody>
+    </table>
+  </div>
+
+  <h3>3. Type scale</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Token</th><th>Size / line-height</th><th>Weight</th><th>Usage</th></tr></thead>
+      <tbody>${typeRows}</tbody>
+    </table>
+  </div>
+
+  <h3>4. Spacing scale</h3>
+  <p class="muted">4px base unit — every gap, padding, and margin in ClaimSight references one of these eight values.</p>
+  <div class="table-wrap" style="max-width:360px">
+    <table class="data-table">
+      <thead><tr><th>Token</th><th>Value</th></tr></thead>
+      <tbody>${spaceRows}</tbody>
+    </table>
+  </div>
+
+  <h3>5. Radius &amp; target size</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Token</th><th style="width:140px">Value</th><th>Usage</th></tr></thead>
+      <tbody>${miscRows}</tbody>
+    </table>
+  </div>
+
+  <h3>6. Why <span class="mono">color.border.interactive</span> exists as a separate token</h3>
+  <p>The WCAG checklist (Document 6) flagged <span class="mono">color.border.default</span> (1.38:1) as failing the 3:1 non-text contrast requirement when used as the sole boundary of a form input. Rather than raise the decorative border's contrast everywhere — which would visually overweight every card and divider in the product — a second, purpose-built token was introduced for interactive component boundaries only. This is the token system doing its job: one governed change instead of a hunt through every screen.</p>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 8 — USABILITY TEST PLAN & SCRIPT
+   ================================================================================================== */
+const TEST_TASKS = [
+  ['T1','File a new claim for kitchen water damage from a slow cabinet leak.','File a Claim wizard, error prevention, upload'],
+  ['T2','Find out what is currently happening with the claim you just filed, and say what you expect to happen next.','Status Timeline comprehension — the #1 pain point fix'],
+  ['T3','Add a photo of the plumber emergency-visit receipt to that same claim.','Document upload from Claim Detail, not just the wizard'],
+  ['T4','You have a question about why the estimate looks lower than expected. Get that question to your adjuster.','Messages'],
+  ['T5','You have two open claims. Find out if either one has a payment on the way.','Multi-claim recall, Payment tab — repeat-claimant scenario']
+];
+const TEST_TARGETS = [
+  ['Task success rate','≥ 85%','Binary, unassisted completion per task','89%','Met'],
+  ['Time on task (file a claim, end to end)','≤ 8 min average','Moderator-timed, think-aloud session','6.8 min','Met'],
+  ['SUS score','≥ 70 ("Good" or better)','10-item questionnaire after all tasks','78.6','Met'],
+  ['SEQ (Single Ease Question)','≥ 5.5 average','1–7 scale after each task','6.1','Met'],
+  ['Critical (Sev-4) findings remaining','0','Consolidated against Document 5 severity scale','0','Met']
+];
+function body_testplan(){
+  const taskRows = TEST_TASKS.map(t=>`<tr><td class="mono center">${t[0]}</td><td>&ldquo;${esc(t[1])}&rdquo;</td><td class="muted" style="font-size:.82rem">${esc(t[2])}</td></tr>`).join('');
+  const targetRows = TEST_TARGETS.map(t=>`<tr><td>${esc(t[0])}</td><td class="mono center">${esc(t[1])}</td><td class="muted" style="font-size:.8rem">${esc(t[2])}</td><td class="mono center text-leaf">${esc(t[3])}</td><td>${statusBadge(t[4]==='Met'?'Pass':'Open')}</td></tr>`).join('');
+  return `
+  <h3>1. Objective</h3>
+  <p>Validate that the ClaimSight prototype resolves the top pain points identified in the Journey Map (Document 2) and Heuristic Evaluation (Document 5), and meets pre-set success targets before development handoff.</p>
+
+  <h3>2. Method</h3>
+  <p>Moderated, remote, think-aloud sessions, 45 minutes each, against a clickable high-fidelity prototype covering the Dashboard, File a Claim wizard, Claim Detail (Status Timeline, Messages, Payment), and Document Center.</p>
+
+  <h3>3. Participants</h3>
+  <div class="card">
+    <p><strong>6 policyholders.</strong> Recruiting screen: filed a homeowners or auto insurance claim with any insurer within the past 18 months; excludes UX/design professionals and Meridian employees. Recruited as 3 first-time-claimant profiles (mirroring Dana) and 3 repeat-claimant profiles with multiple vehicles or properties (mirroring Marcus), so both personas from Document 1 are represented in the sample.</p>
+  </div>
+
+  <h3>4. Tasks</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th style="width:44px">ID</th><th>Task given to participant</th><th>What it tests</th></tr></thead>
+      <tbody>${taskRows}</tbody>
+    </table>
+  </div>
+
+  <h3>5. Success metrics — set before testing</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th style="width:170px">Target</th><th>Method</th><th style="width:100px">Round 1 result</th><th style="width:90px">Outcome</th></tr></thead>
+      <tbody>${targetRows}</tbody>
+    </table>
+  </div>
+
+  <h3>6. Post-task and post-session questions</h3>
+  <div class="grid grid-2">
+    <div class="card">
+      <h4>After each task (SEQ)</h4>
+      <p class="muted" style="margin-bottom:0">&ldquo;Overall, how difficult or easy was that task?&rdquo; — 1 (Very difficult) to 7 (Very easy).</p>
+    </div>
+    <div class="card">
+      <h4>After all tasks</h4>
+      <p class="muted" style="margin-bottom:0">Standard 10-item System Usability Scale (5-point Likert), then three open questions: &ldquo;What, if anything, made you anxious during this process?&rdquo; &middot; &ldquo;Was there a moment you were not sure what was happening?&rdquo; &middot; &ldquo;What would make you trust this more than calling?&rdquo;</p>
+    </div>
+  </div>
+
+  <h3>7. Moderator script outline</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th style="width:130px">Segment</th><th style="width:100px">Time</th><th>Content</th></tr></thead>
+      <tbody>
+        <tr><td>Welcome &amp; consent</td><td class="mono center">2 min</td><td>Purpose of the session, recording consent, reassurance that the product — not the participant — is being tested.</td></tr>
+        <tr><td>Background</td><td class="mono center">3 min</td><td>&ldquo;Tell me about the last time you filed an insurance claim.&rdquo;</td></tr>
+        <tr><td>Tasks 1–5</td><td class="mono center">30 min</td><td>Think-aloud prompts throughout; SEQ after each task.</td></tr>
+        <tr><td>SUS questionnaire</td><td class="mono center">5 min</td><td>Standard 10-item form, administered verbally or via screen-share.</td></tr>
+        <tr><td>Debrief</td><td class="mono center">5 min</td><td>Open questions (Section 6); thank you and incentive.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8. Round 1 results and residual findings</h3>
+  <p>All five pre-set targets were met or exceeded (table above). Two Severity-2 findings surfaced and are tracked for the next design iteration, not blocking dev handoff:</p>
+  <ul>
+    <li>2 of 6 participants missed the "Add more" upload control after their first successful upload — recommend making it visually persistent rather than appearing only post-upload.</li>
+    <li>1 participant did not notice the autosave confirmation on the File a Claim wizard — recommend adding a brief toast in addition to the persistent "Draft saved" label.</li>
+  </ul>
+  `;
+}
+
+/* ==================================================================================================
+   DOCUMENT 9 — EXECUTIVE SUMMARY
+   ================================================================================================== */
+function body_execsummary(){
+  return `
+  <h3>Problem</h3>
+  <p>ClaimLine Classic — Meridian's current self-service claims portal — drives avoidable call-center volume and policyholder anxiety because claimants cannot see status in plain language or trust that a submission was received. Discovery research found task success at 61%, a SUS score of 58.4 ("Poor"), a WCAG 2.1 AA pass rate of 71.7%, and 14 heuristic findings (3 catastrophic) concentrated in two moments: document upload and claim-status visibility. These findings drove roughly 38% of inbound call-center volume as avoidable status-check calls.</p>
+
+  <h3>Approach</h3>
+  <p>ClaimSight redesigns three things directly traceable to the findings above: a shallow, plain-language information architecture (no core task more than 3 clicks from Home); a plain-language, timestamped status timeline replacing the static "In Review" badge; and a reliable document-upload flow with real-time confirmation and inline, actionable error recovery — all built on a named, accessibility-conformant design-token system and validated with real users before development.</p>
+
+  <div class="grid grid-4" style="margin:20px 0">
+    ${kpiTile('Task success rate','89%','vs. baseline 61% · target 85%+','+28 pts',true)}
+    ${kpiTile('SUS score','78.6','"Good" · vs. baseline 58.4 "Poor"','+20.2 pts',true)}
+    ${kpiTile('WCAG 2.1 AA pass rate','89%','17 of 19 applicable criteria','2 open items tracked',true)}
+    ${kpiTile('Time on task','6.8 min','vs. baseline 14.2 min · target ≤8 min','-7.4 min',true)}
+  </div>
+
+  <h3>Validation</h3>
+  <p>Round 1 moderated usability testing (6 participants, clickable prototype, Document 8) measured against pre-set targets — every target was met or exceeded, and zero critical (Severity-4) findings remained. Two minor (Severity-2) findings were logged for the next iteration and do not block development handoff.</p>
+
+  <h3>Accessibility</h3>
+  <p>17 of 19 applicable WCAG 2.1 AA success criteria pass on the reviewed wireframes and prototype (Document 6) — a 17-point improvement over the legacy portal's 71.7%. Two open items (input-border contrast, keyboard support on one filter control) are both low-effort fixes tracked to close before development handoff; neither requires a redesign.</p>
+
+  <h3>Recommendation / ask</h3>
+  <div class="callout key">
+    <div class="co-label">Decision requested</div>
+    Approve ClaimSight for development handoff. Fund a Round 2 validation pass post-build (regression testing plus a real-device accessibility audit) before general release. Adopt a 30% reduction in status-check call volume as the primary post-launch business KPI, tracked at 30/60/90 days.
+  </div>
+
+  <h3>Owner &amp; next milestone</h3>
+  <p>Elena Vasquez (Lead UX Designer) to hand off the finalized package to Engineering. Marcus Boyd (VP Product, Claims Experience) to own the call-volume KPI review at 30/60/90 days post-launch.</p>
+  `;
+}
+
+const DOC_BODY_FN = {
+  personas:body_personas, journey:body_journey, ia:body_ia, wireframes:body_wireframes,
+  heuristics:body_heuristics, wcag:body_wcag, tokens:body_tokens, testplan:body_testplan, execsummary:body_execsummary
+};
+
+/* ==================================================================================================
+   COVER / CONTROL STRIP / SIGN-OFF / FOOTER
+   ================================================================================================== */
+function docControlStrip(key){
+  const m = DOC_META[key];
+  return `<div class="doc-control-strip">
+    <div><span class="dcs-label">Document</span>${m.code}</div>
+    <div><span class="dcs-label">Version</span>${m.version}</div>
+    <div><span class="dcs-label">Status</span>${m.status}</div>
+    <div><span class="dcs-label">Date</span>${m.date}</div>
+  </div>`;
+}
+function signoffBlock(){
+  return `<div class="signoff">
+    <div><div class="so-role">Prepared by</div><div class="so-name">Elena Vasquez, Lead UX Designer — ClaimSight</div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Reviewed by</div><div class="so-name">AI Solution Architect (Design &amp; Experience)</div><div class="so-line">Signature / Date</div></div>
+    <div><div class="so-role">Approved by</div><div class="so-name">Marcus Boyd, VP Product — Claims Experience</div><div class="so-line">Signature / Date</div></div>
+  </div>`;
+}
+function coverBlock(key){
+  const m = DOC_META[key];
+  return `<div style="background:var(--berry);color:#fff;border-radius:var(--radius);padding:34px 30px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;opacity:.8;margin-bottom:8px">Meridian Mutual Insurance &middot; ClaimSight Initiative</div>
+      <div style="font-size:1.6rem;font-weight:700;">${m.title}</div>
+      <div style="font-size:.85rem;opacity:.85;margin-top:6px">Colaberry Enterprise AI Leadership Accelerator &middot; UX Designer Field Guide</div>
+    </div>
+    <img src="${logoSrc()}" alt="Colaberry" style="height:44px;background:#fff;padding:6px 10px;border-radius:8px;">
+  </div>`;
+}
+function footBlock(key){
+  const m = DOC_META[key];
+  return `<div style="margin-top:26px;padding-top:14px;border-top:1px solid var(--border);font-size:.74rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <span>${m.code} &middot; v${m.version} &middot; ${m.status}</span>
+    <span>Colaberry Enterprise AI Leadership Accelerator &mdash; UX Designer Field Guide</span>
+  </div>`;
+}
+
+/* ==================================================================================================
+   RENDER INTO PAGE
+   ================================================================================================== */
+function renderInPage(){
+  Object.keys(DOC_BODY_FN).forEach(key=>{
+    const el = document.getElementById('docBody-'+key);
+    if(!el) return;
+    el.innerHTML = docControlStrip(key) + DOC_BODY_FN[key]() + signoffBlock() + footBlock(key);
+  });
+  document.getElementById('goodBadBody').innerHTML = GOOD_BAD.map((g,i)=>`<tr><td class="mono">${i+1}</td><td>${esc(g[0])}</td><td>${esc(g[1])}</td></tr>`).join('');
+  document.getElementById('reviewLensBody').innerHTML = REVIEW_LENS.map((r,i)=>`<div class="lens-item"><div class="lens-num">${i+1}</div><div><strong>${esc(r[0])}</strong><div class="muted">${esc(r[1])}</div></div></div>`).join('');
+  document.getElementById('glossaryBody').innerHTML = GLOSSARY.map(g=>`<tr><td><strong>${esc(g[0])}</strong></td><td>${esc(g[1])}</td></tr>`).join('');
+  document.getElementById('kpiConceptGrid').innerHTML = KPI_CONCEPT.map(k=>`<div class="card"><h4 class="text-berry">${esc(k[0])}</h4><p class="muted" style="margin-bottom:4px;font-size:.86rem">${esc(k[1])}</p><p style="margin-bottom:0;font-size:.82rem">${esc(k[2])}</p></div>`).join('');
+  document.getElementById('initiativeBaselineKpis').innerHTML = initiativeBaselineKpisHtml();
+}
+
+/* ==================================================================================================
+   STANDALONE DOCUMENT / DOWNLOAD / PRINT
+   ================================================================================================== */
+function standaloneHtml(key){
+  const m = DOC_META[key];
+  const styleTag = document.querySelector('style').outerHTML;
+  const body = `<div style="max-width:900px;margin:34px auto;padding:0 20px 60px;">
+    ${coverBlock(key)}
+    ${docControlStrip(key)}
+    ${DOC_BODY_FN[key]()}
+    ${signoffBlock()}
+    ${footBlock(key)}
+  </div>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>${m.title}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  ${styleTag}
+  <style>body{background:#fff;padding:0;} @media print{body{background:#fff;}}</style>
+  </head><body>${body}</body></html>`;
+}
+function downloadDoc(key){
+  const html = standaloneHtml(key);
+  const blob = new Blob([html],{type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ClaimSight_' + DOC_META[key].code + '.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function printDoc(key){
+  const html = standaloneHtml(key);
+  const w = window.open('', '_blank');
+  if(!w){ alert('Please allow pop-ups to save as PDF.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  w.onload = function(){ setTimeout(()=>{ w.focus(); w.print(); }, 350); };
+}
+
+/* ---------------- CSV export ---------------- */
+function csvCell(v){ const s=String(v==null?'':v).replace(/"/g,'""'); return /[",\n]/.test(s)? '"'+s+'"' : s; }
+function toCSV(rows){ return rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); }
+function downloadCSVBlob(filename, rows){
+  const csv = toCSV(rows);
+  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function stripTags(s){ return String(s).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/<[^>]+>/g,''); }
+function downloadCSV(kind){
+  if(kind==='heuristics'){
+    downloadCSVBlob('ClaimSight_HeuristicEvaluation.csv',[
+      ['ID','Screen','Heuristic #','Heuristic','Severity','Finding','Recommendation'],
+      ...HEURISTICS_FINDINGS.map(f=>[f.id,f.screen,f.h,f.hname,f.sev,f.finding,f.rec])
+    ]);
+  } else if(kind==='wcag'){
+    downloadCSVBlob('ClaimSight_WCAG21AA_Checklist.csv',[
+      ['Success Criterion','Level','Criterion Name','Where Checked','Requirement','Evidence','Status','Remediation / Owner'],
+      ...WCAG_ROWS.map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],r[6],stripTags(r[7])])
+    ]);
+  } else if(kind==='tokens'){
+    downloadCSVBlob('ClaimSight_DesignTokens.csv',[
+      ['Category','Token','Value / Weight','Usage','Contrast Evidence'],
+      ...TOKENS_COLOR.map(t=>['Color',t[0],t[1],t[2],t[3]]),
+      ...TOKENS_TYPE.map(t=>['Type',t[0],t[1]+' / '+t[2],t[3],'']),
+      ...TOKENS_SPACE.map(t=>['Spacing',t[0],t[1],'','']),
+      ...TOKENS_MISC.map(t=>['Radius / Target',t[0],t[1],t[2],''])
+    ]);
+  }
+}
+
+/* ==================================================================================================
+   SEARCH
+   ================================================================================================== */
+let SEARCH_INDEX = [];
+function buildSearchIndex(){
+  document.querySelectorAll('section.page-section').forEach(sec=>{
+    const title = sec.getAttribute('data-title') || sec.id;
+    const extra = sec.getAttribute('data-search') || '';
+    const text = (sec.innerText || '').slice(0,4000);
+    SEARCH_INDEX.push({id:sec.id, title, text:(title+' '+extra+' '+text).toLowerCase(), snippet:(sec.querySelector('.section-lede, p')||{}).innerText || ''});
+  });
+}
+function runSearch(q){
+  q = q.trim().toLowerCase();
+  const box = document.getElementById('searchResults');
+  if(!q){ box.style.display='none'; box.innerHTML=''; return; }
+  const terms = q.split(/\s+/).filter(Boolean);
+  const scored = SEARCH_INDEX.map(item=>{
+    let score=0;
+    terms.forEach(t=>{ if(item.title.toLowerCase().includes(t)) score+=5; const c=(item.text.match(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'))||[]).length; score+=c; });
+    return {item,score};
+  }).filter(s=>s.score>0).sort((a,b)=>b.score-a.score).slice(0,8);
+  if(!scored.length){ box.innerHTML = '<div class="res-empty">No matches. Try a different term, or ask the guide.</div>'; box.style.display='block'; return; }
+  box.innerHTML = scored.map(s=>`<div class="res-item" onclick="jumpTo('${s.item.id}')"><div class="rk">Field Guide</div><div class="rt">${esc(s.item.title)}</div><div class="rs">${esc((s.item.snippet||'').slice(0,110))}</div></div>`).join('');
+  box.style.display='block';
+}
+function jumpTo(id){
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchInput').value='';
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ==================================================================================================
+   ASK THE GUIDE — offline FAQ matcher
+   ================================================================================================== */
+const FAQ = [
+  {q:"What is a JTBD statement?",kw:["jtbd","jobs to be done","job to be done"],a:"A Jobs-to-be-Done statement takes the form: When [situation], I want to [motivation], so I can [expected outcome]. Dana Whitfield's is: When something unexpected damages my home, I want to know my claim is being handled and what I need to do next, so I can stop worrying and make repair decisions. It grounds a persona in a goal, not a demographic.",link:'#f-personas'},
+  {q:"What is the SUS score benchmark?",kw:["sus","system usability scale","benchmark","score"],a:"SUS is a 0-100 questionnaire. 68 is the crowd-sourced industry average. Rough grades: below 51 is an F, 51 to 67 is C/D, 68 to 80 is B (Good), above 80 is A (Excellent). ClaimSight's baseline was 58.4 (Poor); Round 1 testing measured 78.6 (Good).",link:'#f-testing'},
+  {q:"What is the required contrast ratio?",kw:["contrast ratio","4.5","1.4.3","wcag contrast"],a:"Normal text needs at least 4.5:1 against its background (WCAG SC 1.4.3). Large text (18.66px bold or larger, or 24px regular or larger) only needs 3:1. Non-text UI components like input borders and icons need 3:1 (SC 1.4.11).",link:'#f-a11y'},
+  {q:"What are the two open WCAG items?",kw:["open items","wcag open","two open","remediation"],a:"1) The default input-field border (1.38:1) fails the 3:1 non-text contrast requirement for essential UI boundaries — remediated with a new color.border.interactive token at 3.11:1. 2) The Document Center's document-type filter is a custom control with no keyboard support — needs to become a native select or ARIA combobox. Both are tracked to close before development handoff.",link:'#doc-wcag'},
+  {q:"What is task success rate?",kw:["task success","success rate"],a:"The percentage of usability-test participants who complete a given task correctly and unassisted. ClaimSight's baseline (ClaimLine Classic) measured 61%; Round 1 testing of the redesign measured 89% against a target of 85%.",link:'#f-kpis'},
+  {q:"What is Nielsen's severity scale?",kw:["severity","0 1 2 3 4","nielsen severity"],a:"0 = not a usability problem, 1 = cosmetic, 2 = minor, 3 = major, 4 = usability catastrophe. It blends frequency, impact, and persistence — not just how many users hit it.",link:'#f-heuristics'},
+  {q:"What are Nielsen's 10 heuristics?",kw:["10 heuristics","nielsen heuristics","usability heuristics"],a:"Visibility of system status, match between system and the real world, user control and freedom, consistency and standards, error prevention, recognition rather than recall, flexibility and efficiency of use, aesthetic and minimalist design, help users recognize/diagnose/recover from errors, and help and documentation.",link:'#f-heuristics'},
+  {q:"How many heuristic findings were there?",kw:["how many findings","14 findings","heuristic findings count"],a:"14 findings across 4 screens of ClaimLine Classic (the legacy portal): 3 catastrophic (Severity 4), 5 major (3), 4 minor (2), 2 cosmetic (1). The three catastrophic findings map directly onto the Journey Map's two worst pain points.",link:'#doc-heuristics'},
+  {q:"What is the difference between a wireframe, a mockup, and a prototype?",kw:["wireframe mockup prototype","difference wireframe mockup","fidelity"],a:"A wireframe is low-fidelity and answers where things go. A mockup is high-fidelity but static, and answers what it looks like. A prototype is high-fidelity and interactive, and answers what it feels like to use. Each should be designed across all four states: empty, loading, error, success.",link:'#f-fidelity'},
+  {q:"What is the ClaimSight information architecture?",kw:["information architecture","sitemap","ia structure"],a:"Seven top-level areas under Home: File a New Claim, My Claims, Document Center, Messages, Payments & Estimates, Account & Policy, and Help & Support. No core task is more than three clicks from Home.",link:'#doc-ia'},
+  {q:"What is a design token?",kw:["design token","token","semantic token"],a:"A named, reusable design decision — a color, type size, or spacing value — stored once and referenced everywhere, instead of a raw value repeated on every screen. Named by role (e.g. color.feedback.danger.text), not by appearance (red).",link:'#f-tokens'},
+  {q:"What is the emotion curve in the journey map?",kw:["emotion curve","journey map emotion","pain points journey"],a:"Dana Whitfield's journey scores emotion from -2 to +2 across 8 stages. The two lowest points — uploading documents (a silent failure) and waiting in the static \"In Review\" state — are the two pain points that directly funded the redesign's top priorities.",link:'#doc-journey'},
+  {q:"Who are the ClaimSight personas?",kw:["personas list","who are the personas","dana marcus priya"],a:"Dana Whitfield (first-time homeowner claimant), Marcus Webb (repeat commercial fleet claimant), and Priya Chandrasekaran (internal claims adjuster) — two customer-facing personas plus one internal persona whose workload the redesign directly affects.",link:'#doc-personas'},
+  {q:"What is the WCAG pass rate?",kw:["wcag pass rate","pass rate","how many pass"],a:"17 of 19 applicable WCAG 2.1 Level AA criteria pass on the ClaimSight wireframes and prototype (89%), plus one Level AAA best-practice criterion already met. This compares to a 71.7% pass rate measured on the legacy ClaimLine Classic portal.",link:'#doc-wcag'},
+  {q:"What is a heuristic evaluation?",kw:["heuristic evaluation","what is heuristic evaluation"],a:"An expert review of an interface against a fixed set of usability principles — commonly Nielsen's 10 heuristics — used to find usability problems quickly without recruiting test participants. ClaimSight's evaluation used 3 reviewers across 4 legacy-portal screens.",link:'#f-heuristics'},
+  {q:"What is the Single Ease Question?",kw:["single ease question","seq"],a:"A 1-to-7 question asked immediately after each usability-test task: \"Overall, how difficult or easy was that task?\" ClaimSight's Round 1 average SEQ was 6.1 against a target of 5.5.",link:'#doc-testplan'},
+  {q:"Why does the guide separate ClaimSight's tokens from Colaberry's brand colors?",kw:["claimsight colors","product tokens vs brand","why separate tokens"],a:"ClaimSight is a fictional insurance company's own product — it is not branded in Colaberry's Cherry/Berry/Leaf palette. The Design Token Sheet documents ClaimSight's independent product design system; the guide's own chrome (this page you're reading) uses the Colaberry accelerator brand separately.",link:'#doc-tokens'},
+  {q:"How many participants should a usability test have?",kw:["how many participants","five users","sample size"],a:"5 to 8 participants per round is the standard rule of thumb — Nielsen's research found about 5 users surface roughly 85% of usability problems in a single round. ClaimSight's Round 1 test used 6.",link:'#f-testing'},
+  {q:"What is the recommendation in the executive summary?",kw:["recommendation","the ask","executive summary ask"],a:"Approve ClaimSight for development handoff, fund a Round 2 post-build validation pass including a real-device accessibility audit, and adopt a 30% reduction in status-check call volume as the primary post-launch KPI, tracked at 30/60/90 days.",link:'#doc-execsummary'},
+  {q:"What is FNOL?",kw:["fnol","first notice of loss"],a:"First Notice of Loss — insurance-industry jargon for the initial claim report. It is a real example of internal process language that should never reach customer-facing UI; ClaimLine Classic's heuristic evaluation flagged exactly this kind of jargon (finding F-07).",link:'#glossary'}
+];
+function toggleAsk(){ document.getElementById('askPanel').classList.toggle('open'); if(document.getElementById('askPanel').classList.contains('open')) document.getElementById('askInput').focus(); }
+function scoreFaq(query){
+  const q = query.toLowerCase();
+  let best=null, bestScore=0;
+  FAQ.forEach(f=>{
+    let score=0;
+    if(q.includes(f.q.toLowerCase().replace('?',''))) score+=6;
+    f.kw.forEach(k=>{ if(q.includes(k)) score+=3; });
+    const qWords = f.q.toLowerCase().replace(/[?']/g,'').split(/\s+/);
+    qWords.forEach(w=>{ if(w.length>3 && q.includes(w)) score+=1; });
+    if(score>bestScore){ bestScore=score; best=f; }
+  });
+  return bestScore>0 ? best : null;
+}
+function pushAsk(question, answerHtml){
+  const body = document.getElementById('askBody');
+  const qd = document.createElement('div'); qd.className='aq'; qd.textContent=question;
+  const ad = document.createElement('div'); ad.className='aa'; ad.innerHTML=answerHtml;
+  body.appendChild(qd); body.appendChild(ad);
+  body.scrollTop = body.scrollHeight;
+}
+function handleAsk(e){
+  e.preventDefault();
+  const input = document.getElementById('askInput');
+  const q = input.value.trim();
+  if(!q) return false;
+  const match = scoreFaq(q);
+  if(match){
+    pushAsk(q, esc(match.a) + `<br><a class="aa-link" href="${match.link}" onclick="toggleAsk()">Jump to this section &rarr;</a>`);
+  } else {
+    pushAsk(q, `I could not find a confident match in the guide for that. Try the search box above, or ask about: personas, journeys, information architecture, wireframe states, Nielsen's heuristics, WCAG contrast, design tokens, or the usability test plan.`);
+  }
+  input.value='';
+  return false;
+}
+function askSuggested(el){
+  document.getElementById('askInput').value = el.textContent;
+  document.getElementById('askForm').dispatchEvent(new Event('submit',{cancelable:true}));
+}
+
+/* ==================================================================================================
+   NAV HIGHLIGHT / INIT
+   ================================================================================================== */
+function setupNavHighlight(){
+  const links = Array.from(document.querySelectorAll('#sidenav a.navlink'));
+  const sections = links.map(l=>document.getElementById(l.getAttribute('href').slice(1))).filter(Boolean);
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const link = links.find(l=>l.getAttribute('href')==='#'+entry.target.id);
+      if(!link) return;
+      if(entry.isIntersecting) links.forEach(l=>l.classList.remove('active')), link.classList.add('active');
+    });
+  },{rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(s=>obs.observe(s));
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderInPage();
+  buildSearchIndex();
+  document.getElementById('searchInput').addEventListener('input', e=>runSearch(e.target.value));
+  document.addEventListener('click', e=>{
+    if(!e.target.closest('.searchwrap')) document.getElementById('searchResults').style.display='none';
+  });
+  document.getElementById('footDate').textContent = 'Generated ' + new Date('2026-08-30').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) + ' · v1.0.0';
+  setupNavHighlight();
+});
+</script>
+</body>
+</html>
+
+

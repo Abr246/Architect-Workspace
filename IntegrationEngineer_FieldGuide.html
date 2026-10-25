@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integration Engineer Field Guide — Colaberry Enterprise AI Leadership Accelerator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cherry:#FB2832; --berry:#367895; --leaf:#5BA63C; --amber:#E8920C;
+  --text:#1A1A1A; --muted:#6B6B6B; --border:#E4E4E3; --surface:#FFFFFF; --surface2:#F8F8F7;
+  --font-body:'Roboto',system-ui,Arial,sans-serif; --font-mono:'Roboto Mono',ui-monospace,Consolas,monospace;
+  --radius:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+    --text:#F0F0EF; --muted:#A6A6A4; --border:#2A2A2A; --surface:#161616; --surface2:#0F0F0F;
+  }
+}
+:root[data-theme="dark"]{
+  --cherry:#FF5960; --berry:#5EA9C4; --leaf:#8AC759; --amber:#E8920C;
+  --text:#F0F0EF; --muted:#A6A6A4; --border:#2A2A2A; --surface:#161616; --surface2:#0F0F0F;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--surface2); color:var(--text); font-family:var(--font-body);
+  font-size:15px; line-height:1.6;
+}
+a{color:var(--berry);}
+code,.mono,table.data td.mono,.doc-control dd{font-family:var(--font-mono);}
+h1,h2,h3,h4{font-family:var(--font-body); color:var(--berry); font-weight:700; line-height:1.25;}
+h1{font-size:1.9rem;} h2{font-size:1.45rem; margin-top:2.2rem; border-bottom:2px solid var(--border); padding-bottom:.4rem;}
+h3{font-size:1.15rem; margin-top:1.6rem;} h4{font-size:1rem; color:var(--text);}
+p{margin:.6rem 0;}
+.muted{color:var(--muted);}
+.pill{display:inline-block; padding:.15rem .6rem; border-radius:999px; font-size:.72rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase;}
+.pill-cherry{background:rgba(251,40,50,.12); color:var(--cherry);}
+.pill-berry{background:rgba(54,120,149,.12); color:var(--berry);}
+.pill-leaf{background:rgba(91,166,60,.14); color:var(--leaf);}
+.pill-amber{background:rgba(232,146,12,.14); color:var(--amber);}
+
+/* ---------- Layout shell ---------- */
+.app{display:grid; grid-template-columns:280px 1fr; min-height:100vh;}
+.sidebar{
+  background:var(--surface); border-right:1px solid var(--border);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:1.1rem .9rem 3rem;
+}
+.brand{display:flex; align-items:center; gap:.6rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border);}
+.brand img{height:38px; width:auto;}
+.brand small{display:block; color:var(--muted); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; margin-top:2px;}
+.nav-group{margin-bottom:1.1rem;}
+.nav-group h5{font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin:.9rem 0 .35rem; font-weight:700;}
+.nav-group a{
+  display:block; padding:.38rem .55rem; border-radius:6px; color:var(--text); text-decoration:none; font-size:.87rem;
+}
+.nav-group a:hover{background:var(--surface2);}
+.nav-group a.active{background:rgba(54,120,149,.12); color:var(--berry); font-weight:700;}
+
+.main{padding:1.4rem 2.2rem 5rem; max-width:1180px;}
+.topbar{
+  display:flex; gap:1rem; align-items:center; position:sticky; top:0; background:var(--surface2);
+  z-index:20; padding:.6rem 0 1rem; border-bottom:1px solid var(--border); margin-bottom:1.6rem; flex-wrap:wrap;
+}
+.search-wrap{position:relative; flex:1; min-width:260px;}
+.search-wrap input{
+  width:100%; padding:.65rem 1rem .65rem 2.4rem; border:1px solid var(--border); border-radius:999px;
+  background:var(--surface); color:var(--text); font-size:.92rem; font-family:var(--font-body);
+}
+.search-wrap input:focus{outline:2px solid var(--berry); outline-offset:1px;}
+.search-icon{position:absolute; left:.85rem; top:50%; transform:translateY(-50%); color:var(--muted); font-size:.95rem;}
+.search-results{
+  position:absolute; top:110%; left:0; right:0; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,.15); max-height:360px; overflow-y:auto; z-index:30; display:none;
+}
+.search-results.show{display:block;}
+.search-results a{display:block; padding:.6rem .9rem; border-bottom:1px solid var(--border); text-decoration:none; color:var(--text); font-size:.86rem;}
+.search-results a:last-child{border-bottom:none;}
+.search-results a:hover{background:var(--surface2);}
+.search-results a b{color:var(--berry);}
+.search-results .snippet{display:block; color:var(--muted); font-size:.78rem; margin-top:2px;}
+.badge-guideid{font-family:var(--font-mono); font-size:.72rem; color:var(--muted); white-space:nowrap;}
+
+.ask-toggle{
+  background:var(--cherry); color:#fff; border:none; padding:.65rem 1.1rem; border-radius:999px; font-weight:700;
+  font-size:.87rem; cursor:pointer; white-space:nowrap;
+}
+.ask-toggle:hover{filter:brightness(1.06);}
+
+/* Ask panel */
+.ask-panel{
+  position:fixed; right:1.4rem; bottom:1.4rem; width:380px; max-width:92vw; background:var(--surface);
+  border:1px solid var(--border); border-radius:14px; box-shadow:0 16px 44px rgba(0,0,0,.25); z-index:100; display:none;
+  overflow:hidden;
+}
+.ask-panel.open{display:flex; flex-direction:column; max-height:75vh;}
+.ask-head{background:var(--berry); color:#fff; padding:.85rem 1rem; display:flex; justify-content:space-between; align-items:center;}
+.ask-head b{font-size:.95rem;}
+.ask-head button{background:none; border:none; color:#fff; font-size:1.1rem; cursor:pointer;}
+.ask-body{padding:.9rem 1rem; overflow-y:auto; flex:1;}
+.ask-answer{background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:.8rem .9rem; margin-bottom:.7rem; font-size:.88rem;}
+.ask-answer .src{margin-top:.5rem; font-size:.76rem;}
+.ask-form{display:flex; gap:.5rem; padding:.8rem 1rem; border-top:1px solid var(--border);}
+.ask-form input{flex:1; padding:.55rem .7rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text); font-family:var(--font-body);}
+.ask-form button{background:var(--cherry); color:#fff; border:none; border-radius:8px; padding:.55rem .9rem; font-weight:700; cursor:pointer;}
+.ask-chip{display:inline-block; background:var(--surface2); border:1px solid var(--border); border-radius:999px; padding:.3rem .7rem; font-size:.76rem; margin:.15rem .25rem .15rem 0; cursor:pointer;}
+.ask-chip:hover{border-color:var(--berry); color:var(--berry);}
+
+/* Content blocks */
+.kb-section{margin-bottom:2.6rem; scroll-margin-top:5.2rem;}
+.hero{
+  background:linear-gradient(135deg, rgba(54,120,149,.09), rgba(251,40,50,.05));
+  border:1px solid var(--border); border-radius:14px; padding:1.6rem 1.8rem; margin-bottom:1.6rem;
+}
+.hero .pill{margin-bottom:.6rem;}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.2rem 1.4rem; margin:1rem 0;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;}
+.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:1rem;}
+@media (max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+.callout{border-left:4px solid var(--berry); background:var(--surface); border-radius:0 10px 10px 0; padding:.9rem 1.1rem; margin:1rem 0;}
+.callout.good{border-color:var(--leaf); background:rgba(91,166,60,.06);}
+.callout.bad{border-color:var(--cherry); background:rgba(251,40,50,.05);}
+.callout.warn{border-color:var(--amber); background:rgba(232,146,12,.06);}
+.callout h4{margin:0 0 .3rem;}
+
+table{width:100%; border-collapse:collapse; margin:1rem 0; font-size:.85rem;}
+table.data th{background:var(--berry); color:#fff; text-align:left; padding:.55rem .7rem; font-weight:700; font-size:.76rem; text-transform:uppercase; letter-spacing:.03em;}
+table.data td{padding:.5rem .7rem; border-bottom:1px solid var(--border); vertical-align:top;}
+table.data tr:nth-child(even) td{background:var(--surface2);}
+.table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:10px;}
+.table-wrap table{margin:0;}
+
+.kpi-tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem;}
+.kpi-tile .val{font-size:1.7rem; font-weight:900; font-family:var(--font-mono);}
+.kpi-tile .lbl{font-size:.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:.15rem;}
+.kpi-tile .delta{font-size:.78rem; font-weight:700; margin-top:.4rem;}
+.up{color:var(--leaf);} .down{color:var(--cherry);}
+
+.svg-wrap{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem; overflow-x:auto;}
+.svg-wrap svg{display:block; margin:0 auto; max-width:100%; height:auto;}
+.svg-cap{text-align:center; color:var(--muted); font-size:.8rem; margin-top:.4rem;}
+
+/* Document toolbar / doc-page (also used for exported standalone docs) */
+.doc-toolbar{display:flex; gap:.6rem; flex-wrap:wrap; margin:.8rem 0 1.1rem;}
+.doc-btn{
+  background:var(--surface); border:1px solid var(--border); color:var(--text); padding:.5rem .9rem; border-radius:8px;
+  font-size:.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:.4rem;
+}
+.doc-btn.primary{background:var(--cherry); color:#fff; border-color:var(--cherry);}
+.doc-btn:hover{filter:brightness(1.05);}
+
+.doc-page{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:0; overflow:hidden;}
+.doc-cover{
+  background:linear-gradient(160deg,var(--berry),#26586e); color:#fff; padding:2.6rem 2.4rem 2rem; position:relative;
+}
+.doc-cover img.colaberry-logo{height:40px; width:auto; background:#fff; padding:6px 10px; border-radius:6px;}
+.doc-cover .doctype{font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; opacity:.85; margin-top:1.4rem;}
+.doc-cover h1{color:#fff; font-size:1.9rem; margin:.35rem 0 .2rem;}
+.doc-cover .subtitle{opacity:.9; font-size:1rem;}
+.doc-cover .initiative{margin-top:1rem; font-size:.85rem; opacity:.85;}
+.doc-control{
+  display:grid; grid-template-columns:repeat(5,1fr); gap:0; background:var(--surface2); border-bottom:1px solid var(--border);
+  padding:.9rem 2.2rem;
+}
+.doc-control div dt{font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:.15rem;}
+.doc-control div dd{margin:0; font-size:.84rem; font-weight:700;}
+.doc-body{padding:1.6rem 2.2rem 2.2rem;}
+.doc-body h2:first-child{margin-top:0;}
+.signoff{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:1.6rem 0;}
+.signoff .box{border:1px dashed var(--border); border-radius:10px; padding:1rem; min-height:100px;}
+.signoff .box dt{font-size:.7rem; text-transform:uppercase; color:var(--muted); letter-spacing:.05em;}
+.signoff .box dd{margin:.3rem 0 0; font-weight:700;}
+.doc-footer{
+  border-top:1px solid var(--border); padding:1rem 2.2rem; display:flex; justify-content:space-between; color:var(--muted); font-size:.76rem;
+}
+
+footer.site-footer{margin-top:3rem; padding-top:1.6rem; border-top:1px solid var(--border); color:var(--muted); font-size:.8rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:.5rem;}
+
+.toc-list{columns:2; gap:2rem;}
+@media (max-width:700px){.toc-list{columns:1;}}
+.toc-list a{display:block; margin-bottom:.35rem; text-decoration:none;}
+
+mark{background:rgba(232,146,12,.35); color:inherit; border-radius:3px;}
+
+@media print{
+  .sidebar,.topbar,.ask-panel,.doc-toolbar,.ask-toggle{display:none !important;}
+  .app{display:block;}
+  .main{max-width:none; padding:0;}
+  body{background:#fff;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+  <div class="brand">
+    <img class="colaberry-logo" alt="Colaberry logo" src="">
+    <div>
+      <strong style="font-size:.92rem;">Field Guide</strong>
+      <small>Integration Engineer</small>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <h5>Start Here</h5>
+    <a href="#overview" class="navlink">Overview &amp; How to Use</a>
+    <a href="#case-study" class="navlink">The Initiative: ClaimsFlow AI</a>
+  </div>
+
+  <div class="nav-group">
+    <h5>The 20% That Matters</h5>
+    <a href="#concept-why" class="navlink">Why Integration Exists</a>
+    <a href="#concept-styles" class="navlink">REST vs GraphQL vs Events</a>
+    <a href="#concept-contracts" class="navlink">Contracts &amp; Versioning</a>
+    <a href="#concept-auth" class="navlink">Authentication</a>
+    <a href="#concept-webhooks" class="navlink">Webhooks vs Polling</a>
+    <a href="#concept-idempotency" class="navlink">Idempotency, Retries, Backoff</a>
+    <a href="#concept-timeouts" class="navlink">Timeouts &amp; Circuit Breakers</a>
+    <a href="#concept-mapping" class="navlink">Data Mapping &amp; Transformation</a>
+    <a href="#concept-rate" class="navlink">Rate Limits</a>
+    <a href="#concept-errors" class="navlink">Error Handling &amp; DLQ</a>
+    <a href="#concept-syncasync" class="navlink">Sync vs Async</a>
+    <a href="#concept-goodbad" class="navlink">Good vs Bad Integration</a>
+    <a href="#concept-kpis" class="navlink">KPIs</a>
+    <a href="#concept-review" class="navlink">The Architect's Review Lens</a>
+  </div>
+
+  <div class="nav-group">
+    <h5>Generated Deliverables</h5>
+    <a href="#doc-architecture" class="navlink">1. Integration Architecture</a>
+    <a href="#doc-api-contract" class="navlink">2. API Contract Spec</a>
+    <a href="#doc-sequence" class="navlink">3. Sequence Diagrams</a>
+    <a href="#doc-error-handling" class="navlink">4. Error Handling &amp; Retry Design</a>
+    <a href="#doc-data-mapping" class="navlink">5. Data Mapping Document</a>
+    <a href="#doc-test-plan" class="navlink">6. Integration Test Plan</a>
+  </div>
+
+  <div class="nav-group">
+    <h5>Operate</h5>
+    <a href="#kpi-dashboard" class="navlink">KPI Dashboard</a>
+    <a href="#faq" class="navlink">FAQ</a>
+  </div>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+  <div class="topbar">
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input id="searchInput" type="text" placeholder="Search the guide — e.g. 'idempotency key', '429', 'circuit breaker'" autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <button class="ask-toggle" id="askToggleBtn" type="button">Ask the Guide</button>
+  </div>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="kb-section" id="overview" data-title="Overview and How to Use This Guide">
+    <div class="hero">
+      <span class="pill pill-cherry">Week 7 Deep Dive</span>
+      <span class="pill pill-berry">Discipline: Integration Engineer</span>
+      <h1>Integration Engineer Field Guide</h1>
+      <p class="muted">Colaberry Enterprise AI Leadership Accelerator — AI Solution Architect Track</p>
+      <p>You are not being trained to become a full-time integration engineer. You are being trained to <b>direct, evaluate, and approve</b> AI-generated integrations between systems that were never designed to talk to each other. This guide gives you the ~20% of integration engineering knowledge that produces ~80% of the judgment you need at review time: what a correct contract looks like, what a safe retry looks like, what a defensible failure path looks like, and what questions expose a shortcut an AI code generator took when nobody was watching.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <h4>How this guide is organized</h4>
+        <p class="muted" style="font-size:.86rem;">Part 1 teaches the concepts. Part 2 applies them to one concrete initiative — <b>ClaimsFlow AI</b>, an AI-assisted claims intake system for a mid-size insurance carrier — and produces six real, downloadable deliverables an architect would actually review and sign off.</p>
+      </div>
+      <div class="card">
+        <h4>Search and Ask</h4>
+        <p class="muted" style="font-size:.86rem;">Use the search box above to jump to any topic or document. Use <b>Ask the Guide</b> (bottom right) to type a plain-language question — it answers from this guide's own content, offline, with a link to the source section.</p>
+      </div>
+      <div class="card">
+        <h4>Downloadable deliverables</h4>
+        <p class="muted" style="font-size:.86rem;">Each of the six documents has its own <b>Download HTML</b>, <b>Save as PDF</b>, and (where tabular) <b>Download CSV</b> buttons — fully branded, review-ready files, not summaries.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CASE STUDY ============ -->
+  <section class="kb-section" id="case-study" data-title="The Initiative ClaimsFlow AI Insurance Claims Intake">
+    <h2>The Initiative: ClaimsFlow AI</h2>
+    <p>Northfield Mutual, a regional property &amp; casualty insurer, is replacing its manual First Notice of Loss (FNOL) intake process with <b>ClaimsFlow AI</b> — an integration layer that lets a claimant file a claim from a self-service portal and have it validated, triaged, and (for low-risk, low-value claims) auto-settled without a human touching it, while every claim that doesn't qualify is routed cleanly to a human adjuster. Every example, diagram, and document in this guide is built against this one initiative so nothing here is abstract.</p>
+
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>System</th><th>Role</th><th>Nature</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td><b>Customer Portal</b></td><td>Claimant files FNOL, uploads photos/documents, tracks status</td><td>Modern React SPA, owned by Northfield digital team</td><td>Digital Experience</td></tr>
+          <tr><td><b>PolicyCore</b> (Legacy Policy Admin System)</td><td>Source of truth for policy validity, coverage limits, deductibles</td><td>20-year-old mainframe-adjacent system with a thin REST facade over SOAP</td><td>Core Systems (legacy team)</td></tr>
+          <tr><td><b>DocScan AI</b></td><td>OCR + document classification on uploaded claim evidence</td><td>Third-party AI service, async job model</td><td>Vendor — contracted via Procurement</td></tr>
+          <tr><td><b>FraudLens AI</b></td><td>Real-time fraud-risk scoring of the claim</td><td>Third-party AI service, low-latency synchronous API</td><td>Vendor — contracted via Procurement</td></tr>
+          <tr><td><b>SettlePay</b></td><td>Payment gateway — issues advance/auto-settlement payments</td><td>PCI-scope payment processor, synchronous API</td><td>Finance Systems</td></tr>
+          <tr><td><b>NotifyHub</b></td><td>Sends SMS/email status updates to claimants and adjusters</td><td>Internal notification microservice, event-driven</td><td>Platform Engineering</td></tr>
+          <tr><td><b>ClaimsFlow Integration Hub</b></td><td>The orchestrator — the system this guide's documents are written for</td><td>New service; owns the contracts, retries, and mapping between everything above</td><td>Integration Engineering (this team)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <h4>Why this is a good teaching case</h4>
+      <p>It has every seam an architect will ever have to review: a legacy system with no concept of idempotency (PolicyCore), a slow async AI vendor (DocScan AI), a fast synchronous AI vendor with strict SLAs (FraudLens AI), a payment system where duplicate calls mean duplicate money movement (SettlePay), and a fire-and-forget notification system (NotifyHub) where losing a message is embarrassing but not catastrophic. Six systems, four different risk profiles, one integration layer.</p>
+    </div>
+  </section>
+
+  <!-- ============ CONCEPTS ============ -->
+  <section class="kb-section" id="concept-why" data-title="Why Integration Exists">
+    <h2>Why Integration Exists</h2>
+    <p>No enterprise system was built to be the only system. PolicyCore knows nothing about fraud scoring. FraudLens knows nothing about deductibles. The Customer Portal knows nothing about SOAP. Integration is the discipline of making independently-owned, independently-changing systems cooperate on one business outcome — <i>settle this claim correctly</i> — without any one of them having to understand the others' internals. As an architect, your job is not to write the glue code; it's to make sure the glue code someone (or some AI) wrote will still be correct at 2 a.m. when FraudLens is slow, PolicyCore is down for maintenance, and the same webhook fires twice.</p>
+  </section>
+
+  <section class="kb-section" id="concept-styles" data-title="REST vs GraphQL vs Event APIs">
+    <h2>REST vs GraphQL vs Event APIs</h2>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Style</th><th>Shape</th><th>Best fit in ClaimsFlow AI</th><th>Watch for</th></tr></thead>
+        <tbody>
+          <tr><td><b>REST</b></td><td>Resource-oriented, one URL per entity, verbs are HTTP methods</td><td>Hub → PolicyCore coverage lookup; Hub → FraudLens scoring; Hub → SettlePay payment</td><td>Over-fetching/under-fetching; N+1 calls when a claim needs five related resources</td></tr>
+          <tr><td><b>GraphQL</b></td><td>Client specifies exact shape of the response in one query</td><td>Customer Portal's own read layer (claim status, history) — not used between backend systems here</td><td>Query cost control; a naive AI-generated resolver can allow unbounded nested queries that overload PolicyCore underneath</td></tr>
+          <tr><td><b>Event / Async API</b></td><td>Producers publish facts; consumers subscribe; no direct request/response</td><td>Hub → NotifyHub (claim.status_changed); DocScan AI job completion callback</td><td>At-least-once delivery means consumers must be idempotent; ordering is not guaranteed across topics</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn"><h4>Review lens</h4><p>If an AI-generated integration proposes GraphQL between two backend services purely because "it's flexible," push back — flexibility on an internal seam usually just hides which fields are actually load-bearing. Reserve GraphQL for a client that genuinely varies its query shape.</p></div>
+  </section>
+
+  <section class="kb-section" id="concept-contracts" data-title="API Contracts and Versioning">
+    <h2>API Contracts &amp; Versioning</h2>
+    <p>A contract is a promise about shape, not implementation: request schema, response schema, error format, and behavior under bad input. Every seam in ClaimsFlow AI is versioned in the URL path (<code>/v1/...</code>) so PolicyCore's team can ship <code>/v2/</code> without breaking the Hub mid-flight. Two rules matter more than any framework choice:</p>
+    <ul>
+      <li><b>Additive changes never bump the major version.</b> Adding an optional field to a response is safe. Removing a field, renaming a field, or changing a field's type is a breaking change — full stop, regardless of how "small" it looks in a diff.</li>
+      <li><b>A deprecated version stays alive for a published window</b> (90 days minimum for this initiative) with both versions running in parallel and a deprecation header (<code>Sunset</code>) on every response.</li>
+    </ul>
+    <div class="callout bad"><h4>Bad pattern to flag</h4><p>An AI-generated PR that changes a response field's meaning (e.g., <code>coverageLimit</code> silently switching from dollars to cents) without a version bump. This is the single most common way "it worked in the demo" becomes a production incident.</p></div>
+  </section>
+
+  <section class="kb-section" id="concept-auth" data-title="Authentication Keys OAuth Tokens">
+    <h2>Authentication: Keys, OAuth, Tokens</h2>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Mechanism</th><th>Used where in ClaimsFlow AI</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><b>User JWT (OIDC)</b></td><td>Customer Portal → Hub</td><td>Request must be tied to the authenticated claimant; token carries claimant ID and policy scope</td></tr>
+          <tr><td><b>OAuth2 Client Credentials</b></td><td>Hub → PolicyCore, Hub → SettlePay</td><td>Service-to-service, no end user present; short-lived access tokens (15 min) from an internal token service</td></tr>
+          <tr><td><b>API Key + HMAC request signing</b></td><td>Hub ↔ DocScan AI, Hub ↔ FraudLens AI</td><td>Vendor-issued static key plus a signed payload hash, so a leaked key alone can't forge requests</td></tr>
+          <tr><td><b>mTLS + shared secret</b></td><td>Hub → NotifyHub</td><td>Internal network, but claim PII in the payload still requires mutual authentication</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><h4>Review lens</h4><p>No secret ever appears in a URL query string (it ends up in access logs) or in a log line. Ask specifically: "show me where this token is logged" — an AI-generated logging statement that does <code>log.info(request)</code> on an object containing an Authorization header is a finding, not a nitpick.</p></div>
+  </section>
+
+  <section class="kb-section" id="concept-webhooks" data-title="Webhooks vs Polling">
+    <h2>Webhooks vs Polling</h2>
+    <p>DocScan AI's OCR job can take 5–90 seconds depending on document count. The Hub does not poll it in a loop — it submits the job, gets a <code>jobId</code> back immediately (202 Accepted), and DocScan AI calls back a Hub webhook when done. This is a webhook pattern: push over pull.</p>
+    <div class="grid-2">
+      <div class="card"><h4>Choose webhooks when</h4><ul><li>Completion time is unpredictable and can be long</li><li>The caller can expose a reachable, authenticated inbound endpoint</li><li>Near-real-time notification matters</li></ul></div>
+      <div class="card"><h4>Choose polling when</h4><ul><li>The caller cannot expose an inbound endpoint (e.g., behind strict outbound-only firewall rules)</li><li>The operation is short and bounded (PolicyCore lookups are sub-second, so a synchronous call, not polling, is used)</li><li>You need a simple fallback if webhook delivery is unreliable</li></ul></div>
+    </div>
+    <div class="callout warn"><h4>Design note in this initiative</h4><p>Webhook delivery is not guaranteed exactly-once — DocScan AI's own retry policy means the same completion webhook can arrive twice. The Hub's webhook handler is built idempotent (see Error Handling &amp; Retry Design) and the Test Plan has an explicit duplicate-delivery case for exactly this reason.</p></div>
+  </section>
+
+  <section class="kb-section" id="concept-idempotency" data-title="Idempotency Retries and Backoff">
+    <h2>Idempotency, Retries &amp; Backoff</h2>
+    <p><b>Idempotent</b> means: calling the same operation twice with the same idempotency key produces the same end state as calling it once — no duplicate payment, no duplicate claim record. This matters most wherever money or a permanent record moves: SettlePay payments and PolicyCore claim writes both carry an <code>Idempotency-Key</code> header (a UUID generated once per business operation, stored by the Hub, and reused on every retry of that same operation).</p>
+    <p><b>Retries</b> are only safe on operations that are either naturally idempotent (a GET) or made idempotent via a key. Retries use <b>exponential backoff with jitter</b> — fixed-interval retries synchronize failures across concurrent requests and can hammer a struggling downstream even harder.</p>
+    <div class="callout good"><h4>Good pattern</h4><p>Attempt 1 immediate, attempt 2 at ~500ms, attempt 3 at ~1.2s, attempt 4 at ~2.8s, attempt 5 at ~6s, then stop and dead-letter. Each delay randomized ±20% (jitter) so retries from many concurrent claims don't all land on FraudLens in the same instant.</p></div>
+    <div class="callout bad"><h4>Bad pattern to flag</h4><p>An AI-generated retry loop with no cap ("retry until success") or no idempotency key on a payment call. Both are production incidents waiting to happen — the first is a resource-exhaustion risk, the second is a duplicate-money risk.</p></div>
+  </section>
+
+  <section class="kb-section" id="concept-timeouts" data-title="Timeouts and Circuit Breakers">
+    <h2>Timeouts &amp; Circuit Breakers</h2>
+    <p>Every outbound call in ClaimsFlow AI has an explicit timeout — never "whatever the default is." FraudLens must respond inside 2 seconds because it sits in the claimant's synchronous wait; PolicyCore, a slower legacy system, gets 5 seconds. No call is ever unbounded.</p>
+    <p>A <b>circuit breaker</b> sits in front of each downstream call. After a threshold of consecutive failures (5 failures in 60 seconds, in this initiative's design), the circuit trips <b>open</b>: the Hub stops calling that downstream entirely for a cooldown window and fails fast with a clear error, instead of piling up timeouts on a system that's already struggling. After the cooldown, the circuit goes <b>half-open</b> and lets a small number of test requests through; if they succeed, it closes; if they fail, it reopens.</p>
+    <div class="callout"><h4>Review lens</h4><p>Ask: "what happens to the claimant's screen if FraudLens is down for ten minutes?" If the honest answer is "the request just hangs," the circuit breaker either doesn't exist or has no fallback wired to it. See Document 4 for the exact state diagram and fallback behavior in this initiative.</p></div>
+  </section>
+
+  <section class="kb-section" id="concept-mapping" data-title="Data Mapping and Transformation">
+    <h2>Data Mapping &amp; Transformation</h2>
+    <p>Every system in this initiative speaks a slightly different dialect for the same facts. PolicyCore returns deductibles in <b>whole dollars as a string</b> (a mainframe habit); SettlePay expects <b>integer cents</b>. FraudLens returns a raw model score from 0.0–1.0; the business wants a <b>LOW / MEDIUM / HIGH</b> enum. Data mapping is the explicit, documented, testable translation between these — never an implicit assumption buried in code. Document 5 is the full field-by-field map for this initiative; nothing in it is unsourced.</p>
+  </section>
+
+  <section class="kb-section" id="concept-rate" data-title="Rate Limits">
+    <h2>Rate Limits</h2>
+    <p>FraudLens AI contractually caps Northfield at 50 requests/second with a <code>429 Too Many Requests</code> response and a <code>Retry-After</code> header when exceeded. The Hub must (a) stay under the limit proactively with a token-bucket limiter sized below the vendor's ceiling, and (b) treat a 429 as a retryable-with-backoff condition, honoring <code>Retry-After</code> exactly rather than guessing. A 429 is not an error to alert an on-call engineer about at 3 a.m. — it is expected, governed traffic-shaping behavior, and the Test Plan verifies it is handled as such.</p>
+  </section>
+
+  <section class="kb-section" id="concept-errors" data-title="Error Handling and Dead Letter Queues">
+    <h2>Error Handling &amp; Dead-Letter Queues</h2>
+    <p>When retries are exhausted, the failed operation does not vanish — it moves to a <b>dead-letter queue (DLQ)</b> with full context (original payload, claim ID, correlation ID, all attempt timestamps and error bodies) for manual triage or automated replay. A silent <code>catch(e){}</code> that swallows the error is treated in this repo as a production defect, not a nitpick — see Document 4's DLQ design.</p>
+  </section>
+
+  <section class="kb-section" id="concept-syncasync" data-title="Synchronous vs Asynchronous">
+    <h2>Synchronous vs Asynchronous</h2>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Seam</th><th>Mode</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Hub → PolicyCore</td><td>Synchronous</td><td>Claimant is waiting; coverage must be confirmed before the flow continues</td></tr>
+          <tr><td>Hub → FraudLens AI</td><td>Synchronous</td><td>Decision (auto-settle vs. route to adjuster) depends on this result immediately</td></tr>
+          <tr><td>Hub → DocScan AI</td><td>Asynchronous (submit sync, result via webhook)</td><td>OCR duration is unpredictable; blocking the claimant's request for 90 seconds is unacceptable UX</td></tr>
+          <tr><td>Hub → SettlePay</td><td>Synchronous</td><td>Claimant should see a settlement confirmation before leaving the flow</td></tr>
+          <tr><td>Hub → NotifyHub</td><td>Asynchronous (event on a queue)</td><td>Notification is not on the critical path — losing 200ms or briefly queuing is acceptable</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="kb-section" id="concept-goodbad" data-title="Good vs Bad Integration Examples">
+    <h2>Good vs Bad Integration</h2>
+    <div class="grid-2">
+      <div class="callout good"><h4>Good: the SettlePay call</h4><p>Idempotency key generated once per claim-settlement attempt; 5s timeout; 3 capped retries with backoff on 5xx/timeout only (never on 4xx); circuit breaker; failure routes to manual adjuster queue with a claimant-facing "processing" message, never a stuck spinner.</p></div>
+      <div class="callout bad"><h4>Bad: a first-draft DocScan AI integration</h4><p>Hub polls DocScan AI every 500ms in a tight loop with no backoff, no timeout on the overall job, and no idempotency check on the webhook — if DocScan AI redelivers, the Hub double-processes the same OCR result and can double-count extracted damage estimates.</p></div>
+    </div>
+  </section>
+
+  <section class="kb-section" id="concept-kpis" data-title="Integration KPIs">
+    <h2>KPIs</h2>
+    <p>An integration layer is measured the same way any production service is: <b>success rate</b> (calls that complete without error), <b>latency percentiles</b> (p50/p95/p99, because averages hide the tail that ruins the claimant's experience), <b>retry rate</b> (a rising retry rate is an early warning of downstream degradation before it becomes an outage), and <b>DLQ depth</b> (a growing dead-letter queue means retries are losing to a systemic failure, not a transient blip). See the live KPI Dashboard section below for this initiative's current numbers.</p>
+  </section>
+
+  <section class="kb-section" id="concept-review" data-title="The Architects Review Lens">
+    <h2>The Architect's Review Lens</h2>
+    <p>When an AI coding agent hands you a finished integration, run it through these questions before approving:</p>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>#</th><th>Question</th><th>What a bad answer looks like</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Does every outbound call have an explicit timeout?</td><td>"It uses the library default"</td></tr>
+          <tr><td>2</td><td>Is every retry capped, backed off, and jittered?</td><td>A while-true retry loop</td></tr>
+          <tr><td>3</td><td>Does every write carry an idempotency key?</td><td>"We assume the network won't duplicate it"</td></tr>
+          <tr><td>4</td><td>Is the contract versioned, and is the version bumped on breaking changes?</td><td>Unversioned endpoint, or a "minor fix" that silently changes a field's meaning</td></tr>
+          <tr><td>5</td><td>Where do failed operations go after retries are exhausted?</td><td>"They just log an error"</td></tr>
+          <tr><td>6</td><td>Does any secret appear in a URL, a log line, or an error message surfaced to the user?</td><td>An Authorization header echoed in a debug log</td></tr>
+          <tr><td>7</td><td>Is the webhook/callback handler idempotent against redelivery?</td><td>No dedup check on the inbound event ID</td></tr>
+          <tr><td>8</td><td>Is there a test for the failure path, not just the happy path?</td><td>Only a 200-OK test exists</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ DOCUMENT 1: INTEGRATION ARCHITECTURE ============ -->
+  <section class="kb-section" id="doc-architecture" data-title="Integration Architecture Document Systems Seams Delivery Modes">
+    <h2>Document 1 — Integration Architecture</h2>
+    <div class="doc-toolbar">
+      <button class="doc-btn primary" onclick="downloadDoc('doc-architecture')">&#8681; Download HTML</button>
+      <button class="doc-btn" onclick="printDoc('doc-architecture')">&#128438; Save as PDF</button>
+    </div>
+    <div class="doc-page" id="doc-architecture-page">
+      <div class="doc-cover">
+        <img class="colaberry-logo" alt="Colaberry logo" src="">
+        <div class="doctype">Integration Architecture Document</div>
+        <h1>ClaimsFlow AI — Integration Architecture</h1>
+        <div class="subtitle">AI-Assisted Claims Intake — Northfield Mutual</div>
+        <div class="initiative">Colaberry Enterprise AI Leadership Accelerator · AI Solution Architect Track</div>
+      </div>
+      <div class="doc-control">
+        <div><dt>Version</dt><dd>1.2</dd></div>
+        <div><dt>Owner</dt><dd>Integration Engineering</dd></div>
+        <div><dt>Status</dt><dd><span class="pill pill-leaf">Approved</span></dd></div>
+        <div><dt>Date</dt><dd>2026-09-13</dd></div>
+        <div><dt>Doc ID</dt><dd>CFA-ARCH-001</dd></div>
+      </div>
+      <div class="doc-body">
+        <h2>1. Purpose</h2>
+        <p>This document defines the systems participating in the ClaimsFlow AI initiative, the integration seams between them, and the delivery mode (synchronous, asynchronous, webhook, or poll) chosen for each seam and why. It is the reference an architect signs off on before any contract or code is written.</p>
+
+        <h2>2. System Context (C4 Container View)</h2>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 940 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Container diagram showing Claimant, Customer Portal, ClaimsFlow Integration Hub, PolicyCore, DocScan AI, FraudLens AI, SettlePay and NotifyHub">
+            <defs>
+              <marker id="arrow1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" style="fill:var(--muted)"/></marker>
+            </defs>
+            <!-- Claimant actor -->
+            <g transform="translate(30,260)">
+              <circle cx="30" cy="20" r="16" style="fill:none;stroke:var(--text);stroke-width:2"/>
+              <line x1="30" y1="36" x2="30" y2="80" style="stroke:var(--text);stroke-width:2"/>
+              <line x1="30" y1="50" x2="5" y2="70" style="stroke:var(--text);stroke-width:2"/>
+              <line x1="30" y1="50" x2="55" y2="70" style="stroke:var(--text);stroke-width:2"/>
+              <line x1="30" y1="80" x2="10" y2="110" style="stroke:var(--text);stroke-width:2"/>
+              <line x1="30" y1="80" x2="50" y2="110" style="stroke:var(--text);stroke-width:2"/>
+              <text x="30" y="130" text-anchor="middle" font-size="12" style="fill:var(--text)" font-weight="700">Claimant</text>
+            </g>
+            <!-- Customer Portal -->
+            <rect x="150" y="240" width="150" height="80" rx="10" style="fill:var(--berry)"/>
+            <text x="225" y="270" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Customer Portal</text>
+            <text x="225" y="288" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">React SPA</text>
+            <text x="225" y="303" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">OIDC / JWT</text>
+            <!-- Hub (center, highlighted) -->
+            <rect x="380" y="220" width="190" height="120" rx="12" style="fill:var(--cherry)"/>
+            <text x="475" y="255" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">ClaimsFlow</text>
+            <text x="475" y="272" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">Integration Hub</text>
+            <text x="475" y="292" text-anchor="middle" font-size="10" fill="#fff" opacity="0.9">Orchestration · Contracts</text>
+            <text x="475" y="306" text-anchor="middle" font-size="10" fill="#fff" opacity="0.9">Retries · Idempotency · DLQ</text>
+            <text x="475" y="320" text-anchor="middle" font-size="10" fill="#fff" opacity="0.9">Owner: Integration Eng.</text>
+            <!-- PolicyCore -->
+            <rect x="700" y="60" width="180" height="80" rx="10" style="fill:var(--berry)"/>
+            <text x="790" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">PolicyCore</text>
+            <text x="790" y="108" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">Legacy Policy Admin (REST/SOAP)</text>
+            <text x="790" y="123" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">OAuth2 Client Credentials</text>
+            <!-- DocScan AI -->
+            <rect x="700" y="180" width="180" height="80" rx="10" style="fill:var(--berry)"/>
+            <text x="790" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">DocScan AI</text>
+            <text x="790" y="228" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">OCR / classification (vendor)</text>
+            <text x="790" y="243" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">API Key + HMAC · Async</text>
+            <!-- FraudLens AI -->
+            <rect x="700" y="300" width="180" height="80" rx="10" style="fill:var(--berry)"/>
+            <text x="790" y="330" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">FraudLens AI</text>
+            <text x="790" y="348" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">Fraud scoring (vendor)</text>
+            <text x="790" y="363" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">API Key + HMAC · Sync, &lt;2s</text>
+            <!-- SettlePay -->
+            <rect x="480" y="420" width="180" height="80" rx="10" style="fill:var(--berry)"/>
+            <text x="570" y="450" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">SettlePay</text>
+            <text x="570" y="468" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">Payment gateway (PCI scope)</text>
+            <text x="570" y="483" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">OAuth2 · Sync · Idempotency-Key</text>
+            <!-- NotifyHub -->
+            <rect x="700" y="420" width="180" height="80" rx="10" style="fill:var(--berry)"/>
+            <text x="790" y="450" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">NotifyHub</text>
+            <text x="790" y="468" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">SMS / email microservice</text>
+            <text x="790" y="483" text-anchor="middle" font-size="10" fill="#fff" opacity="0.85">mTLS · Event queue</text>
+            <!-- Arrows -->
+            <line x1="90" y1="290" x2="148" y2="280" style="stroke:var(--muted);stroke-width:2" marker-end="url(#arrow1)"/>
+            <line x1="300" y1="280" x2="378" y2="280" style="stroke:var(--muted);stroke-width:2" marker-end="url(#arrow1)"/>
+            <line x1="570" y1="240" x2="698" y2="130" style="stroke:var(--muted);stroke-width:2" marker-end="url(#arrow1)"/>
+            <line x1="570" y1="270" x2="698" y2="230" style="stroke:var(--muted);stroke-width:2" marker-end="url(#arrow1)"/>
+            <line x1="570" y1="310" x2="698" y2="345" style="stroke:var(--muted);stroke-width:2" marker-end="url(#arrow1)"/>
+            <line x1="500" y1="340" x2="560" y2="418" style="stroke:var(--muted);stroke-width:2" marker-end="url(#arrow1)"/>
+            <line x1="660" y1="455" x2="698" y2="455" style="stroke:var(--muted);stroke-width:2" marker-end="url(#arrow1)"/>
+            <text x="640" y="180" font-size="9" style="fill:var(--muted)">sync REST</text>
+            <text x="645" y="245" font-size="9" style="fill:var(--muted)">async submit + webhook</text>
+            <text x="645" y="330" font-size="9" style="fill:var(--muted)">sync REST, 2s SLA</text>
+            <text x="500" y="385" font-size="9" style="fill:var(--muted)">sync, idempotent</text>
+            <text x="662" y="448" font-size="9" style="fill:var(--muted)">event (queue)</text>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 1 — C4 container view: the claimant interacts only with the Customer Portal; every downstream system is reached exclusively through the ClaimsFlow Integration Hub, which owns every contract, retry, and mapping in this document set.</p>
+
+        <h2>3. Seams &amp; Delivery Modes</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Seam</th><th>Direction</th><th>Delivery Mode</th><th>Protocol</th><th>Rationale</th></tr></thead>
+            <tbody>
+              <tr><td>Customer Portal ↔ Hub</td><td>Bidirectional</td><td>Synchronous</td><td>HTTPS/REST + JWT</td><td>Claimant is actively waiting on screen for each step's result</td></tr>
+              <tr><td>Hub → PolicyCore</td><td>Outbound, request/response</td><td>Synchronous</td><td>HTTPS/REST (facade over legacy SOAP)</td><td>Coverage validity gates the rest of the flow; sub-second legacy response time makes blocking acceptable</td></tr>
+              <tr><td>Hub ↔ DocScan AI</td><td>Outbound submit, inbound callback</td><td>Asynchronous — submit sync (202 Accepted), result via webhook</td><td>HTTPS/REST + webhook (API Key/HMAC)</td><td>OCR duration (5–90s) is too long and too variable to hold the claimant's request open</td></tr>
+              <tr><td>Hub → FraudLens AI</td><td>Outbound, request/response</td><td>Synchronous</td><td>HTTPS/REST (API Key/HMAC)</td><td>Auto-settle vs. manual-review decision depends on the score immediately; vendor SLA is 2s p99</td></tr>
+              <tr><td>Hub → SettlePay</td><td>Outbound, request/response</td><td>Synchronous</td><td>HTTPS/REST (OAuth2, Idempotency-Key header)</td><td>Claimant should see settlement confirmation before leaving the flow; money movement demands a definitive result</td></tr>
+              <tr><td>Hub → NotifyHub</td><td>Outbound, fire-and-forget</td><td>Asynchronous — event on queue</td><td>Internal event bus (ClaimsEventBus), mTLS</td><td>Not on the critical path; queuing briefly under load is acceptable, blocking the claim flow on it is not</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>4. Non-Functional Requirements</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Requirement</th><th>Target</th></tr></thead>
+            <tbody>
+              <tr><td>End-to-end p95 latency (submit → decision)</td><td>&le; 8 seconds for auto-settled claims</td></tr>
+              <tr><td>Hub availability</td><td>99.9% monthly</td></tr>
+              <tr><td>Data residency</td><td>All claim PII stays within the US-East region for all vendor calls</td></tr>
+              <tr><td>Auditability</td><td>Every state transition of a claim is written to the audit trail with a correlation ID (see STORY-011 trust spine)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>5. Out of Scope</h2>
+        <p>Claims above $25,000, claims involving bodily injury, and claims flagged HIGH by FraudLens AI are always routed to a human adjuster; the payment automation described in this architecture applies only to auto-settlement-eligible claims under that threshold.</p>
+
+        <div class="signoff">
+          <div class="box"><dt>Prepared By</dt><dd>Integration Engineering — J. Alvarez</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-08</dd></div>
+          <div class="box"><dt>Reviewed By</dt><dd>AI Solution Architecture — R. Okonkwo</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-11</dd></div>
+          <div class="box"><dt>Approved By</dt><dd>VP Platform Engineering — S. Whitfield</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-13</dd></div>
+        </div>
+      </div>
+      <div class="doc-footer"><span>ClaimsFlow AI · Integration Architecture · CFA-ARCH-001 v1.2</span><span>Colaberry Confidential</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DOCUMENT 2: API CONTRACT ============ -->
+  <section class="kb-section" id="doc-api-contract" data-title="API Contract Interface Spec OpenAPI Endpoints Authentication Error Codes Versioning">
+    <h2>Document 2 — API Contract / Interface Spec</h2>
+    <div class="doc-toolbar">
+      <button class="doc-btn primary" onclick="downloadDoc('doc-api-contract')">&#8681; Download HTML</button>
+      <button class="doc-btn" onclick="printDoc('doc-api-contract')">&#128438; Save as PDF</button>
+    </div>
+    <div class="doc-page" id="doc-api-contract-page">
+      <div class="doc-cover">
+        <img class="colaberry-logo" alt="Colaberry logo" src="">
+        <div class="doctype">API Contract / Interface Specification</div>
+        <h1>ClaimsFlow AI — Interface Spec (OpenAPI-style)</h1>
+        <div class="subtitle">Hub-owned contracts and downstream vendor contracts</div>
+        <div class="initiative">Colaberry Enterprise AI Leadership Accelerator · AI Solution Architect Track</div>
+      </div>
+      <div class="doc-control">
+        <div><dt>Version</dt><dd>2.0</dd></div>
+        <div><dt>Owner</dt><dd>Integration Engineering</dd></div>
+        <div><dt>Status</dt><dd><span class="pill pill-leaf">Approved</span></dd></div>
+        <div><dt>Date</dt><dd>2026-09-13</dd></div>
+        <div><dt>Doc ID</dt><dd>CFA-API-002</dd></div>
+      </div>
+      <div class="doc-body">
+        <h2>1. Base Path &amp; Versioning Policy</h2>
+        <p>All Hub-owned endpoints are served under <code>https://api.northfieldmutual.com/claimsflow/v1</code>. Version is expressed in the URL path. A breaking change (removed/renamed field, changed type, changed status-code semantics) requires a new major version (<code>/v2</code>) served in parallel with <code>/v1</code> for a minimum 90-day deprecation window, advertised via a <code>Sunset</code> response header on every <code>/v1</code> call once <code>/v2</code> ships. Additive, backward-compatible changes (new optional field, new endpoint) ship into the current version without a bump.</p>
+
+        <h2>2. Hub-Owned Endpoints (consumed by Customer Portal)</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Endpoint</th><th>Method</th><th>Auth</th><th>Request Body</th><th>Success Response</th></tr></thead>
+            <tbody>
+              <tr><td><code>/v1/claims</code></td><td>POST</td><td>Claimant JWT</td><td><code>{policyNumber, lossDate, lossType, description, contactPhone}</code></td><td><code>201</code> <code>{claimId, status:"INTAKE_RECEIVED", createdAt}</code></td></tr>
+              <tr><td><code>/v1/claims/{claimId}</code></td><td>GET</td><td>Claimant JWT (own claim only)</td><td>—</td><td><code>200</code> <code>{claimId, status, timeline[], decision?}</code></td></tr>
+              <tr><td><code>/v1/claims/{claimId}/documents</code></td><td>POST</td><td>Claimant JWT</td><td>multipart: file(s) + <code>documentType</code></td><td><code>202</code> <code>{documentId, ocrJobId, status:"PROCESSING"}</code></td></tr>
+              <tr><td><code>/v1/claims/{claimId}/decision</code></td><td>GET</td><td>Claimant JWT or Adjuster role</td><td>—</td><td><code>200</code> <code>{decision:"AUTO_SETTLED"|"MANUAL_REVIEW", riskTier, settlementAmountCents?}</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>3. Downstream Contracts (consumed by the Hub)</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>System</th><th>Endpoint</th><th>Method</th><th>Auth</th><th>Key Request Fields</th><th>Key Response Fields</th></tr></thead>
+            <tbody>
+              <tr><td>PolicyCore</td><td><code>/policies/{policyNumber}/coverage</code></td><td>GET</td><td>OAuth2 Client Credentials</td><td>path param only</td><td><code>coverageActive (bool)</code>, <code>deductibleAmount (string, USD)</code>, <code>coverageLimitAmount (string, USD)</code></td></tr>
+              <tr><td>DocScan AI</td><td><code>/ocr/jobs</code></td><td>POST</td><td>API Key + HMAC-SHA256 signature</td><td><code>documentUrl, claimId, callbackUrl</code></td><td><code>202</code> <code>{jobId, estimatedSeconds}</code></td></tr>
+              <tr><td>DocScan AI (callback)</td><td><code>/webhooks/docscan/result</code> (on Hub)</td><td>POST</td><td>HMAC signature header verified by Hub</td><td><code>jobId, extractedFields[], confidenceScore</code></td><td><code>200</code> ack (Hub returns immediately, processes async)</td></tr>
+              <tr><td>FraudLens AI</td><td><code>/score</code></td><td>POST</td><td>API Key + HMAC-SHA256 signature</td><td><code>claimId, claimAmount, lossType, claimantHistory{}, ocrConfidence</code></td><td><code>200</code> <code>{rawScore (0.0-1.0), modelVersion}</code></td></tr>
+              <tr><td>SettlePay</td><td><code>/payments</code></td><td>POST</td><td>OAuth2 Client Credentials + <code>Idempotency-Key</code> header</td><td><code>claimId, amountCents, currency, payeeAccountToken</code></td><td><code>201</code> <code>{paymentId, status:"SETTLED"}</code></td></tr>
+              <tr><td>NotifyHub</td><td><code>claims.notifications.v1</code> (topic)</td><td>PUBLISH</td><td>mTLS on the bus</td><td><code>claimId, eventType, recipient, templateId</code></td><td>at-least-once delivery ack from broker</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>4. Standard Error Envelope</h2>
+        <p>Every Hub-owned endpoint returns errors in one shape, regardless of which downstream caused the failure:</p>
+        <div class="card mono" style="font-size:.82rem; overflow-x:auto;">
+{<br>
+&nbsp;&nbsp;"error": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"code": "DOWNSTREAM_TIMEOUT",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"message": "PolicyCore did not respond within the allotted time.",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"correlationId": "8f14e45f-ceea-4c...",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"retryable": true<br>
+&nbsp;&nbsp;}<br>
+}
+        </div>
+
+        <h2>5. Error Code Reference</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>HTTP Status</th><th>Error Code</th><th>Meaning</th><th>Retryable?</th></tr></thead>
+            <tbody>
+              <tr><td>400</td><td>VALIDATION_FAILED</td><td>Request body failed schema validation</td><td>No — fix payload</td></tr>
+              <tr><td>401</td><td>AUTH_INVALID</td><td>Missing or expired token/key</td><td>No — refresh credential</td></tr>
+              <tr><td>403</td><td>FORBIDDEN</td><td>Caller authenticated but not authorized for this claim</td><td>No</td></tr>
+              <tr><td>404</td><td>CLAIM_NOT_FOUND</td><td>claimId does not exist or does not belong to caller</td><td>No</td></tr>
+              <tr><td>409</td><td>DUPLICATE_OPERATION</td><td>Idempotency-Key reused with a different payload</td><td>No — investigate, do not retry blindly</td></tr>
+              <tr><td>429</td><td>RATE_LIMITED</td><td>Caller or Hub exceeded a downstream's rate limit</td><td>Yes — honor <code>Retry-After</code></td></tr>
+              <tr><td>500</td><td>INTERNAL_ERROR</td><td>Unhandled error inside the Hub</td><td>Yes, capped</td></tr>
+              <tr><td>502/503</td><td>DOWNSTREAM_UNAVAILABLE</td><td>A downstream system returned 5xx or refused the connection</td><td>Yes, capped with backoff</td></tr>
+              <tr><td>504</td><td>DOWNSTREAM_TIMEOUT</td><td>A downstream call exceeded its configured timeout</td><td>Yes, capped with backoff</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>6. Authentication Summary</h2>
+        <p>See <a href="#concept-auth">Authentication concept section</a> for the full rationale. In short: claimant-facing calls use OIDC/JWT; Hub-to-internal-system calls use OAuth2 Client Credentials; Hub-to-vendor calls use a static API key plus an HMAC-SHA256 request signature computed over the body and a timestamp (rejecting requests more than 5 minutes old, to block replay). No credential is ever placed in a query string.</p>
+
+        <div class="signoff">
+          <div class="box"><dt>Prepared By</dt><dd>Integration Engineering — J. Alvarez</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-09</dd></div>
+          <div class="box"><dt>Reviewed By</dt><dd>AI Solution Architecture — R. Okonkwo</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-11</dd></div>
+          <div class="box"><dt>Approved By</dt><dd>VP Platform Engineering — S. Whitfield</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-13</dd></div>
+        </div>
+      </div>
+      <div class="doc-footer"><span>ClaimsFlow AI · API Contract · CFA-API-002 v2.0</span><span>Colaberry Confidential</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DOCUMENT 3: SEQUENCE DIAGRAMS ============ -->
+  <section class="kb-section" id="doc-sequence" data-title="Sequence Diagrams Happy Path Retry Path Failure Branch">
+    <h2>Document 3 — Sequence Diagrams</h2>
+    <div class="doc-toolbar">
+      <button class="doc-btn primary" onclick="downloadDoc('doc-sequence')">&#8681; Download HTML</button>
+      <button class="doc-btn" onclick="printDoc('doc-sequence')">&#128438; Save as PDF</button>
+    </div>
+    <div class="doc-page" id="doc-sequence-page">
+      <div class="doc-cover">
+        <img class="colaberry-logo" alt="Colaberry logo" src="">
+        <div class="doctype">Sequence Diagram Set</div>
+        <h1>ClaimsFlow AI — Call Sequences</h1>
+        <div class="subtitle">Happy path, retry path, and failure branch for claim intake</div>
+        <div class="initiative">Colaberry Enterprise AI Leadership Accelerator · AI Solution Architect Track</div>
+      </div>
+      <div class="doc-control">
+        <div><dt>Version</dt><dd>1.1</dd></div>
+        <div><dt>Owner</dt><dd>Integration Engineering</dd></div>
+        <div><dt>Status</dt><dd><span class="pill pill-leaf">Approved</span></dd></div>
+        <div><dt>Date</dt><dd>2026-09-13</dd></div>
+        <div><dt>Doc ID</dt><dd>CFA-SEQ-003</dd></div>
+      </div>
+      <div class="doc-body">
+        <h2>1. Happy Path — Auto-Settled Claim</h2>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 980 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Happy path sequence diagram">
+            <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--berry)"/></marker>
+            <marker id="a2r" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--leaf)"/></marker></defs>
+            <!-- lifelines -->
+            <g font-size="10.5" font-weight="700" style="fill:var(--text)">
+              <text x="50" y="30">Claimant</text><text x="170" y="30">Portal</text><text x="300" y="30">Hub</text>
+              <text x="425" y="30">PolicyCore</text><text x="545" y="30">DocScan AI</text><text x="665" y="30">FraudLens AI</text>
+              <text x="790" y="30">SettlePay</text><text x="905" y="30">NotifyHub</text>
+            </g>
+            <g stroke="var(--border)" stroke-dasharray="3,3">
+              <line x1="55" y1="38" x2="55" y2="575"/><line x1="180" y1="38" x2="180" y2="575"/><line x1="310" y1="38" x2="310" y2="575"/>
+              <line x1="440" y1="38" x2="440" y2="575"/><line x1="560" y1="38" x2="560" y2="575"/><line x1="680" y1="38" x2="680" y2="575"/>
+              <line x1="800" y1="38" x2="800" y2="575"/><line x1="915" y1="38" x2="915" y2="575"/>
+            </g>
+            <g font-size="9.5" style="fill:var(--text)">
+              <line x1="55" y1="60" x2="178" y2="60" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2)"/><text x="60" y="55">1. Submit FNOL + photos</text>
+              <line x1="180" y1="90" x2="308" y2="90" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2)"/><text x="185" y="85">2. POST /v1/claims</text>
+              <line x1="310" y1="120" x2="438" y2="120" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2)"/><text x="313" y="115">3. GET coverage (sync, 5s timeout)</text>
+              <line x1="440" y1="150" x2="312" y2="150" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a2r)"/><text x="313" y="145">4. 200 coverageActive=true</text>
+              <line x1="310" y1="180" x2="558" y2="180" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2)"/><text x="313" y="175">5. POST /ocr/jobs (async submit)</text>
+              <line x1="560" y1="210" x2="312" y2="210" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a2r)"/><text x="313" y="205">6. 202 Accepted, jobId</text>
+              <line x1="310" y1="240" x2="182" y2="240" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a2r)"/><text x="185" y="235">7. 201 claimId, INTAKE_RECEIVED</text>
+              <line x1="560" y1="275" x2="312" y2="275" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2r)"/><text x="313" y="270">8. Webhook: OCR result (callback, async)</text>
+              <line x1="310" y1="310" x2="678" y2="310" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2)"/><text x="313" y="305">9. POST /score (sync, 2s SLA)</text>
+              <line x1="680" y1="340" x2="312" y2="340" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a2r)"/><text x="313" y="335">10. 200 rawScore=0.08 → LOW</text>
+              <line x1="310" y1="375" x2="798" y2="375" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2)"/><text x="313" y="370">11. POST /payments (Idempotency-Key)</text>
+              <line x1="800" y1="405" x2="312" y2="405" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a2r)"/><text x="313" y="400">12. 201 SETTLED</text>
+              <line x1="310" y1="435" x2="913" y2="435" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a2)"/><text x="313" y="430">13. publish claim.settled (event)</text>
+              <line x1="310" y1="465" x2="182" y2="465" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a2r)"/><text x="185" y="460">14. status = AUTO_SETTLED</text>
+              <line x1="180" y1="495" x2="57" y2="495" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a2r)"/><text x="60" y="490">15. Show settlement confirmation</text>
+            </g>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 2 — Happy path: solid arrows are calls, dashed arrows are responses. Steps 5–8 show the async submit/webhook pattern for DocScan AI running in parallel with the rest of the flow.</p>
+
+        <h2>2. Retry Path — FraudLens AI Timeout, Recovered</h2>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Retry path sequence diagram for FraudLens AI timeout and successful retry">
+            <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--berry)"/></marker>
+            <marker id="a3r" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--leaf)"/></marker>
+            <marker id="a3x" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--cherry)"/></marker></defs>
+            <text x="80" y="25" font-size="11" font-weight="700" style="fill:var(--text)">Hub</text>
+            <text x="480" y="25" font-size="11" font-weight="700" style="fill:var(--text)">FraudLens AI</text>
+            <line x1="85" y1="34" x2="85" y2="280" style="stroke:var(--border);stroke-dasharray:3,3"/>
+            <line x1="500" y1="34" x2="500" y2="280" style="stroke:var(--border);stroke-dasharray:3,3"/>
+            <g font-size="9.5" style="fill:var(--text)">
+              <line x1="85" y1="55" x2="498" y2="55" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a3)"/><text x="88" y="50">Attempt 1: POST /score (correlationId=C-9931)</text>
+              <line x1="500" y1="90" x2="87" y2="90" style="stroke:var(--cherry);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a3x)"/><text x="88" y="85">No response within 2000ms → timeout, attempt 1 fails</text>
+              <rect x="150" y="105" width="270" height="24" rx="5" style="fill:rgba(232,146,12,.15);stroke:var(--amber)"/>
+              <text x="285" y="121" text-anchor="middle" font-size="9.5" style="fill:var(--text)">Backoff: wait ~500ms (jittered)</text>
+              <line x1="85" y1="155" x2="498" y2="155" style="stroke:var(--berry);stroke-width:1.6" marker-end="url(#a3)"/><text x="88" y="150">Attempt 2: POST /score (same correlationId=C-9931)</text>
+              <line x1="500" y1="190" x2="87" y2="190" style="stroke:var(--leaf);stroke-width:1.6;stroke-dasharray:4,3" marker-end="url(#a3r)"/><text x="88" y="185">200 rawScore=0.11 → LOW (attempt 2 succeeds)</text>
+              <rect x="150" y="210" width="270" height="24" rx="5" style="fill:rgba(91,166,60,.15);stroke:var(--leaf)"/>
+              <text x="285" y="226" text-anchor="middle" font-size="9.5" style="fill:var(--text)">Retry counter reset · flow continues normally</text>
+            </g>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 3 — Retry path: the same <code>correlationId</code> is reused across attempts so the failure and the eventual success are traceable as one logical operation, not two unrelated calls.</p>
+
+        <h2>3. Failure Branch — SettlePay Exhausts Retries</h2>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Failure branch sequence diagram for SettlePay retries exhausted, circuit opens, claim routed to manual review">
+            <defs><marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--berry)"/></marker>
+            <marker id="a4x" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--cherry)"/></marker></defs>
+            <text x="60" y="20" font-size="11" font-weight="700" style="fill:var(--text)">Hub</text>
+            <text x="330" y="20" font-size="11" font-weight="700" style="fill:var(--text)">SettlePay</text>
+            <text x="560" y="20" font-size="11" font-weight="700" style="fill:var(--text)">DLQ / Adjuster</text>
+            <line x1="65" y1="28" x2="65" y2="400" style="stroke:var(--border);stroke-dasharray:3,3"/>
+            <line x1="345" y1="28" x2="345" y2="220" style="stroke:var(--border);stroke-dasharray:3,3"/>
+            <line x1="590" y1="28" x2="590" y2="400" style="stroke:var(--border);stroke-dasharray:3,3"/>
+            <g font-size="9.3" style="fill:var(--text)">
+              <line x1="65" y1="45" x2="343" y2="45" style="stroke:var(--berry);stroke-width:1.5" marker-end="url(#a4)"/><text x="68" y="41">Attempt 1: POST /payments (Idempotency-Key=K-771)</text>
+              <line x1="345" y1="65" x2="67" y2="65" style="stroke:var(--cherry);stroke-width:1.5;stroke-dasharray:4,3" marker-end="url(#a4x)"/><text x="68" y="61">503 Service Unavailable</text>
+              <line x1="65" y1="95" x2="343" y2="95" style="stroke:var(--berry);stroke-width:1.5" marker-end="url(#a4)"/><text x="68" y="91">Attempt 2 (after ~1.2s backoff, same key K-771)</text>
+              <line x1="345" y1="115" x2="67" y2="115" style="stroke:var(--cherry);stroke-width:1.5;stroke-dasharray:4,3" marker-end="url(#a4x)"/><text x="68" y="111">503 Service Unavailable</text>
+              <line x1="65" y1="145" x2="343" y2="145" style="stroke:var(--berry);stroke-width:1.5" marker-end="url(#a4)"/><text x="68" y="141">Attempt 3 (after ~2.8s backoff, same key K-771)</text>
+              <line x1="345" y1="165" x2="67" y2="165" style="stroke:var(--cherry);stroke-width:1.5;stroke-dasharray:4,3" marker-end="url(#a4x)"/><text x="68" y="161">503 Service Unavailable — retries exhausted</text>
+              <rect x="30" y="185" width="360" height="26" rx="5" style="fill:rgba(251,40,50,.08);stroke:var(--cherry)"/>
+              <text x="210" y="202" text-anchor="middle" font-size="9.5" font-weight="700" style="fill:var(--cherry)">Circuit breaker for SettlePay trips OPEN (5 failures / 60s threshold met)</text>
+              <line x1="65" y1="240" x2="588" y2="240" style="stroke:var(--berry);stroke-width:1.5" marker-end="url(#a4)"/><text x="68" y="236">Write failure record to DLQ (payload, key K-771, 3 attempt bodies, correlationId)</text>
+              <line x1="65" y1="270" x2="588" y2="270" style="stroke:var(--berry);stroke-width:1.5" marker-end="url(#a4)"/><text x="68" y="266">Enqueue claim to Manual Adjuster Queue</text>
+              <line x1="65" y1="300" x2="588" y2="300" style="stroke:var(--berry);stroke-width:1.5" marker-end="url(#a4)"/><text x="68" y="296">Publish claim.processing_delayed → NotifyHub</text>
+              <rect x="30" y="320" width="530" height="26" rx="5" style="fill:rgba(232,146,12,.12);stroke:var(--amber)"/>
+              <text x="295" y="337" text-anchor="middle" font-size="9.5" style="fill:var(--text)">Claimant sees "Your claim is being processed" — never a stuck spinner or a raw error</text>
+              <rect x="30" y="360" width="530" height="26" rx="5" style="fill:rgba(54,120,149,.10);stroke:var(--berry)"/>
+              <text x="295" y="377" text-anchor="middle" font-size="9.5" style="fill:var(--text)">Circuit re-tests SettlePay after 60s cooldown (half-open) before fully reclosing</text>
+            </g>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 4 — Failure branch: the same <code>Idempotency-Key</code> is reused on every retry so SettlePay can safely detect and collapse duplicates if an earlier attempt actually succeeded before the timeout.</p>
+
+        <div class="signoff">
+          <div class="box"><dt>Prepared By</dt><dd>Integration Engineering — M. Chen</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-09</dd></div>
+          <div class="box"><dt>Reviewed By</dt><dd>AI Solution Architecture — R. Okonkwo</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-11</dd></div>
+          <div class="box"><dt>Approved By</dt><dd>VP Platform Engineering — S. Whitfield</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-13</dd></div>
+        </div>
+      </div>
+      <div class="doc-footer"><span>ClaimsFlow AI · Sequence Diagrams · CFA-SEQ-003 v1.1</span><span>Colaberry Confidential</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DOCUMENT 4: ERROR HANDLING + RETRY / IDEMPOTENCY ============ -->
+  <section class="kb-section" id="doc-error-handling" data-title="Error Handling Retry Idempotency Design Timeouts Backoff Circuit Breakers Dead Letter Queue">
+    <h2>Document 4 — Error Handling + Retry / Idempotency Design</h2>
+    <div class="doc-toolbar">
+      <button class="doc-btn primary" onclick="downloadDoc('doc-error-handling')">&#8681; Download HTML</button>
+      <button class="doc-btn" onclick="printDoc('doc-error-handling')">&#128438; Save as PDF</button>
+    </div>
+    <div class="doc-page" id="doc-error-handling-page">
+      <div class="doc-cover">
+        <img class="colaberry-logo" alt="Colaberry logo" src="">
+        <div class="doctype">Error Handling &amp; Retry / Idempotency Design</div>
+        <h1>ClaimsFlow AI — Failure-First Design</h1>
+        <div class="subtitle">Timeouts, backoff, circuit breakers, idempotency keys, dead-letter handling</div>
+        <div class="initiative">Colaberry Enterprise AI Leadership Accelerator · AI Solution Architect Track</div>
+      </div>
+      <div class="doc-control">
+        <div><dt>Version</dt><dd>1.3</dd></div>
+        <div><dt>Owner</dt><dd>Integration Engineering</dd></div>
+        <div><dt>Status</dt><dd><span class="pill pill-leaf">Approved</span></dd></div>
+        <div><dt>Date</dt><dd>2026-09-13</dd></div>
+        <div><dt>Doc ID</dt><dd>CFA-ERR-004</dd></div>
+      </div>
+      <div class="doc-body">
+        <h2>1. Timeouts per Outbound Call</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Call</th><th>Timeout</th><th>Rationale</th></tr></thead>
+            <tbody>
+              <tr><td>Hub → PolicyCore</td><td>5.0s</td><td>Legacy system, historically slower; claimant is waiting but coverage must be certain</td></tr>
+              <tr><td>Hub → DocScan AI (submit)</td><td>3.0s</td><td>Only the job-acceptance call is synchronous; the OCR work itself runs async</td></tr>
+              <tr><td>Hub → FraudLens AI</td><td>2.0s</td><td>Vendor-contracted SLA; the decision path can't afford to wait longer</td></tr>
+              <tr><td>Hub → SettlePay</td><td>4.0s</td><td>Payment processing involves ledger writes on their side; slightly more generous</td></tr>
+              <tr><td>Hub → NotifyHub</td><td>1.5s</td><td>Fire-and-forget publish to a local event bus; should never be slow</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>2. Retry Policy &amp; Exponential Backoff Curve</h2>
+        <p>All retryable calls (timeouts, 5xx, 429) use exponential backoff with ±20% jitter, capped at 5 attempts. Non-retryable errors (400, 401, 403, 404, 409) fail immediately — retrying a validation error just repeats the same failure.</p>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart of exponential backoff delay in milliseconds across five retry attempts">
+            <g font-size="10" style="fill:var(--muted)">
+              <line x1="60" y1="20" x2="60" y2="240" style="stroke:var(--border)"/>
+              <line x1="60" y1="240" x2="600" y2="240" style="stroke:var(--border)"/>
+              <text x="55" y="245" text-anchor="end">0</text>
+              <text x="55" y="185" text-anchor="end">1500</text>
+              <text x="55" y="130" text-anchor="end">3000</text>
+              <text x="55" y="75" text-anchor="end">4500</text>
+              <text x="55" y="25" text-anchor="end">6000ms</text>
+              <line x1="60" y1="185" x2="600" y2="185" style="stroke:var(--border);stroke-dasharray:2,3"/>
+              <line x1="60" y1="130" x2="600" y2="130" style="stroke:var(--border);stroke-dasharray:2,3"/>
+              <line x1="60" y1="75" x2="600" y2="75" style="stroke:var(--border);stroke-dasharray:2,3"/>
+            </g>
+            <!-- bars: attempt delays approx 0, 500, 1200, 2800, 6000 ms scaled to 220px = 6000ms -->
+            <g>
+              <rect x="105" y="238" width="60" height="2" style="fill:var(--berry)"/><text x="135" y="255" text-anchor="middle" font-size="10" style="fill:var(--text)">Attempt 1</text><text x="135" y="230" text-anchor="middle" font-size="9.5" style="fill:var(--text)">0ms</text>
+              <rect x="205" y="221" width="60" height="19" style="fill:var(--berry)"/><text x="235" y="255" text-anchor="middle" font-size="10" style="fill:var(--text)">Attempt 2</text><text x="235" y="215" text-anchor="middle" font-size="9.5" style="fill:var(--text)">~500ms</text>
+              <rect x="305" y="196" width="60" height="44" style="fill:var(--berry)"/><text x="335" y="255" text-anchor="middle" font-size="10" style="fill:var(--text)">Attempt 3</text><text x="335" y="190" text-anchor="middle" font-size="9.5" style="fill:var(--text)">~1.2s</text>
+              <rect x="405" y="137" width="60" height="103" style="fill:var(--berry)"/><text x="435" y="255" text-anchor="middle" font-size="10" style="fill:var(--text)">Attempt 4</text><text x="435" y="131" text-anchor="middle" font-size="9.5" style="fill:var(--text)">~2.8s</text>
+              <rect x="505" y="20" width="60" height="220" style="fill:var(--cherry)"/><text x="535" y="255" text-anchor="middle" font-size="10" style="fill:var(--text)">Attempt 5</text><text x="535" y="14" text-anchor="middle" font-size="9.5" style="fill:var(--text)">~6.0s → then DLQ</text>
+            </g>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 5 — Backoff curve used by the Hub's retry client: 0ms, ~500ms, ~1.2s, ~2.8s, ~6.0s, each ±20% jitter. Attempt 5 failing routes the operation to the dead-letter queue rather than retrying indefinitely.</p>
+
+        <h2>3. Circuit Breaker State Machine</h2>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Circuit breaker state diagram with closed, open, and half-open states">
+            <defs><marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" style="fill:var(--muted)"/></marker></defs>
+            <circle cx="110" cy="120" r="70" style="fill:rgba(91,166,60,.14);stroke:var(--leaf);stroke-width:2"/>
+            <text x="110" y="115" text-anchor="middle" font-weight="700" font-size="13" style="fill:var(--leaf)">CLOSED</text>
+            <text x="110" y="133" text-anchor="middle" font-size="9.5" style="fill:var(--text)">Calls flow normally</text>
+            <circle cx="530" cy="120" r="70" style="fill:rgba(251,40,50,.10);stroke:var(--cherry);stroke-width:2"/>
+            <text x="530" y="115" text-anchor="middle" font-weight="700" font-size="13" style="fill:var(--cherry)">OPEN</text>
+            <text x="530" y="133" text-anchor="middle" font-size="9.5" style="fill:var(--text)">Fail fast, no calls made</text>
+            <circle cx="320" cy="230" r="60" style="fill:rgba(232,146,12,.14);stroke:var(--amber);stroke-width:2"/>
+            <text x="320" y="228" text-anchor="middle" font-weight="700" font-size="12" style="fill:var(--amber)">HALF-OPEN</text>
+            <text x="320" y="244" text-anchor="middle" font-size="9" style="fill:var(--text)">Trial requests only</text>
+            <path d="M180,110 L460,110" style="fill:none;stroke:var(--muted);stroke-width:1.6" marker-end="url(#a5)"/>
+            <text x="320" y="100" text-anchor="middle" font-size="9.5" style="fill:var(--text)">5 consecutive failures in 60s</text>
+            <path d="M480,175 L360,215" style="fill:none;stroke:var(--muted);stroke-width:1.6" marker-end="url(#a5)"/>
+            <text x="460" y="205" text-anchor="middle" font-size="9" style="fill:var(--text)">60s cooldown elapses</text>
+            <path d="M270,205 L150,165" style="fill:none;stroke:var(--muted);stroke-width:1.6" marker-end="url(#a5)"/>
+            <text x="160" y="205" text-anchor="middle" font-size="9" style="fill:var(--text)">trial request succeeds</text>
+            <path d="M340,180 L480,140" style="fill:none;stroke:var(--muted);stroke-width:1.6" marker-end="url(#a5)"/>
+            <text x="450" y="175" text-anchor="middle" font-size="9" style="fill:var(--text)">trial request fails</text>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 6 — Applied to every synchronous downstream (PolicyCore, FraudLens AI, SettlePay). While OPEN, the Hub returns a fast, clear "processing delay" error instead of piling up timeouts.</p>
+
+        <h2>4. Idempotency Key Design</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Aspect</th><th>Design</th></tr></thead>
+            <tbody>
+              <tr><td>Key generation</td><td>UUID v4 generated once by the Hub per business operation (e.g., one settlement attempt for one claim) — never regenerated across retries of that same operation</td></tr>
+              <tr><td>Transport</td><td><code>Idempotency-Key</code> HTTP header on the request to SettlePay and PolicyCore write endpoints</td></tr>
+              <tr><td>Storage</td><td>Redis, key = <code>idem:{operation}:{key}</code>, value = response snapshot, TTL 24 hours</td></tr>
+              <tr><td>Behavior on replay</td><td>If the key is seen again with an identical payload, the stored response is returned without re-executing the operation; if seen with a <i>different</i> payload, the call is rejected <code>409 DUPLICATE_OPERATION</code></td></tr>
+              <tr><td>Webhook dedup (DocScan AI)</td><td>Inbound webhook <code>jobId</code> checked against a processed-events table before acting; a redelivered webhook with an already-processed <code>jobId</code> is acknowledged <code>200</code> and dropped, not reprocessed</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>5. Dead-Letter Handling</h2>
+        <ul>
+          <li><b>DLQ store:</b> <code>claimsflow.dlq.v1</code> queue, retention 30 days, encrypted at rest (claim PII present)</li>
+          <li><b>DLQ record contents:</b> original payload, claim ID, correlation ID, idempotency key, every attempt's timestamp and response body, the downstream system name</li>
+          <li><b>Alerting:</b> DLQ depth &gt; 10 for &gt; 15 minutes pages the on-call integration engineer</li>
+          <li><b>Replay:</b> a manual or scheduled replay job re-submits a DLQ record through the same idempotent code path — safe because the idempotency key travels with the record</li>
+        </ul>
+
+        <h2>6. Failure-First Design Answers (per Colaberry standard)</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Question</th><th>Answer for this initiative</th></tr></thead>
+            <tbody>
+              <tr><td>What happens if this fails?</td><td>Retries per the backoff curve above; if exhausted, the operation moves to the DLQ and the claim is routed to a human adjuster with a clear claimant-facing status</td></tr>
+              <tr><td>Will it retry, and how?</td><td>Yes for timeouts/5xx/429 only; exponential backoff with jitter, capped at 5 attempts</td></tr>
+              <tr><td>Recovery path if retries exhausted?</td><td>DLQ entry + manual adjuster queue + claimant notification; on-call paged if DLQ depth crosses threshold</td></tr>
+              <tr><td>Explicit failure modes NOT handled?</td><td>Total loss of the Hub's own database is out of scope for this document (covered by the platform disaster-recovery runbook, not this integration design)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="signoff">
+          <div class="box"><dt>Prepared By</dt><dd>Integration Engineering — M. Chen</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-10</dd></div>
+          <div class="box"><dt>Reviewed By</dt><dd>AI Solution Architecture — R. Okonkwo</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-12</dd></div>
+          <div class="box"><dt>Approved By</dt><dd>VP Platform Engineering — S. Whitfield</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-13</dd></div>
+        </div>
+      </div>
+      <div class="doc-footer"><span>ClaimsFlow AI · Error Handling &amp; Retry Design · CFA-ERR-004 v1.3</span><span>Colaberry Confidential</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DOCUMENT 5: DATA MAPPING ============ -->
+  <section class="kb-section" id="doc-data-mapping" data-title="Data Mapping Document Target Fields Source Fields Transformations Normalized Units Enums">
+    <h2>Document 5 — Data Mapping Document</h2>
+    <div class="doc-toolbar">
+      <button class="doc-btn primary" onclick="downloadDoc('doc-data-mapping')">&#8681; Download HTML</button>
+      <button class="doc-btn" onclick="printDoc('doc-data-mapping')">&#128438; Save as PDF</button>
+      <button class="doc-btn" onclick="downloadDataMappingCSV()">&#128202; Download CSV</button>
+    </div>
+    <div class="doc-page" id="doc-data-mapping-page">
+      <div class="doc-cover">
+        <img class="colaberry-logo" alt="Colaberry logo" src="">
+        <div class="doctype">Data Mapping Document</div>
+        <h1>ClaimsFlow AI — Field-Level Data Map</h1>
+        <div class="subtitle">Every target field traced to its source, transformation, and normalized unit or enum</div>
+        <div class="initiative">Colaberry Enterprise AI Leadership Accelerator · AI Solution Architect Track</div>
+      </div>
+      <div class="doc-control">
+        <div><dt>Version</dt><dd>1.0</dd></div>
+        <div><dt>Owner</dt><dd>Integration Engineering</dd></div>
+        <div><dt>Status</dt><dd><span class="pill pill-leaf">Approved</span></dd></div>
+        <div><dt>Date</dt><dd>2026-09-13</dd></div>
+        <div><dt>Doc ID</dt><dd>CFA-MAP-005</dd></div>
+      </div>
+      <div class="doc-body">
+        <h2>1. Purpose</h2>
+        <p>No field in ClaimsFlow AI moves between systems without an explicit, reviewed mapping. This document is the single source of truth an architect checks when a value looks wrong in production — is it the source, the transformation, or the target that's at fault?</p>
+        <h2>2. Field Map</h2>
+        <div class="table-wrap">
+          <table class="data" id="dataMappingTable">
+            <thead><tr><th>Target Field</th><th>Target System</th><th>Source Field</th><th>Source System</th><th>Data Type</th><th>Transformation</th><th>Normalized Unit / Enum</th><th>Notes</th></tr></thead>
+            <tbody id="dataMappingBody"></tbody>
+          </table>
+        </div>
+        <div class="signoff">
+          <div class="box"><dt>Prepared By</dt><dd>Integration Engineering — J. Alvarez</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-10</dd></div>
+          <div class="box"><dt>Reviewed By</dt><dd>AI Solution Architecture — R. Okonkwo</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-12</dd></div>
+          <div class="box"><dt>Approved By</dt><dd>VP Platform Engineering — S. Whitfield</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-13</dd></div>
+        </div>
+      </div>
+      <div class="doc-footer"><span>ClaimsFlow AI · Data Mapping · CFA-MAP-005 v1.0</span><span>Colaberry Confidential</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DOCUMENT 6: INTEGRATION TEST PLAN ============ -->
+  <section class="kb-section" id="doc-test-plan" data-title="Integration Test Plan Happy Path 5xx 429 Rate Limit Timeout Malformed Payload Duplicate Delivery Idempotency">
+    <h2>Document 6 — Integration Test Plan</h2>
+    <div class="doc-toolbar">
+      <button class="doc-btn primary" onclick="downloadDoc('doc-test-plan')">&#8681; Download HTML</button>
+      <button class="doc-btn" onclick="printDoc('doc-test-plan')">&#128438; Save as PDF</button>
+      <button class="doc-btn" onclick="downloadTestPlanCSV()">&#128202; Download CSV</button>
+    </div>
+    <div class="doc-page" id="doc-test-plan-page">
+      <div class="doc-cover">
+        <img class="colaberry-logo" alt="Colaberry logo" src="">
+        <div class="doctype">Integration Test Plan</div>
+        <h1>ClaimsFlow AI — Test Plan</h1>
+        <div class="subtitle">Happy path plus failure, rate-limit, timeout, malformed-input, and duplicate-delivery cases</div>
+        <div class="initiative">Colaberry Enterprise AI Leadership Accelerator · AI Solution Architect Track</div>
+      </div>
+      <div class="doc-control">
+        <div><dt>Version</dt><dd>1.1</dd></div>
+        <div><dt>Owner</dt><dd>Integration Engineering / QA</dd></div>
+        <div><dt>Status</dt><dd><span class="pill pill-leaf">Approved</span></dd></div>
+        <div><dt>Date</dt><dd>2026-09-13</dd></div>
+        <div><dt>Doc ID</dt><dd>CFA-TEST-006</dd></div>
+      </div>
+      <div class="doc-body">
+        <h2>1. Coverage Statement</h2>
+        <p>Per the Colaberry Test Strategy Framework, this plan pushes assertions down the pyramid: cases below map to unit tests where the logic is pure (mapping, backoff timing, enum thresholds) and to integration tests where a real network boundary is exercised against a mocked downstream. No case here substitutes for narrative QA — every row is automatable.</p>
+        <h2>2. Test Cases</h2>
+        <div class="table-wrap">
+          <table class="data" id="testPlanTable">
+            <thead><tr><th>ID</th><th>Scenario</th><th>System(s) Under Test</th><th>Steps</th><th>Expected Result</th><th>Idempotency Check</th></tr></thead>
+            <tbody id="testPlanBody"></tbody>
+          </table>
+        </div>
+        <div class="signoff">
+          <div class="box"><dt>Prepared By</dt><dd>QA Engineering — T. Nakamura</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-11</dd></div>
+          <div class="box"><dt>Reviewed By</dt><dd>Integration Engineering — J. Alvarez</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-12</dd></div>
+          <div class="box"><dt>Approved By</dt><dd>VP Platform Engineering — S. Whitfield</dd><dt style="margin-top:.6rem;">Date</dt><dd>2026-09-13</dd></div>
+        </div>
+      </div>
+      <div class="doc-footer"><span>ClaimsFlow AI · Integration Test Plan · CFA-TEST-006 v1.1</span><span>Colaberry Confidential</span></div>
+    </div>
+  </section>
+
+  <!-- ============ KPI DASHBOARD ============ -->
+  <section class="kb-section" id="kpi-dashboard" data-title="KPI Dashboard Integration Success Rate Latency Percentiles Retry Mix DLQ Depth">
+    <h2>KPI Dashboard — ClaimsFlow AI (Trailing 14 Days)</h2>
+    <p class="muted">Illustrative production-style metrics for this initiative, in the same shape an architect would review in a monthly operations checkpoint.</p>
+    <div class="grid-4">
+      <div class="kpi-tile"><div class="val" style="color:var(--leaf)">99.2%</div><div class="lbl">Integration Success Rate</div><div class="delta up">&#9650; 0.3 pts vs. last period</div></div>
+      <div class="kpi-tile"><div class="val" style="color:var(--berry)">1.8s</div><div class="lbl">P95 Latency (all seams)</div><div class="delta up">&#9660; 210ms vs. last period</div></div>
+      <div class="kpi-tile"><div class="val" style="color:var(--amber)">4.3%</div><div class="lbl">Retry Rate</div><div class="delta down">&#9650; 0.6 pts vs. last period</div></div>
+      <div class="kpi-tile"><div class="val" style="color:var(--cherry)">12</div><div class="lbl">Current DLQ Depth</div><div class="delta down">&#9650; 3 vs. last period</div></div>
+    </div>
+
+    <div class="grid-2" style="margin-top:1.2rem;">
+      <div>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Donut chart showing 99.2 percent integration success rate">
+            <g transform="translate(150,120)">
+              <circle r="70" style="fill:none;stroke:var(--border);stroke-width:26"/>
+              <circle r="70" style="fill:none;stroke:var(--leaf);stroke-width:26" stroke-dasharray="436.3 439.8" transform="rotate(-90)"/>
+              <circle r="70" style="fill:none;stroke:var(--cherry);stroke-width:26" stroke-dasharray="3.5 439.8" stroke-dashoffset="-436.3" transform="rotate(-90)"/>
+              <text x="0" y="-4" text-anchor="middle" font-size="26" font-weight="900" style="fill:var(--text)">99.2%</text>
+              <text x="0" y="18" text-anchor="middle" font-size="10" style="fill:var(--muted)">Success rate</text>
+            </g>
+            <g font-size="10" style="fill:var(--text)">
+              <rect x="30" y="235" width="10" height="10" style="fill:var(--leaf)"/><text x="45" y="244">Succeeded (within retry budget)</text>
+              <rect x="215" y="235" width="10" height="10" style="fill:var(--cherry)"/><text x="230" y="244">Exhausted → DLQ</text>
+            </g>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 7 — Success rate donut across all six seams, trailing 14 days.</p>
+      </div>
+      <div>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 340 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart of p50 p95 p99 latency in milliseconds for PolicyCore DocScan FraudLens and SettlePay">
+            <g stroke="var(--border)"><line x1="40" y1="10" x2="40" y2="220"/><line x1="40" y1="220" x2="320" y2="220"/></g>
+            <g font-size="8.5" style="fill:var(--muted)"><text x="35" y="223" text-anchor="end">0</text><text x="35" y="120" text-anchor="end">1000</text><text x="35" y="15" text-anchor="end">2000ms</text></g>
+            <!-- PolicyCore -->
+            <g><rect x="55" y="200" width="10" height="20" style="fill:var(--berry)"/><rect x="66" y="174" width="10" height="46" style="fill:var(--cherry)"/><rect x="77" y="122" width="10" height="98" style="fill:var(--amber)"/></g>
+            <text x="70" y="235" text-anchor="middle" font-size="8">PolicyCore</text>
+            <!-- DocScan -->
+            <g><rect x="115" y="197" width="10" height="23" style="fill:var(--berry)"/><rect x="126" y="167" width="10" height="53" style="fill:var(--cherry)"/><rect x="137" y="113" width="10" height="107" style="fill:var(--amber)"/></g>
+            <text x="130" y="235" text-anchor="middle" font-size="8">DocScan AI</text>
+            <!-- FraudLens -->
+            <g><rect x="175" y="183" width="10" height="37" style="fill:var(--berry)"/><rect x="186" y="93" width="10" height="127" style="fill:var(--cherry)"/><rect x="197" y="12" width="10" height="208" style="fill:var(--amber)"/></g>
+            <text x="190" y="235" text-anchor="middle" font-size="8">FraudLens AI</text>
+            <!-- SettlePay -->
+            <g><rect x="235" y="191" width="10" height="29" style="fill:var(--berry)"/><rect x="246" y="144" width="10" height="76" style="fill:var(--cherry)"/><rect x="257" y="66" width="10" height="154" style="fill:var(--amber)"/></g>
+            <text x="250" y="235" text-anchor="middle" font-size="8">SettlePay</text>
+            <g font-size="8.5" style="fill:var(--text)"><rect x="40" y="245" width="9" height="9" style="fill:var(--berry)"/><text x="52" y="253">p50</text>
+              <rect x="90" y="245" width="9" height="9" style="fill:var(--cherry)"/><text x="102" y="253">p95</text>
+              <rect x="140" y="245" width="9" height="9" style="fill:var(--amber)"/><text x="152" y="253">p99</text></g>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 8 — Latency percentiles by downstream. FraudLens AI's p99 is the closest to its 2s SLA ceiling — the first place an architect should look when the success-rate donut dips.</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:1.2rem;">
+      <div>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 340 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart of retry mix showing percent of calls resolved on each attempt number">
+            <g stroke="var(--border)"><line x1="40" y1="10" x2="40" y2="190"/><line x1="40" y1="190" x2="320" y2="190"/></g>
+            <g font-size="8.5" style="fill:var(--muted)"><text x="35" y="193" text-anchor="end">0%</text><text x="35" y="102" text-anchor="end">50%</text><text x="35" y="15" text-anchor="end">100%</text></g>
+            <rect x="55" y="26" width="34" height="164" style="fill:var(--leaf)"/><text x="72" y="205" text-anchor="middle" font-size="8">Attempt 1</text><text x="72" y="20" text-anchor="middle" font-size="8" style="fill:var(--text)">91.4%</text>
+            <rect x="100" y="168" width="34" height="22" style="fill:var(--berry)"/><text x="117" y="205" text-anchor="middle" font-size="8">Attempt 2</text><text x="117" y="162" text-anchor="middle" font-size="8" style="fill:var(--text)">6.1%</text>
+            <rect x="145" y="183" width="34" height="7" style="fill:var(--berry)"/><text x="162" y="205" text-anchor="middle" font-size="8">Attempt 3</text><text x="162" y="177" text-anchor="middle" font-size="8" style="fill:var(--text)">1.8%</text>
+            <rect x="190" y="188" width="34" height="2" style="fill:var(--amber)"/><text x="207" y="205" text-anchor="middle" font-size="8">Attempt 4</text><text x="207" y="182" text-anchor="middle" font-size="8" style="fill:var(--text)">0.5%</text>
+            <rect x="235" y="189.5" width="34" height="0.6" style="fill:var(--amber)"/><text x="252" y="205" text-anchor="middle" font-size="8">Attempt 5</text><text x="252" y="184" text-anchor="middle" font-size="8" style="fill:var(--text)">0.1%</text>
+            <rect x="280" y="189.5" width="34" height="0.6" style="fill:var(--cherry)"/><text x="297" y="205" text-anchor="middle" font-size="8">→ DLQ</text><text x="297" y="184" text-anchor="middle" font-size="8" style="fill:var(--text)">0.1%</text>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 9 — Retry mix: 91.4% of calls succeed on the first try; the long tail validates that 5 capped attempts is enough headroom without masking a systemic outage.</p>
+      </div>
+      <div>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 340 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Line chart of dead letter queue depth over the last 14 days">
+            <g stroke="var(--border)"><line x1="40" y1="10" x2="40" y2="190"/><line x1="40" y1="190" x2="320" y2="190"/></g>
+            <g font-size="8.5" style="fill:var(--muted)"><text x="35" y="193" text-anchor="end">0</text><text x="35" y="102" text-anchor="end">10</text><text x="35" y="15" text-anchor="end">20</text></g>
+            <polyline points="55,154 75,136 95,145 115,100 135,118 155,64 175,28 195,82 215,100 235,118 255,82 275,55 295,100 315,28" style="fill:none;stroke:var(--berry);stroke-width:2.2"/>
+            <g style="fill:var(--berry)">
+              <circle cx="55" cy="154" r="2.6"/><circle cx="75" cy="136" r="2.6"/><circle cx="95" cy="145" r="2.6"/><circle cx="115" cy="100" r="2.6"/>
+              <circle cx="135" cy="118" r="2.6"/><circle cx="155" cy="64" r="2.6"/><circle cx="175" cy="28" r="2.6"/><circle cx="195" cy="82" r="2.6"/>
+              <circle cx="215" cy="100" r="2.6"/><circle cx="235" cy="118" r="2.6"/><circle cx="255" cy="82" r="2.6"/><circle cx="275" cy="55" r="2.6"/>
+              <circle cx="295" cy="100" r="2.6"/><circle cx="315" cy="28" r="3.4" style="fill:var(--cherry)"/>
+            </g>
+            <text x="315" y="20" text-anchor="end" font-size="9" font-weight="700" style="fill:var(--cherry)">12 (today)</text>
+            <text x="180" y="205" text-anchor="middle" font-size="8" style="fill:var(--muted)">Day 1 → Day 14</text>
+          </svg>
+        </div>
+        <p class="svg-cap">Figure 10 — DLQ depth trending up over the trailing window; per the alerting rule in Document 4, depth &gt; 10 for &gt; 15 minutes pages on-call — this trend is currently under active investigation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="kb-section" id="faq" data-title="Frequently Asked Questions Integration Engineering ClaimsFlow AI">
+    <h2>FAQ</h2>
+    <p class="muted">These are the same questions answered by the Ask the Guide assistant — browse them here, or use the search box or the assistant to jump straight to one.</p>
+    <div id="faqList"></div>
+  </section>
+
+  <footer class="site-footer">
+    <span>Integration Engineer Field Guide · ClaimsFlow AI · Colaberry Enterprise AI Leadership Accelerator</span>
+    <span>Generated by Claude Code · Week 7 Deep Dive · v1.0.0</span>
+  </footer>
+
+</main>
+</div>
+
+<div id="doc-templates-anchor"></div>
+
+<!-- Ask Panel -->
+<div class="ask-panel" id="askPanel">
+  <div class="ask-head"><b>Ask the Guide</b><button id="askCloseBtn" type="button" aria-label="Close">&times;</button></div>
+  <div class="ask-body" id="askBody">
+    <p class="muted" style="font-size:.82rem;">This answers from the guide's own content — offline, no external calls. Try one:</p>
+    <span class="ask-chip" data-q="What is an idempotency key?">What is an idempotency key?</span>
+    <span class="ask-chip" data-q="What happens on a 429 rate limit?">What happens on a 429?</span>
+    <span class="ask-chip" data-q="How does the circuit breaker work?">How does the circuit breaker work?</span>
+    <span class="ask-chip" data-q="What systems are in ClaimsFlow AI?">What systems are in ClaimsFlow AI?</span>
+  </div>
+  <div class="ask-form">
+    <input id="askInput" type="text" placeholder="Ask a question about this guide...">
+    <button id="askSendBtn" type="button">Ask</button>
+  </div>
+</div>
+
+<script id="deepdive-metadata" type="application/json">
+{
+  "guide_type": "Integration Engineer Field Guide",
+  "curriculum_type": "deep_dive",
+  "week": 7,
+  "discipline": "Integration Engineer",
+  "student_id": "abdinur2468",
+  "project_id": "colaberry-accelerator-claimsflow-ai",
+  "repository": "colaberry projectt",
+  "generated_by": "Claude Code",
+  "generated_date": "2026-09-13",
+  "version": "1.0.0",
+  "build_number": "CC-20260913-1"
+}
+</script>
+
+<script>
+const LOGO_SRC = "data:image/png;base64,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";
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.colaberry-logo').forEach(function(img){ img.src = LOGO_SRC; });
+});
+</script>
+
+<script>
+/* =====================================================================
+   DATA: Data Mapping rows and Test Plan rows (single source of truth —
+   used to render the on-page tables AND to generate CSV downloads)
+   ===================================================================== */
+const DATA_MAPPING_ROWS = [
+  ["claimId","Hub claim record","(generated)","ClaimsFlow Integration Hub","UUID","Generated on POST /v1/claims","n/a","Primary key propagated to every downstream call"],
+  ["policyNumber","Hub claim record","policyNumber","Customer Portal","string","Trimmed, uppercased","matches ^[A-Z]{2}\\d{8}$","Must match PolicyCore's policy number format before lookup"],
+  ["lossDate","Hub claim record","lossDate","Customer Portal","date","Validated not in the future; rejected if > 90 days old","ISO-8601","Policy terms bar claims filed too long after the loss"],
+  ["lossType","Hub claim record","lossType","Customer Portal","enum","Portal UI label mapped to canonical enum","COLLISION / WATER / FIRE / THEFT / OTHER","Drives which document types are required at intake"],
+  ["coverageActive","Hub decision engine","coverageActive","PolicyCore","boolean","Passthrough","true / false","Claim is rejected immediately if false"],
+  ["deductibleAmountCents","Hub decision engine","deductibleAmount","PolicyCore","string \"$500.00\" to integer","Strip currency symbol and commas, multiply by 100","integer, USD cents","PolicyCore returns dollars as a string; downstream systems require integer cents"],
+  ["coverageLimitCents","Hub decision engine","coverageLimitAmount","PolicyCore","string to integer","Same parse as deductibleAmountCents","integer, USD cents","Caps the maximum auto-settlement amount"],
+  ["extractedDamageEstimateCents","Hub decision engine","extractedFields.damageEstimate","DocScan AI","OCR string to integer","Regex-parsed currency text, multiply by 100","integer, USD cents","Only used when documentConfidenceScore >= 0.75"],
+  ["documentConfidenceScore","Hub decision engine","confidenceScore","DocScan AI","float","Passthrough","0.0 - 1.0","Below 0.75 routes the claim to manual document review"],
+  ["vehiclePlateNumber","Hub claim record","extractedFields.plateNumber","DocScan AI","string","Uppercased, whitespace stripped","n/a","Optional; populated only for COLLISION claims"],
+  ["fraudRawScore","Hub decision engine","rawScore","FraudLens AI","float","Passthrough","0.0 - 1.0","Vendor's raw model output, stored for audit"],
+  ["fraudRiskTier","Hub decision engine","rawScore","FraudLens AI","float to enum","score<0.2=LOW; 0.2-0.6=MEDIUM; >0.6=HIGH","LOW / MEDIUM / HIGH","HIGH always forces manual adjuster review regardless of amount"],
+  ["claimAmountCents","Hub decision engine","min(extractedDamageEstimateCents, coverageLimitCents) - deductibleAmountCents","Hub-computed","integer","Computed, floored at 0","integer, USD cents","Feeds both the FraudLens scoring request and the SettlePay payment amount"],
+  ["settlementAmountCents","SettlePay request","claimAmountCents","Hub-computed","integer","Passthrough, gated by eligibility rule","integer, USD cents","Sent only if claimAmountCents <= 2,500,000 and fraudRiskTier != HIGH"],
+  ["payeeAccountToken","SettlePay request","claimantBankToken","Customer Portal (tokenized at capture)","opaque token","Passthrough, never decrypted by the Hub","n/a","Hub never sees a raw bank account number — PCI scope stays with Portal/SettlePay tokenization"],
+  ["claimStatus","Hub claim record / Portal display","(derived)","Hub state machine","enum","State machine transition","INTAKE_RECEIVED / DOC_PROCESSING / SCORING / AUTO_SETTLED / MANUAL_REVIEW / SETTLED","Drives Portal UI copy and NotifyHub template selection"],
+  ["notificationRecipient","NotifyHub event","contactPhone / contactEmail","Customer Portal","string","Validated E.164 phone or RFC 5322 email","n/a","Both channels attempted per the claimant's stated preference"],
+  ["correlationId","All downstream call headers","(generated)","ClaimsFlow Integration Hub","UUID","Generated once per claim, propagated via X-Correlation-ID","n/a","Required by the Observability Framework for end-to-end tracing"],
+  ["currency","SettlePay request","(fixed)","ClaimsFlow Integration Hub","ISO 4217 code","Hardcoded \"USD\" for phase 1","USD","Multi-currency support is out of scope for this initiative"],
+  ["adjusterAssignment","Manual Adjuster Queue","(derived)","Hub routing rule","string (queue name)","Based on lossType + claimAmountCents banding","n/a","Example: \"auto-collision-under-10k\" queue"]
+];
+
+const TEST_PLAN_ROWS = [
+  ["TC-01","Happy path — small claim auto-settled","Portal, Hub, PolicyCore, DocScan AI, FraudLens AI, SettlePay, NotifyHub","Submit FNOL under $2,500 with clear, high-confidence photos","Claim reaches AUTO_SETTLED; claimant is notified; payment is confirmed by SettlePay","N/A — baseline case"],
+  ["TC-02","Happy path — large claim routed to manual review","Portal, Hub, PolicyCore, FraudLens AI","Submit FNOL for $18,000 collision damage","Claim is routed to the Manual Adjuster Queue; no payment call is ever attempted","N/A"],
+  ["TC-03","PolicyCore returns 5xx","Hub, PolicyCore","Stub PolicyCore to return 500 on the first 2 calls, then succeed on the 3rd","Hub retries per the backoff curve and succeeds on attempt 3; claim proceeds normally","Yes — GET is naturally idempotent, safe to retry"],
+  ["TC-04","FraudLens AI returns 429 rate limit","Hub, FraudLens AI","Stub FraudLens AI to return 429 with Retry-After: 3","Hub waits exactly the Retry-After duration before retrying; no on-call page is fired","Yes — scoring call has no side effect, safe to retry"],
+  ["TC-05","DocScan AI submit call times out","Hub, DocScan AI","Stub the OCR submit endpoint to hang beyond the 3.0s timeout","Hub aborts at 3.0s and retries per the backoff curve; if exhausted, claim proceeds to manual document review","Yes — job submission carries a client-generated jobRequestId"],
+  ["TC-06","Malformed payload from Portal","Portal, Hub","POST /v1/claims with the required lossDate field missing","Hub returns 400 VALIDATION_FAILED before any downstream system is called","N/A — rejected before any side effect occurs"],
+  ["TC-07","Duplicate webhook delivery from DocScan AI","Hub","Redeliver the same OCR-complete webhook payload (same jobId) twice","Second delivery is acknowledged 200 but not reprocessed; no duplicate OCR data is written to the claim","Yes — core idempotency case, dedup on jobId"],
+  ["TC-08","Duplicate SettlePay call with the same Idempotency-Key","Hub, SettlePay","Send two POST /payments calls with an identical Idempotency-Key and identical body","Second call returns the stored response from the first; no second payment is issued","Yes — core idempotency case"],
+  ["TC-09","SettlePay circuit breaker trips open","Hub, SettlePay","Force 5 consecutive 503 responses within 60 seconds","Circuit opens; the 6th call fails fast without contacting SettlePay; claim is routed to manual review and a DLQ record is created","Yes — verifies the circuit breaker + DLQ interaction"],
+  ["TC-10","Idempotency key reused with a different payload","Hub, SettlePay","Reuse Idempotency-Key K-1 but change the claimAmountCents value","Hub rejects the request with 409 DUPLICATE_OPERATION and does not forward it to SettlePay","Yes — verifies key/payload mismatch detection"]
+];
+
+function renderTable(bodyId, rows){
+  const tbody = document.getElementById(bodyId);
+  if(!tbody) return;
+  tbody.innerHTML = rows.map(r => '<tr>' + r.map(c => '<td>' + escapeHtml(c) + '</td>').join('') + '</tr>').join('');
+}
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+renderTable('dataMappingBody', DATA_MAPPING_ROWS);
+renderTable('testPlanBody', TEST_PLAN_ROWS);
+
+function toCSV(headers, rows){
+  const esc = v => '"' + String(v).replace(/"/g,'""') + '"';
+  return [headers.map(esc).join(','), ...rows.map(r => r.map(esc).join(','))].join('\r\n');
+}
+function triggerDownload(filename, content, mime){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+function downloadDataMappingCSV(){
+  const headers = ["Target Field","Target System","Source Field","Source System","Data Type","Transformation","Normalized Unit / Enum","Notes"];
+  triggerDownload('ClaimsFlowAI_DataMapping_CFA-MAP-005.csv', toCSV(headers, DATA_MAPPING_ROWS), 'text/csv');
+}
+function downloadTestPlanCSV(){
+  const headers = ["Test ID","Scenario","System(s) Under Test","Steps","Expected Result","Idempotency Check"];
+  triggerDownload('ClaimsFlowAI_TestPlan_CFA-TEST-006.csv', toCSV(headers, TEST_PLAN_ROWS), 'text/csv');
+}
+
+/* =====================================================================
+   DOCUMENT DOWNLOAD / PRINT — wraps the live .doc-page markup (already
+   has the resolved logo data URI baked into its <img> src) into a
+   standalone, fully self-contained HTML file.
+   ===================================================================== */
+const DOC_STYLE = document.getElementById('sharedDocStyle') ? '' : '';
+function buildStandaloneHTML(pageEl, title){
+  const styleText = document.querySelector('style').textContent;
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+    '<title>' + escapeHtml(title) + '</title>' +
+    '<style>' + styleText + ' body{background:#fff;padding:2rem;} .doc-page{max-width:900px;margin:0 auto;box-shadow:0 0 0 1px var(--border);}</style>' +
+    '</head><body>' + pageEl.outerHTML + '</body></html>';
+}
+function downloadDoc(id){
+  const pageEl = document.getElementById(id + '-page');
+  const title = pageEl.querySelector('h1').textContent.trim();
+  const html = buildStandaloneHTML(pageEl, title);
+  triggerDownload(id.replace('doc-','ClaimsFlowAI_') + '.html', html, 'text/html');
+}
+function printDoc(id){
+  const pageEl = document.getElementById(id + '-page');
+  const title = pageEl.querySelector('h1').textContent.trim();
+  const html = buildStandaloneHTML(pageEl, title);
+  const win = window.open('', '_blank');
+  win.document.open(); win.document.write(html); win.document.close();
+  win.onload = function(){ setTimeout(() => win.print(), 300); };
+}
+
+/* =====================================================================
+   SEARCH — indexes every .kb-section by title + text content
+   ===================================================================== */
+let SEARCH_INDEX = [];
+function buildSearchIndex(){
+  SEARCH_INDEX = Array.from(document.querySelectorAll('.kb-section')).map(sec => ({
+    id: sec.id,
+    title: sec.getAttribute('data-title') || sec.id,
+    text: sec.textContent.replace(/\s+/g,' ').trim()
+  }));
+}
+function runSearch(query){
+  const q = query.trim().toLowerCase();
+  const resultsEl = document.getElementById('searchResults');
+  if(q.length < 2){ resultsEl.classList.remove('show'); resultsEl.innerHTML=''; return; }
+  const scored = SEARCH_INDEX.map(sec => {
+    const titleHit = sec.title.toLowerCase().includes(q);
+    const idx = sec.text.toLowerCase().indexOf(q);
+    const score = (titleHit ? 100 : 0) + (idx >= 0 ? 50 - Math.min(idx/20,40) : 0);
+    return {sec, score, idx};
+  }).filter(r => r.score > 0).sort((a,b) => b.score - a.score).slice(0,8);
+  if(scored.length === 0){
+    resultsEl.innerHTML = '<a href="#" onclick="return false;"><span class="snippet">No matches. Try a shorter term, or ask the assistant instead.</span></a>';
+  } else {
+    resultsEl.innerHTML = scored.map(r => {
+      let snippet = '';
+      if(r.idx >= 0){
+        const start = Math.max(0, r.idx - 40);
+        snippet = (start>0?'…':'') + r.sec.text.substring(start, r.idx + q.length + 60) + '…';
+        const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'ig');
+        snippet = escapeHtml(snippet).replace(re, '<mark>$1</mark>');
+      }
+      return '<a href="#' + r.sec.id + '"><b>' + escapeHtml(r.sec.title) + '</b>' + (snippet ? '<span class="snippet">'+snippet+'</span>' : '') + '</a>';
+    }).join('');
+  }
+  resultsEl.classList.add('show');
+}
+document.getElementById('searchInput').addEventListener('input', e => runSearch(e.target.value));
+document.getElementById('searchInput').addEventListener('focus', e => { if(e.target.value.length>=2) runSearch(e.target.value); });
+document.addEventListener('click', e => {
+  if(!e.target.closest('.search-wrap')) document.getElementById('searchResults').classList.remove('show');
+});
+document.getElementById('searchResults').addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]');
+  if(a){ document.getElementById('searchResults').classList.remove('show'); document.getElementById('searchInput').value=''; }
+});
+
+/* =====================================================================
+   NAV ACTIVE-STATE on scroll
+   ===================================================================== */
+function updateActiveNav(){
+  const sections = document.querySelectorAll('.kb-section');
+  let currentId = sections[0] ? sections[0].id : '';
+  const scrollPos = window.scrollY + 120;
+  sections.forEach(sec => { if(sec.offsetTop <= scrollPos) currentId = sec.id; });
+  document.querySelectorAll('.navlink').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+}
+window.addEventListener('scroll', updateActiveNav, {passive:true});
+
+/* =====================================================================
+   ASK THE GUIDE — offline Q&A matched against this guide's own content
+   ===================================================================== */
+const QA_DATA = [
+  {q:"What systems are in ClaimsFlow AI?", a:"ClaimsFlow AI connects six systems through one orchestrator: the Customer Portal, the legacy PolicyCore policy admin system, DocScan AI (OCR), FraudLens AI (fraud scoring), SettlePay (payments), and NotifyHub (notifications) — all routed through the ClaimsFlow Integration Hub.", section:"case-study", label:"The Initiative: ClaimsFlow AI", kw:["systems","initiative","claimsflow","overview","who","architecture"]},
+  {q:"What is an idempotency key?", a:"An idempotency key is a client-generated identifier (a UUID, in this initiative) attached to a write operation so that calling it twice with the same key and payload produces the same result as calling it once — no duplicate payment, no duplicate record. In ClaimsFlow AI it's carried in the Idempotency-Key header on calls to SettlePay and PolicyCore writes.", section:"concept-idempotency", label:"Idempotency, Retries & Backoff", kw:["idempotency","idempotent","key","duplicate","dedup"]},
+  {q:"What happens on a 429 rate limit?", a:"A 429 from FraudLens AI is treated as expected, governed traffic-shaping behavior, not an incident. The Hub honors the Retry-After header exactly and retries with backoff — it does not page on-call for a 429 alone.", section:"concept-rate", label:"Rate Limits", kw:["429","rate limit","too many requests","retry-after","throttle"]},
+  {q:"How does the circuit breaker work?", a:"The circuit breaker sits in front of each synchronous downstream call. After 5 consecutive failures within 60 seconds it trips OPEN and fails fast without calling the downstream. After a 60-second cooldown it goes HALF-OPEN and tries a small number of test requests; success closes the circuit again, failure reopens it.", section:"concept-timeouts", label:"Timeouts & Circuit Breakers", kw:["circuit breaker","open","half-open","closed","trip"]},
+  {q:"What's the difference between webhooks and polling?", a:"Webhooks push a notification to the caller when work completes (used for DocScan AI's OCR results); polling repeatedly asks a system if it's done. ClaimsFlow AI uses webhooks for DocScan AI because OCR duration is long and unpredictable, and synchronous calls (not polling) for anything fast and bounded, like PolicyCore lookups.", section:"concept-webhooks", label:"Webhooks vs Polling", kw:["webhook","polling","callback","push","pull"]},
+  {q:"What is exponential backoff?", a:"Exponential backoff increases the delay between retry attempts (roughly 0ms, 500ms, 1.2s, 2.8s, 6.0s in this initiative's design) instead of retrying at a fixed interval, with random jitter added so many concurrent failures don't retry in lockstep and overwhelm a struggling downstream.", section:"concept-idempotency", label:"Idempotency, Retries & Backoff", kw:["backoff","exponential","jitter","retry delay"]},
+  {q:"What is a dead-letter queue?", a:"A dead-letter queue (DLQ) is where an operation goes after its retries are exhausted, carrying full context (payload, correlation ID, every attempt's error) for manual triage or replay — instead of silently disappearing or looping forever.", section:"concept-errors", label:"Error Handling & Dead-Letter Queues", kw:["dlq","dead letter","dead-letter","queue","failed"]},
+  {q:"When should I use REST vs GraphQL vs an event API?", a:"Use REST for resource-oriented request/response between backend services (Hub to PolicyCore, FraudLens, SettlePay). Use GraphQL only when a client genuinely needs to vary the shape of its query, like the Portal's own read layer. Use an event API when the producer doesn't need or expect an immediate response, like the Hub publishing to NotifyHub.", section:"concept-styles", label:"REST vs GraphQL vs Event APIs", kw:["rest","graphql","event api","style","api type"]},
+  {q:"How is the API contract versioned?", a:"ClaimsFlow AI versions in the URL path (/v1/, /v2/). Additive, backward-compatible changes never bump the version. Breaking changes require a new major version served in parallel with the old one for a minimum 90-day deprecation window, advertised via a Sunset header.", section:"concept-contracts", label:"API Contracts & Versioning", kw:["version","versioning","contract","breaking change","sunset"]},
+  {q:"What authentication does each seam use?", a:"Claimant-facing calls use OIDC/JWT. Hub-to-internal-system calls (PolicyCore, SettlePay) use OAuth2 Client Credentials. Hub-to-vendor calls (DocScan AI, FraudLens AI) use an API key plus an HMAC-SHA256 request signature. Hub-to-NotifyHub uses mTLS.", section:"concept-auth", label:"Authentication: Keys, OAuth, Tokens", kw:["auth","authentication","oauth","jwt","api key","hmac","mtls"]},
+  {q:"What timeout does each downstream call use?", a:"PolicyCore: 5.0s. DocScan AI submit: 3.0s. FraudLens AI: 2.0s (matching its vendor SLA). SettlePay: 4.0s. NotifyHub: 1.5s. Every outbound call has an explicit timeout — none rely on a library default.", section:"doc-error-handling", label:"Document 4 — Error Handling & Retry Design", kw:["timeout","timeouts","seconds","sla"]},
+  {q:"What does the retry policy look like?", a:"Retryable errors (timeouts, 5xx, 429) get up to 5 attempts with exponential backoff and jitter (~0, 500ms, 1.2s, 2.8s, 6.0s). Non-retryable errors (400, 401, 403, 404, 409) fail immediately since retrying would just repeat the same failure.", section:"doc-error-handling", label:"Document 4 — Error Handling & Retry Design", kw:["retry policy","attempts","capped","backoff curve"]},
+  {q:"What is the auto-settlement threshold?", a:"Claims are only eligible for automatic settlement if claimAmountCents is at or below $25,000 and FraudLens AI's risk tier is not HIGH. Anything above that threshold, or flagged HIGH risk, is always routed to a human adjuster.", section:"doc-data-mapping", label:"Document 5 — Data Mapping Document", kw:["auto-settle","threshold","25000","auto settlement","eligibility"]},
+  {q:"How does the Hub avoid double-paying a claim?", a:"Every SettlePay payment call carries an Idempotency-Key generated once per settlement attempt. If the same key is replayed with the same payload, SettlePay (and the Hub's own Redis-backed dedup store) returns the original response instead of issuing a second payment. A key reused with a different payload is rejected with 409 DUPLICATE_OPERATION.", section:"concept-idempotency", label:"Idempotency, Retries & Backoff", kw:["double pay","duplicate payment","settlepay","409"]},
+  {q:"What happens if SettlePay is down?", a:"After 3 retries with backoff fail, the circuit breaker for SettlePay trips open. The claim is written to the dead-letter queue with full context, routed to the Manual Adjuster Queue, and the claimant sees a 'processing' status rather than an error or a stuck spinner. NotifyHub sends a processing-delay notification.", section:"doc-sequence", label:"Document 3 — Sequence Diagrams (Failure Branch)", kw:["settlepay down","outage","failure branch","503"]},
+  {q:"How is a duplicate webhook handled?", a:"DocScan AI's completion webhook can be redelivered. The Hub's webhook handler checks the incoming jobId against a processed-events table; if it's already been handled, the Hub returns 200 to acknowledge it but does not reprocess the OCR result, preventing duplicate data from entering the claim.", section:"concept-webhooks", label:"Webhooks vs Polling", kw:["duplicate webhook","redelivery","webhook idempotent","docscan"]},
+  {q:"What is data mapping?", a:"Data mapping is the explicit, documented, testable translation of a field from its source system's shape to a target system's expected shape — for example, PolicyCore's dollar-string deductible becoming SettlePay's integer-cents amount. Document 5 is the full field-by-field map for this initiative.", section:"concept-mapping", label:"Data Mapping & Transformation", kw:["data mapping","field mapping","transformation","normalize"]},
+  {q:"What KPIs matter for an integration layer?", a:"Success rate, latency percentiles (p50/p95/p99 — not averages, which hide the tail), retry rate (an early warning of downstream degradation), and DLQ depth (a growing queue means retries are losing to a systemic failure). See the live KPI Dashboard section for this initiative's current numbers.", section:"kpi-dashboard", label:"KPI Dashboard", kw:["kpi","metrics","success rate","latency","p95","dlq depth"]},
+  {q:"What questions should an architect ask when reviewing an AI-generated integration?", a:"Does every call have an explicit timeout? Is every retry capped, backed off, and jittered? Does every write carry an idempotency key? Is the contract versioned? Where do failed operations go after retries are exhausted? Does any secret leak into a URL or a log? Is the webhook handler idempotent? Is there a test for the failure path, not just the happy path?", section:"concept-review", label:"The Architect's Review Lens", kw:["review","checklist","architect","approve","questions to ask"]},
+  {q:"What is a good vs bad integration example?", a:"Good: the SettlePay call — idempotency key, timeout, capped backed-off retries only on 5xx/timeout, a circuit breaker, and a clean failure path. Bad: a first-draft DocScan AI integration that polls in a tight loop with no backoff, no overall timeout, and no idempotency check on its webhook — which can double-process OCR results.", section:"concept-goodbad", label:"Good vs Bad Integration", kw:["good integration","bad integration","example","anti-pattern"]},
+  {q:"Why is PolicyCore called synchronously but DocScan AI is called asynchronously?", a:"PolicyCore's coverage check is fast (sub-second) and gates the rest of the flow, so blocking is acceptable. DocScan AI's OCR job takes 5-90 seconds and is too slow and variable to hold the claimant's request open, so the Hub submits it and receives the result later via webhook.", section:"concept-syncasync", label:"Synchronous vs Asynchronous", kw:["sync vs async","synchronous","asynchronous","why async"]},
+  {q:"What documents were produced for this initiative?", a:"Six: (1) Integration Architecture, (2) API Contract / Interface Spec, (3) Sequence Diagrams, (4) Error Handling + Retry/Idempotency Design, (5) Data Mapping Document, (6) Integration Test Plan. Each is downloadable as a branded HTML file, printable to PDF, and (for the tabular ones) exportable as CSV.", section:"doc-architecture", label:"Document 1 — Integration Architecture", kw:["documents","deliverables","list of documents","what was produced"]},
+  {q:"How many test cases are in the test plan and what do they cover?", a:"Ten cases: two happy-path variants (auto-settle and manual review), a 5xx from PolicyCore, a 429 from FraudLens AI, a timeout from DocScan AI, a malformed payload from the Portal, a duplicate webhook delivery, a duplicate SettlePay call via idempotency key reuse, a circuit-breaker trip, and an idempotency key reused with a mismatched payload.", section:"doc-test-plan", label:"Document 6 — Integration Test Plan", kw:["test plan","test cases","how many tests","coverage"]},
+  {q:"Why does the deductible amount need a transformation?", a:"PolicyCore, a legacy system, returns the deductible as a dollar string like \"$500.00\". SettlePay and the Hub's own calculations require an integer number of cents. The transformation strips the currency symbol and commas and multiplies by 100 — documented explicitly in the Data Mapping Document so nothing is an implicit assumption.", section:"doc-data-mapping", label:"Document 5 — Data Mapping Document", kw:["deductible","dollars to cents","currency conversion","why transform"]},
+  {q:"What is the difference between synchronous and asynchronous integration?", a:"Synchronous means the caller waits for the response before continuing (Hub to FraudLens AI, since the auto-settle decision depends on it immediately). Asynchronous means the caller continues without waiting and is notified later (Hub to NotifyHub via an event, or Hub to DocScan AI via submit-then-webhook).", section:"concept-syncasync", label:"Synchronous vs Asynchronous", kw:["sync","async","synchronous","asynchronous","definition"]}
+];
+function tokenize(s){ return s.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(Boolean); }
+function answerQuestion(query){
+  const qTokens = tokenize(query);
+  let best = null, bestScore = 0;
+  QA_DATA.forEach(entry => {
+    const hayTokens = tokenize(entry.q + ' ' + entry.kw.join(' ') + ' ' + entry.a);
+    let score = 0;
+    qTokens.forEach(t => {
+      if(t.length < 3) return;
+      if(entry.kw.some(k => k.toLowerCase().includes(t) || t.includes(k.toLowerCase()))) score += 3;
+      if(entry.q.toLowerCase().includes(t)) score += 2;
+      if(hayTokens.includes(t)) score += 1;
+    });
+    if(score > bestScore){ bestScore = score; best = entry; }
+  });
+  return bestScore >= 2 ? best : null;
+}
+function renderAskAnswer(query){
+  const body = document.getElementById('askBody');
+  const match = answerQuestion(query);
+  const div = document.createElement('div');
+  div.className = 'ask-answer';
+  if(match){
+    div.innerHTML = '<div><b>Q:</b> ' + escapeHtml(query) + '</div><div style="margin-top:.4rem;">' + escapeHtml(match.a) + '</div>' +
+      '<div class="src">Source: <a href="#' + match.section + '" onclick="document.getElementById(\'askPanel\').classList.remove(\'open\')">' + escapeHtml(match.label) + '</a></div>';
+  } else {
+    div.innerHTML = '<div><b>Q:</b> ' + escapeHtml(query) + '</div><div style="margin-top:.4rem;">I don\'t have a confident answer to that from the guide\'s content. Try the search box above, or rephrase — e.g. ask about a specific term like "idempotency key," "circuit breaker," "429," or "data mapping."</div>';
+  }
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+document.getElementById('askToggleBtn').addEventListener('click', () => {
+  document.getElementById('askPanel').classList.add('open');
+  document.getElementById('askInput').focus();
+});
+document.getElementById('askCloseBtn').addEventListener('click', () => document.getElementById('askPanel').classList.remove('open'));
+document.getElementById('askSendBtn').addEventListener('click', submitAsk);
+document.getElementById('askInput').addEventListener('keydown', e => { if(e.key === 'Enter') submitAsk(); });
+function submitAsk(){
+  const input = document.getElementById('askInput');
+  const q = input.value.trim();
+  if(!q) return;
+  renderAskAnswer(q);
+  input.value = '';
+}
+document.querySelectorAll('.ask-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.getElementById('askPanel').classList.add('open');
+    renderAskAnswer(chip.getAttribute('data-q'));
+  });
+});
+
+/* =====================================================================
+   FAQ list — rendered from the same QA_DATA used by Ask the Guide
+   ===================================================================== */
+(function renderFAQ(){
+  const list = document.getElementById('faqList');
+  list.innerHTML = QA_DATA.map(entry =>
+    '<div class="callout"><h4>' + escapeHtml(entry.q) + '</h4><p>' + escapeHtml(entry.a) + '</p>' +
+    '<p style="margin:.3rem 0 0;"><a href="#' + entry.section + '">Read in: ' + escapeHtml(entry.label) + '</a></p></div>'
+  ).join('');
+})();
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+buildSearchIndex();
+updateActiveNav();
+</script>
+
+</body>
+</html>
