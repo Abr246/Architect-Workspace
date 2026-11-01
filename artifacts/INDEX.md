@@ -15,5 +15,6 @@ week by week. Each row links to the artifact in this repo.
 | Week 8 | Build Your Automation Platform — close-out-story.md | [`close-out-story.md`](./week-08/close-out-story.md) | GoalKick | 6 KB |
 | Week 9 | Build — The Order Desk That Survives a Bad Vendor — README.md | [`readme.md`](./week-09/readme.md) | GoalKick | 635 B |
 | Week 10 | Implementation Task: Governance Engine — PROGRESS.md | [`progress.md`](./week-10/progress.md) | GoalKick | 172 KB |
+| Week 11 | Build Your Architecture Package — data-flow-diagram.docx | [`data-flow-diagram.docx`](./week-11/data-flow-diagram.docx) *(held on platform)* | GoalKick | 14 KB |
 
-10 artifacts.
+11 artifacts.
